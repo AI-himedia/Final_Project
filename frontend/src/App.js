@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+// Styles
+import "./App.css";
 
-function App() {
+// React Router 관련 import
+import { Route, Routes } from "react-router-dom";
+
+// context
+import { LoadingProvider, useLoading } from "./context/LoadingContext";
+
+// 라이브러리
+import { ScaleLoader } from "react-spinners";
+
+/**
+ * LoadingOverlay 컴포넌트
+ * 로딩 중일 때 스피너를 화면에 표시
+ */
+const LoadingOverlay = () => {
+  const { isLoading } = useLoading();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    isLoading && (
+      <div className="Spinner_Overlay">
+        <ScaleLoader />
+      </div>
+    )
+  );
+};
+
+export default function App() {
+  return (
+    <LoadingProvider>
+      <div className="App">
+        <LoadingOverlay />
+        <Routes>
+          {/* <Route path="/" element={<Home />} />
+          <Route path="/result" element={<ImageDisplay />} /> */}
+        </Routes>
+      </div>
+    </LoadingProvider>
   );
 }
-
-export default App;
