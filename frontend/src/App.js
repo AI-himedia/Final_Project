@@ -1,13 +1,14 @@
 // Styles
 import "./App.css";
 
-// React Router 관련 import
-import { Route, Routes } from "react-router-dom";
+// pages
+import LoginPage from "./pages/LoginPage";
 
 // context
 import { LoadingProvider, useLoading } from "./context/LoadingContext";
 
 // 라이브러리
+import { Route, Routes } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 
 /**
@@ -32,8 +33,8 @@ export default function App() {
       <div className="App">
         <LoadingOverlay />
         <Routes>
-          {/* <Route path="/" element={<Home />} />
-          <Route path="/result" element={<ImageDisplay />} /> */}
+          <Route path="/login" element={<LoginPage />} />
+          {/* <Route path="/result" element={<ImageDisplay />} /> */}
         </Routes>
       </div>
     </LoadingProvider>

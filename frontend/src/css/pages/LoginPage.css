@@ -1,0 +1,39 @@
+.Login_Container {
+  margin: 0 auto;
+  padding: 60px 0 160px;
+  width: 400px;
+}
+
+/* 소셜 로그인 버튼 */
+.Social_Login_Button {
+  margin-bottom: 8px;
+
+  border: 1px solid #d3d3d3;
+
+  border-radius: 10px;
+  color: #222;
+  position: relative;
+
+  font-size: 16px;
+  font-weight: 700;
+  height: 52px;
+  letter-spacing: -0.16px;
+  width: 100%;
+
+  align-items: center;
+  background-color: #fff;
+
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.Social_Login_Logo {
+  height: 24px;
+  left: 15px;
+  position: absolute;
+  top: 13px;
+  width: 24px;
+}
