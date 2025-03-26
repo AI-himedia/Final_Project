@@ -1,0 +1,36 @@
+# .github/workflows/backend-spring.yml
+
+name: SpringBoot Deploy
+
+on:
+  push:
+    paths:
+      - "springboot/**"
+    branches: [dev]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+
+      - name: Build SpringBoot Jar
+        run: |
+          cd springboot
+          ./gradlew build
+
+      - name: Upload & Restart
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cp springboot/build/libs/*.jar /home/ubuntu/backend.jar
+            sudo systemctl restart springapp
