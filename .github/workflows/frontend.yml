@@ -22,8 +22,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker 이미지 빌드
+      - name: Docker 이미지 빌드 및 푸시
         run: |
+          echo "${{ secrets.FRONTEND_ENV }}" > frontend/.env
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }} ./frontend
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
 
