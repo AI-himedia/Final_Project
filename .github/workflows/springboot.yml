@@ -22,7 +22,7 @@ jobs:
 
       - name: Build SpringBoot Jar
         run: |
-          cd backend-spring
+          cd springboot
           ./gradlew build
 
       - name: Upload & Restart
@@ -32,5 +32,5 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cp backend-spring/build/libs/*.jar /home/ubuntu/backend.jar
+            cp springboot/build/libs/*.jar /home/ubuntu/backend.jar
             sudo systemctl restart springapp

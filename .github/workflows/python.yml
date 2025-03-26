@@ -22,7 +22,7 @@ jobs:
 
       - name: Install & Deploy
         run: |
-          cd ai-python
+          cd python
           pip install -r requirements.txt
 
       - name: Upload to EC2
@@ -31,7 +31,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "ai-python/**"
+          source: "python/**"
           target: "/home/ubuntu/ai"
 
       - name: Restart AI Service
