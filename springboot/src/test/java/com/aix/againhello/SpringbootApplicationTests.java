@@ -1,4 +1,4 @@
-package com.example.springboot;
+package com.aix.againhello;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
