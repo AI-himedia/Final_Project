@@ -21,7 +21,7 @@ jobs:
 
       - name: Install & Build APK
         run: |
-          cd mobile-flutter
+          cd flutter
           flutter pub get
           flutter build apk --release
 

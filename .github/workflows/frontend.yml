@@ -1,4 +1,4 @@
-# .github/workflows/frontend-react.yml
+# .github/workflows/frontend.yml
 
 name: React Deploy
 
@@ -22,7 +22,7 @@ jobs:
 
       - name: Install & Build
         run: |
-          cd frontend-react
+          cd frontend
           npm install
           npm run build
 
@@ -32,9 +32,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "frontend-react/build/*"
+          source: "frontend/build/*"
           target: "/home/ubuntu/front"
-# .github/workflows/frontend-react.yml
+# .github/workflows/frontend.yml
 
 name: React Deploy
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Install & Build
         run: |
-          cd frontend-react
+          cd frontend
           npm install
           npm run build
 
