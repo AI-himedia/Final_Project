@@ -1,6 +1,6 @@
 # .github/workflows/frontend.yml
 
-name: React Deploy
+name: React Docker Deploy
 
 on:
   push:
@@ -13,24 +13,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Docker Build & Push
+        uses: docker/login-action@v2
         with:
-          node-version: 18
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install & Build
+      - name: Docker 이미지 빌드
         run: |
-          cd frontend
-          npm install
-          npm run build
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }} ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
 
-      - name: Upload to EC2
-        uses: appleboy/scp-action@master
+      - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "frontend/build"
-          target: "/home/ubuntu/front"
+          script: |
+            docker stop react-frontend || true
+            docker rm react-frontend || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
+            docker run -d --name react-frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
