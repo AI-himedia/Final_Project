@@ -1,0 +1,72 @@
+# .github/workflows/frontend-react.yml
+
+name: React Deploy
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+    branches: [dev]
+
+jobs:
+  deploy-react:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install & Build
+        run: |
+          cd frontend-react
+          npm install
+          npm run build
+
+      - name: Upload to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "frontend-react/build/*"
+          target: "/home/ubuntu/front"
+# .github/workflows/frontend-react.yml
+
+name: React Deploy
+
+on:
+  push:
+    paths:
+      - 'frontend-react/**'
+    branches: [ main ]
+
+jobs:
+  deploy-react:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install & Build
+        run: |
+          cd frontend-react
+          npm install
+          npm run build
+
+      - name: Upload to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "frontend-react/build/*"
+          target: "/home/ubuntu/front"
