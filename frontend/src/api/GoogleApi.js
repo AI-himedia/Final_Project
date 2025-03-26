@@ -9,7 +9,7 @@ const client_id = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const client_secret = process.env.REACT_APP_GOOGLE_CLIENT_SECRET;
 
 // 리다이렉트 uri => googleRedirectPage로 이동
-const redirect_uri = `${FRONT_HOST}ㅎ`; // http://43.200.239.220:3000/member/google
+const redirect_uri = `${FRONT_HOST}`; // http://43.200.239.220:3000/member/google
 
 // 인증 code 요청 url
 const auth_code_path = `https://accounts.google.com/o/oauth2/auth`;
