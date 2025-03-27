@@ -20,15 +20,7 @@ WORKDIR /app
 COPY --from=build /app/build /app/build
 
 # 포트 열기
-EXPOSE 3000
+EXPOSE 80
 
 # 앱 실행
-CMD ["npx", "serve", "-s", "build", "-l", "3000"]
-
-# FROM node:18-alpine
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# EXPOSE 3000
-# CMD ["npm", "start"]
+CMD ["npx", "serve", "-s", "build", "-l", "80"]
