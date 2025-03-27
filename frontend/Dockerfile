@@ -17,7 +17,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # frontend/nginx/nginx.conf 파일을 Nginx의 설정 파일로 복사
-COPY frontend/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 # React 앱 빌드 결과물을 Nginx의 기본 html 폴더로 복사
 COPY --from=build /app/build /usr/share/nginx/html
