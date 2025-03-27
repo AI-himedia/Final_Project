@@ -1,4 +1,4 @@
-# .github/workflows/frontend.yml 6차
+# .github/workflows/frontend.yml 1차
 
 name: React Docker Deploy
 
