@@ -72,16 +72,18 @@ flutter/ios/
 flutter/android/
 
 # backend - Spring Boot
-backend_spring/target/
-backend_spring/.mvn/
-backend_spring/mvnw*
+springboot/target/
+springboot/.mvn/
+springboot/mvnw*
 
-# backend - AI
-backend_ai/__pycache__/
-backend_ai/.venv/
-backend_ai/.env
-backend_ai/*.ipynb_checkpoints/
-backend_ai/.pytest_cache/
-backend_ai/.mypy_cache/
-backend_ai/.pytorch_model/
-backend_ai/.coverage
+# backend - Python
+python/__pycache__/
+python/.venv/
+python/.env
+python/*.ipynb_checkpoints/
+python/.pytest_cache/
+python/.mypy_cache/
+python/.pytorch_model/
+python/.coverage
+python/input/
+python/output/
