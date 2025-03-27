@@ -9,21 +9,26 @@ RUN npm install
 
 # 프로젝트 파일 복사 및 빌드
 COPY . .
-COPY .env .env
-
 RUN npm run build
 
-# 운영 단계 (Nginx로 배포)
-FROM nginx:alpine
+# 실행 단계
+FROM node:18-alpine
 
-# frontend/nginx/nginx.conf 파일을 Nginx의 설정 파일로 복사
-# COPY frontend/nginx/nginx.conf /etc/nginx/nginx.conf
+WORKDIR /app
 
-# React 앱 빌드 결과물을 Nginx의 기본 html 폴더로 복사
-COPY --from=build /app/build /usr/share/nginx/html
+# 빌드된 결과물을 새로운 이미지로 복사
+COPY --from=build /app/build /app/build
 
 # 포트 열기
-EXPOSE 80
+EXPOSE 3000
 
-# Nginx 실행
-CMD ["nginx", "-g", "daemon off;"]
+# 앱 실행
+CMD ["npx", "serve", "-s", "build", "-l", "3000"]
+
+# FROM node:18-alpine
+# WORKDIR /app
+# COPY package*.json ./
+# RUN npm install
+# COPY . .
+# EXPOSE 3000
+# CMD ["npm", "start"]
