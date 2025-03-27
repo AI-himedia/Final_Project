@@ -36,10 +36,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 기존 컨테이너가 있으면 중지 및 삭제
             docker stop react-frontend || true
             docker rm react-frontend || true
-            # 최신 Docker 이미지 가져오기
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
-            # Docker 컨테이너 실행 (80번 포트에서 React 앱 서빙)
             docker run -d --name react-frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
