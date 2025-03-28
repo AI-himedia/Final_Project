@@ -5,8 +5,8 @@ name: Spring Boot Docker Deploy
 on:
   push:
     paths:
-      - "backend/**"
-      - ".github/workflows/backend.yml"
+      - "springboot/**"
+      - ".github/workflows/springboot.yml"
     branches: [dev]
 
 jobs:
