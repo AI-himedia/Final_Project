@@ -1,4 +1,4 @@
-# 1단계: Gradle과 JDK를 함께 사용하는 빌드 이미지
+# 1단계: Gradle과 JDK를 함께 사용하는 빌드 이미지.
 FROM gradle:8.0-jdk17 AS build
 
 # Gradle 캐시 저장 디렉토리 설정
