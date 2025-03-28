@@ -1,8 +1,8 @@
 # 1단계: Gradle과 JDK를 함께 사용하는 이미지
 FROM openjdk:21-slim as build
 
-# Gradle 설치
-RUN apt-get update && apt-get install -y wget \
+# unzip과 wget 설치
+RUN apt-get update && apt-get install -y wget unzip \
     && wget https://services.gradle.org/distributions/gradle-8.0-bin.zip \
     && unzip gradle-8.0-bin.zip -d /opt/ \
     && ln -s /opt/gradle-8.0/bin/gradle /usr/bin/gradle \
