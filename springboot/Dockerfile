@@ -1,5 +1,5 @@
 # 1단계: Gradle을 사용하여 Spring Boot 애플리케이션 빌드
-FROM gradle:7.4.1-jdk17 as build
+FROM gradle:7.5-jdk17 as build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ COPY build.gradle settings.gradle /app/
 COPY gradle /app/gradle
 
 # 의존성 캐시를 위해 Gradle 빌드 시 go-offline 수행
-RUN gradle --no-daemon build --refresh-dependencies
+RUN gradle --no-daemon build --refresh-dependencies --stacktrace
 
 # 프로젝트 소스 복사
 COPY src /app/src
