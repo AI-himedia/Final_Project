@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Give Gradle Wrapper execute permission
-        run: chmod +x ./gradlew
+        run: chmod +x ./springboot/gradlew
 
       - name: Gradle 빌드
         run: |
