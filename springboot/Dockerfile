@@ -1,4 +1,4 @@
-# 1단계: Gradle + JDK17 빌드 이미지 사용
+# 1단계: Gradle + JDK17 빌드 이미지 사용.
 FROM gradle:8.0-jdk17 AS build
 
 # 작업 디렉토리 설정
