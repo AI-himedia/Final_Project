@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # .github/workflows/frontend.yml
+=======
+# .github/workflows/frontend.yml 2차
+>>>>>>> 0180355c87ddd2649a33f20fa4c772247dae2304
 
 name: React Docker Deploy
 
