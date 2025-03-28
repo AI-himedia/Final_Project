@@ -1,5 +1,5 @@
 # 1단계: Gradle을 사용하여 Spring Boot 애플리케이션 빌드
-FROM gradle:7.5-jdk17 as build
+FROM gradle:8.0-jdk21 as build
 
 WORKDIR /app
 
