@@ -14,7 +14,7 @@ import MainPage from "./pages/MainPage";
 
 /**
  * LoadingOverlay 컴포넌트
- * 로딩 중일 때 스피너를 화면에 표시
+ * 로딩 중일 때 스피너를 화면에 표시합니다.
  */
 const LoadingOverlay = () => {
   const { isLoading } = useLoading();
