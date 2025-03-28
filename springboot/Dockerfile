@@ -1,31 +1,37 @@
-# 1단계: Gradle과 JDK를 함께 사용하는 이미지
-FROM openjdk:21-slim as build
-
-# unzip과 wget 설치
-RUN apt-get update && apt-get install -y wget unzip \
-    && wget https://services.gradle.org/distributions/gradle-8.0-bin.zip \
-    && unzip gradle-8.0-bin.zip -d /opt/ \
-    && ln -s /opt/gradle-8.0/bin/gradle /usr/bin/gradle \
-    && rm gradle-8.0-bin.zip
+# ✅ 1단계: Gradle과 JDK를 함께 사용하는 빌드 이미지
+FROM gradle:8.0-jdk21 AS build
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Gradle 관련 파일 복사
-COPY build.gradle settings.gradle /app/
+# 캐시 활용을 위한 Gradle 설정 파일 먼저 복사
+COPY settings.gradle build.gradle /app/
 COPY gradle /app/gradle
 
-# 의존성 다운로드 및 빌드
-RUN gradle --no-daemon build --refresh-dependencies --stacktrace
+# 의존성만 먼저 다운로드하여 캐시 활용
+RUN gradle --no-daemon dependencies
 
-# 2단계: JDK 경량 이미지에서 실행
+# 소스 코드 복사
+COPY . /app
+
+# 애플리케이션 빌드
+RUN gradle build --no-daemon
+
+# ✅ 2단계: 경량 JDK 이미지에서 실행
 FROM openjdk:21-slim
 
-# 애플리케이션 실행을 위한 디렉토리 설정
+# 보안 강화를 위해 불필요한 파일 제거 및 사용자 설정
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
 WORKDIR /app
 
 # 빌드된 JAR 파일 복사
 COPY --from=build /app/build/libs/*.jar /app/app.jar
+
+# 소유권 변경
+RUN chown appuser:appgroup /app/app.jar
+
+USER appuser
 
 EXPOSE 8080
 
