@@ -1,4 +1,4 @@
-# 1단계: 빌드 스테이지
+# 1단계: 빌드 스테이지.
 FROM openjdk:17-jdk-slim AS build
 
 WORKDIR /app
