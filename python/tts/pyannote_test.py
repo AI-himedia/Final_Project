@@ -58,7 +58,7 @@ def main():
         )
         
         import torch
-        pipeline.to(torch.device("mps"))
+        pipeline.to(torch.device("cuda"))
 
         print("[INFO] 화자 분리 수행 중...")
         diarization = pipeline(wav_file)
