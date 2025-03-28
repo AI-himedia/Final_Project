@@ -1,4 +1,4 @@
-# 1단계: 빌드 단계 (Gradle Wrapper 사용)
+# 1단계: 빌드 단계 (Gradle Wrapper 사용.)
 FROM openjdk:17-jdk-slim AS build
 
 WORKDIR /app
