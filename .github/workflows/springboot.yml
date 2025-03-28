@@ -17,12 +17,14 @@ jobs:
       - name: 코드 체크아웃
         uses: actions/checkout@v3
 
+      # Gradle Wrapper 권한 수정
       - name: Give Gradle Wrapper execute permission
-        run: chmod +x ./springboot/gradlew
+        run: chmod +x ./springboot/gradlew # gradlew 파일에 실행 권한을 부여
 
+      # Gradle 빌드
       - name: Gradle 빌드
         run: |
-          ./springboot/gradlew build -x test
+          ./springboot/gradlew build -x test  # 테스트를 제외한 빌드 (필요에 따라 변경 가능)
 
       - name: Docker Build & Push
         uses: docker/login-action@v2
@@ -32,7 +34,7 @@ jobs:
 
       - name: Docker 이미지 빌드 및 푸시
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }} ./backend
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }} ./springboot  # 경로 수정
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
