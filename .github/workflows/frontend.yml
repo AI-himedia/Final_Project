@@ -1,4 +1,4 @@
-# .github/workflows/frontend.yml 6차
+# .github/workflows/frontend.yml
 
 name: React Docker Deploy
 
@@ -10,7 +10,7 @@ on:
     branches: [dev]
 
 jobs:
-  deploy-react:
+  Frontend_Deploy:
     runs-on: ubuntu-latest
 
     steps:
