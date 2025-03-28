@@ -24,8 +24,8 @@ jobs:
       # Gradle 빌드
       - name: Gradle 빌드
         run: |
-          cd springboot
-          ./gradlew build -x test
+          cd springboot  # springboot 디렉토리로 이동
+          ./gradlew build -x test  # 테스트를 제외한 빌드
 
       - name: Docker Build & Push
         uses: docker/login-action@v2
@@ -35,8 +35,8 @@ jobs:
 
       - name: Docker 이미지 빌드 및 푸시
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }} ./springboot  # 경로 수정
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot  # 경로 수정
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
@@ -46,9 +46,9 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # 기존 컨테이너가 있으면 중지 및 삭제
-            docker stop SpringBoot || true
-            docker rm SpringBoot || true
+            docker stop springboot || true
+            docker rm springboot || true
             # 최신 Docker 이미지 가져오기
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
             # Docker 컨테이너 실행 (80번 포트에서 Spring Boot 앱 서빙)
-            docker run -d --name SpringBoot -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/SpringBoot:${{ github.sha }}
+            docker run -d --name springboot -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
