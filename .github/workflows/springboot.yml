@@ -50,5 +50,5 @@ jobs:
             docker rm springboot || true
             # 최신 Docker 이미지 가져오기
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
-            # Docker 컨테이너 실행 (80번 포트에서 Spring Boot 앱 서빙)
+            # Docker 컨테이너 실행 (8080번 포트에서 Spring Boot 앱 서빙)
             docker run -d --name springboot -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
