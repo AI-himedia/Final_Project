@@ -12,7 +12,7 @@ app.add_middleware(
 @app.get("/")
 def home():
     return {"message": "FastAPI 백엔드가 정상적으로 실행 중입니다!"}
-@app.get("/api/test")
+@app.get("/ai/test")
 def test_api():
     return {
         "status": "success",
