@@ -54,5 +54,5 @@ jobs:
             docker rm python-app || true
             # 최신 Docker 이미지 가져오기
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-            # Docker 컨테이너 실행 (80번 포트에서 FastAPI 앱 서빙)
+            # Docker 컨테이너 실행 (8000번 포트에서 FastAPI 앱 서빙)
             docker run -d --name python-app -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
