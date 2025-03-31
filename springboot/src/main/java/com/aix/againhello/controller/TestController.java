@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 // REST API 컨트롤러
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/be")
 public class TestController {
 
     private final TestService testService;
