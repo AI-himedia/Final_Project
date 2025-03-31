@@ -40,62 +40,109 @@ def main():
     # Hugging Face 토큰 설정
     auth_token = ""  # 여기에 실제 토큰 입력
     
-    # 입력 파일 설정 (지원 형식: wav, mp3, m4a, flac, ogg, aac, mp4, mkv, mov, avi, wmv)
-    input_file = ""  # 테스트할 파일 경로
+    # 입력 폴더 설정
+    input_folder = "" # 폴더 경로 입력
     
     try:
         # 시작 시간 기록
         start_time = time.time()
         
-        # 파일 변환
-        wav_file = convert_to_wav(input_file)
+        # 지원되는 파일 형식
+        supported_audio_formats = [".wav", ".mp3", ".m4a", ".flac", ".ogg", ".aac"]
+        supported_video_formats = [".mp4", ".mkv", ".mov", ".avi", ".wmv"]
         
-        # 화자 분리 파이프라인 초기화
-        print("[INFO] 화자 분리 모델 로드 중...")
-        pipeline = Pipeline.from_pretrained(
-            "pyannote/speaker-diarization-3.1",
-            use_auth_token=auth_token
-        )
-        
-        import torch
-        pipeline.to(torch.device("cuda"))
-
-        print("[INFO] 화자 분리 수행 중...")
-        diarization = pipeline(wav_file)
-
-        # 화자별 구간 저장
-        speakers = {}
-        for turn, _, speaker in diarization.itertracks(yield_label=True):
-            if speaker not in speakers:
-                speakers[speaker] = []
-            speakers[speaker].append([turn.start, turn.end])
-            print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
-
-        # 원본 오디오 로드
-        audio = AudioSegment.from_file(wav_file, format="wav")
-
         # 출력 폴더 생성
         output_folder = "output"
         os.makedirs(output_folder, exist_ok=True)
 
-        # 화자별 오디오 추출 및 저장
-        speaker_index = 0
-        for speaker_label, segments in speakers.items():
-            for i, (start, end) in enumerate(segments):
-                if (end - start) > 1:  # 1초 이상 구간만 저장
-                    segment = audio[int(start*1000):int(end*1000)]
-                    segment.export(
-                        os.path.join(output_folder, f"speaker_{speaker_index}_{i}.wav"), 
+        # 입력 폴더의 모든 파일 처리
+        for filename in os.listdir(input_folder):
+            file_ext = os.path.splitext(filename)[1].lower()
+            if file_ext in supported_audio_formats or file_ext in supported_video_formats:
+                input_path = os.path.join(input_folder, filename)
+                
+                # 파일 변환
+                wav_file = convert_to_wav(input_path)
+                
+                # 화자 분리 파이프라인 초기화
+                print(f"[INFO] {filename}에 대한 화자 분리 모델 로드 중...")
+                pipeline = Pipeline.from_pretrained(
+                    "pyannote/speaker-diarization-3.1",
+                    use_auth_token=auth_token
+                )
+                
+                import torch
+                pipeline.to(torch.device("cuda"))
+
+                print(f"[INFO] {filename}에 대한 화자 분리 수행 중...")
+                diarization = pipeline(wav_file)
+
+                # 화자별 구간 저장
+                speakers = {}
+                for turn, _, speaker in diarization.itertracks(yield_label=True):
+                    if speaker not in speakers:
+                        speakers[speaker] = []
+                    speakers[speaker].append([turn.start, turn.end])
+                    print(f"{filename}: start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+
+                # 원본 오디오 로드
+                audio = AudioSegment.from_file(wav_file, format="wav")
+
+                # 화자별 오디오 추출 및 저장 (임시 파일 생성)
+                speaker_index = 0
+                for speaker_label, segments in speakers.items():
+                    for i, (start, end) in enumerate(segments):
+                        if (end - start) > 1:  # 1초 이상 구간만 저장
+                            segment = audio[int(start*1000):int(end*1000)]
+                            segment.export(
+                                os.path.join(output_folder, f"{os.path.splitext(filename)[0]}_speaker_{speaker_index}_{i}.wav"), 
+                                format="wav"
+                            )
+                    speaker_index += 1
+
+                # speaker별로 파일을 하나로 합치기
+                speaker_index = 0
+                for speaker_label, segments in speakers.items():
+                    speaker_audio = AudioSegment.empty()
+                    for filename_in_output in os.listdir(output_folder):
+                        if filename_in_output.startswith(f"{os.path.splitext(filename)[0]}_speaker_{speaker_index}_"):
+                            file_path = os.path.join(output_folder, filename_in_output)
+                            segment = AudioSegment.from_file(file_path, format="wav")
+                            speaker_audio += segment
+                    
+                    # 합친 파일을 저장
+                    speaker_audio.export(
+                        os.path.join(output_folder, f"{os.path.splitext(filename)[0]}_combined_speaker_{speaker_index}.wav"), 
                         format="wav"
                     )
-            speaker_index += 1
+                    
+                    speaker_index += 1
 
-        print("[INFO] 화자 분리 완료!")
+                # 기존의 짧은 파일들을 삭제
+                for filename_in_output in os.listdir(output_folder):
+                    if filename_in_output.startswith(os.path.splitext(filename)[0]) and "combined" not in filename_in_output:
+                        os.remove(os.path.join(output_folder, filename_in_output))
+
+                print(f"[INFO] {filename}에 대한 화자 분리 완료!")
 
         # 종료 시간 기록 및 실행 시간 출력
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"[INFO] 전체 실행 시간: {elapsed_time:.2f}초")
+
+        # converted 폴더와 그 안의 파일 삭제
+        converted_folder = "converted"
+        if os.path.exists(converted_folder):
+            for filename in os.listdir(converted_folder):
+                file_path = os.path.join(converted_folder, filename)
+                os.remove(file_path)
+            os.rmdir(converted_folder)
+            print("[INFO] converted 폴더와 그 안의 파일 삭제 완료!")
+
+        # output 폴더의 파일 리스트 출력
+        print(f"[INFO] {output_folder} 폴더의 파일 리스트:")
+        for filename in os.listdir(output_folder):
+            print(f"- {filename}")
 
     except Exception as e:
         print(f"[ERROR] 오류 발생: {str(e)}")
