@@ -13,6 +13,6 @@ public class HelloController {
     // GET /be/test 요청 처리
     @GetMapping("/test")
     public String hello() {
-        return "Hello, 회상 프로젝트";
+        return "hello";
     }
 }
