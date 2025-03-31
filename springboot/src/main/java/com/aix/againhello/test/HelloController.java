@@ -1,0 +1,16 @@
+package com.yourproject;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/be")
+public class HelloController {
+
+    // GET /be/test 요청 처리
+    @GetMapping("/test")
+    public String hello() {
+        return "Hello, 회상 프로젝트";
+    }
+}
