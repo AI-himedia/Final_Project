@@ -14,5 +14,5 @@ COPY . .
 # 포트 8000으로 설정
 EXPOSE 8000
 
-# 애플리케이션 실행 (Flask 예시)
+# 애플리케이션 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
