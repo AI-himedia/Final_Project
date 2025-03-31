@@ -1,5 +1,4 @@
 # .github/workflows/frontend.yml
-# 배포 .
 
 name: React Docker Deploy
 
@@ -27,8 +26,8 @@ jobs:
       - name: Docker 이미지 빌드 및 푸시
         run: |
           echo "${{ secrets.FRONTEND_ENV }}" > frontend/.env
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }} ./frontend
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }} ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
@@ -38,9 +37,9 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # 기존 컨테이너가 있으면 중지 및 삭제
-            docker stop frontend || true
-            docker rm frontend || true
+            docker stop react-frontend || true
+            docker rm react-frontend || true
             # 최신 Docker 이미지 가져오기
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
             # Docker 컨테이너 실행 (80번 포트에서 React 앱 서빙)
-            docker run -d --name frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
+            docker run -d --name react-frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:${{ github.sha }}
