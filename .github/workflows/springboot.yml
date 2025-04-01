@@ -1,36 +1,54 @@
-# .github/workflows/backend-spring.yml
+# .github/workflows/springboot.yml
 
-name: SpringBoot Deploy
+name: Spring Boot Docker Deploy
 
 on:
   push:
+    branches: [dev]
     paths:
       - "springboot/**"
-    branches: [dev]
+      - ".github/workflows/springboot.yml"
 
 jobs:
-  build-and-deploy:
+  SpringBoot_Deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Code Checkout
+        uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: "17"
+      # Gradle Wrapper 권한 수정
+      - name: Gradle Wrapper 권한 수정
+        run: chmod +x ./springboot/gradlew
 
-      - name: Build SpringBoot Jar
+      # Gradle 빌드
+      - name: Gradle 빌드
         run: |
-          cd springboot
-          ./gradlew build
+          cd springboot  # springboot 디렉토리로 이동
+          ./gradlew build -x test  # 테스트를 제외한 빌드
 
-      - name: Upload & Restart
+      - name: Docker 빌드 및 푸시
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker 이미지 빌드 및 푸시
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot  # 경로 수정
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
+
+      - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cp springboot/build/libs/*.jar /home/ubuntu/backend.jar
-            sudo systemctl restart springapp
+            # 기존 컨테이너가 있으면 중지 및 삭제
+            docker stop springboot || true
+            docker rm springboot || true
+            # 최신 Docker 이미지 가져오기
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
+            # Docker 컨테이너 실행 (8080번 포트에서 Spring Boot 앱 서빙)
+            docker run -d --name springboot -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}

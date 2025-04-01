@@ -10,10 +10,11 @@ import { LoadingProvider, useLoading } from "./context/LoadingContext";
 // 라이브러리
 import { Route, Routes } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
+import MainPage from "./pages/MainPage";
 
 /**
  * LoadingOverlay 컴포넌트
- * 로딩 중일 때 스피너를 화면에 표시
+ * 로딩 중일 때 스피너를 화면에 표시합니다.
  */
 const LoadingOverlay = () => {
   const { isLoading } = useLoading();
@@ -33,8 +34,8 @@ export default function App() {
       <div className="App">
         <LoadingOverlay />
         <Routes>
+          <Route path="/" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* <Route path="/result" element={<ImageDisplay />} /> */}
         </Routes>
       </div>
     </LoadingProvider>
