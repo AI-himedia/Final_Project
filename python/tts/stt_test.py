@@ -10,16 +10,16 @@ load_dotenv()
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 
-# 마이크 입력 테스트 코드
+# 연결된 마이크 장치 확인
 p = pyaudio.PyAudio()
 for i in range(p.get_device_count()):
     info = p.get_device_info_by_index(i)
-    print(f"🔊 {i}: {info['name']} (Input Channels: {info['maxInputChannels']})")
+    print(f" {i}: {info['name']} (Input Channels: {info['maxInputChannels']})")
 
 
 # 오디오 스트림 설정
 RATE = 16000
-CHUNK = int(RATE / 10)  # 100ms
+CHUNK = int(RATE / 5)  # 200ms
 
 class MicrophoneStream:
     def __init__(self, rate, chunk):
@@ -36,7 +36,7 @@ class MicrophoneStream:
             channels=1,
             rate=self._rate,
             input=True,
-            input_device_index=15,  # 본인이 선택한 인덱스
+            input_device_index=15,  # 마이크 인덱스
             frames_per_buffer=self._chunk,
             stream_callback=self._fill_buffer
         )
@@ -64,9 +64,8 @@ class MicrophoneStream:
             yield chunk
 
 def listen_print_loop(responses):
-    print("STT 응답 수신 시작!")
+    print("STT 응답 수신 시작")
     for response in responses:
-        print("응답 도착!")
         if not response.results:
             continue
         result = response.results[0]
@@ -85,7 +84,7 @@ def listen_print_loop(responses):
 
 def main():
     
-    print("마이크 입력을 시작합니다.")
+    print("마이크 입력을 시작")
     client = speech.SpeechClient()
 
     config = speech.RecognitionConfig(

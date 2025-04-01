@@ -49,7 +49,7 @@ async def stream_to_google_speech(audio_generator):
         for result in response.results:
             if result.is_final:
                 text = result.alternatives[0].transcript
-                print(f"📝 인식된 문장: {text}")
+                print(f"인식된 문장: {text}")
                 # 여기서 LLM 함수로 전달
                 # response_text = send_to_llm(text)
 
@@ -57,7 +57,7 @@ async def stream_to_google_speech(audio_generator):
 @app.websocket("/stt")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print("🎤 클라이언트 연결됨!")
+    print("클라이언트 연결됨!")
 
     audio_buffer = []
 
@@ -75,7 +75,7 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_bytes()
             audio_buffer.append(data)
     except Exception as e:
-        print("❌ 연결 종료:", e)
+        print("연결 종료:", e)
     finally:
         task.cancel()
         await websocket.close()
