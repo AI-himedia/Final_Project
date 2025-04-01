@@ -87,3 +87,6 @@ python/.pytorch_model/
 python/.coverage
 python/input/
 python/output/
+
+# Google Cloud 인증키
+hello-again-ai-project.json
