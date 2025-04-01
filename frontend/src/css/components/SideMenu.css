@@ -1,0 +1,28 @@
+.SideMenu_Container {
+  position: fixed;
+  top: 50%;
+  right: -100px;
+  width: 120px;
+  min-height: 100px;
+  right: 0;
+  transform: translateY(-50%);
+  background-color: #fff;
+  border-radius: 16px 0 0 16px;
+  border: 1px solid #ebebeb;
+  z-index: 999;
+}
+
+.SideMenu_Frequency {
+  background-color: rgba(171, 202, 233, 0.17);
+  padding: 36px 10px 38px;
+  border-radius: 16px 0 0 0;
+}
+
+.SideMenu_Frequency li {
+  padding-bottom: 24px;
+}
+
+Link {
+  cursor: pointer;
+  color: #666;
+}
