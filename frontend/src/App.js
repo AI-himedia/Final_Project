@@ -17,6 +17,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import MainPage from "./pages/MainPage";
 import SideMenu from "./components/SideMenu";
+import UpButton from "./components/UpButton";
 
 /**
  * LoadingOverlay 컴포넌트
@@ -49,6 +50,7 @@ export default function App() {
       <div className="App">
         {!isHiddenLayout && <Header />}
         <SideMenu />
+        <UpButton />
         <LoadingOverlay />
         <Routes>
           <Route path="/" element={<MainPage />} />

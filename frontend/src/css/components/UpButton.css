@@ -1,0 +1,43 @@
+.Up_Show {
+  position: fixed;
+  margin-top: 0px;
+  bottom: 100px;
+  right: 50px;
+  z-index: 999;
+  transition: all 0.4s ease;
+  text-align: right;
+  top: auto;
+  transform: none;
+}
+
+.Up_Button {
+  border: none;
+  margin-bottom: 0px;
+  opacity: 1;
+  visibility: visible;
+
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  width: auto;
+  height: 60px;
+  border-radius: 30px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 3px 4px 10px 2px rgba(0, 0, 0, 0.2);
+  transition: 0.4s ease-out;
+  transform-origin: 0 100%;
+}
+
+.Up_Button .icon {
+  background-image: url(http://www.bellaluceseoul.co.kr/imgs/side/topArrow.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  background-size: contain;
+}

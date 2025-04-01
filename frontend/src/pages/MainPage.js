@@ -14,16 +14,21 @@ export default function MainPage() {
       duration: 800,
       once: true,
     });
+    AOS.refresh();
   }, []);
 
   return (
     <>
       {/* Hero Section: 이미지 꽉 채우기 */}
-      <section className="Main_AOS_Banner">
-        <h1 className="Main_Text_Title">
+      <section className="Main_AOS_Banner" data-aos="fade-in">
+        <h1 className="Main_Text_Title" data-aos="fade-up">
           <strong>다시, 안녕</strong>
         </h1>
-        <p className="Main_Text_Subtitle">
+        <p
+          className="Main_Text_Subtitle"
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
           우리가 다시 대화할 수 있는 작은 기적
         </p>
       </section>
@@ -34,9 +39,16 @@ export default function MainPage() {
       </section>
 
       {/* 라이브러리 */}
-      <div className="Main_AOS_Icon_ScrollIndicator">
+      <div
+        className="Main_AOS_Icon_ScrollIndicator"
+        data-aos="fade-up"
+        data-aos-delay="400"
+      >
         <div className="Main_AOS_Icon"></div>
       </div>
+
+      {/* body */}
+      <div className="Main_Body_Container"></div>
     </>
   );
 }
