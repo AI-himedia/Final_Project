@@ -1,29 +1,32 @@
 // src/components/Header.js
 
 // css
-import "../css/components/Header.css";
+import '../css/components/Header.css';
 
 // React
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 // 라이브러리
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+
+// MUI Icon
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 export default function Header() {
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     const handleResize = () => setViewportWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   return (
     <>
-      <nav className="Header_Container">
+      <header className="Header_Container">
         <div className="Header_Inner">
           <Link to="/">
             <div className="Header_Logo">다시, 안녕</div>
@@ -36,11 +39,14 @@ export default function Header() {
             <li>고인의 이야기</li>
           </ul>
           <div className="Header_Actions">
-            <button className="Header_LoginButton">로그인</button>
-            <button className="Header_LoginButton">회원가입</button>
+            <Link to="/login">
+              <button className="Header_LoginButton">
+                <PersonOutlineIcon fontSize="medium" />
+              </button>
+            </Link>
           </div>
         </div>
-      </nav>
+      </header>
     </>
   );
 }
