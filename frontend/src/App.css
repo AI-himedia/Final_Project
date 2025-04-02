@@ -4,7 +4,7 @@
 }
 
 body {
-  font-family: "Gowun Batang", serif;
+  font-family: 'Gowun Batang', serif;
 }
 
 body,
@@ -67,4 +67,13 @@ img {
   -webkit-user-select: none; /* 크롬, 사파리 */
   -moz-user-select: none; /* 파이어폭스 */
   -ms-user-select: none; /* 익스플로러 */
+}
+
+iframe {
+  overflow-clip-margin: content-box !important;
+  overflow: clip !important;
+  border-width: 2px;
+  border-style: inset;
+  border-color: initial;
+  border-image: initial;
 }
