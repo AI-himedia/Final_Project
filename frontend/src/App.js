@@ -3,6 +3,7 @@ import "./App.css";
 
 // pages
 import LoginPage from "./pages/LoginPage";
+import ConnectionTestPage from "./pages/ConnectionTestPage";
 
 // context
 import { LoadingProvider, useLoading } from "./context/LoadingContext";
@@ -36,6 +37,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/test" element={<ConnectionTestPage />} />
         </Routes>
       </div>
     </LoadingProvider>
