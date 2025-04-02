@@ -1,11 +1,11 @@
 import os
 from dotenv import load_dotenv
-
 import pyaudio
 from six.moves import queue
 from google.cloud import speech
 
-# 1. 환경변수 로딩
+
+
 load_dotenv()
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
@@ -65,6 +65,9 @@ class MicrophoneStream:
 
 def listen_print_loop(responses):
     print("STT 응답 수신 시작")
+    
+    final_transcript = ""
+
     for response in responses:
         if not response.results:
             continue
@@ -75,14 +78,15 @@ def listen_print_loop(responses):
         transcript = result.alternatives[0].transcript
 
         if result.is_final:
-            # if len(transcript) > 10:
-            #     send_to_llm(transcript)
             print("최종 인식:", transcript)
+            break
         else:
             print("중간 인식:", transcript)
+    
+    return final_transcript
 
 
-def main():
+def run_stt_from_mic() -> str:
     
     print("마이크 입력을 시작")
     client = speech.SpeechClient()
@@ -101,10 +105,15 @@ def main():
 
     with MicrophoneStream(RATE, CHUNK) as stream:
         audio_generator = stream.generator()
-        requests = (speech.StreamingRecognizeRequest(audio_content=chunk) for chunk in audio_generator)
+        requests = (
+            speech.StreamingRecognizeRequest(audio_content=chunk) 
+            for chunk in audio_generator
+        )
         responses = client.streaming_recognize(streaming_config, requests)
 
         listen_print_loop(responses)
 
+
 if __name__ == "__main__":
-    main()
+    result = run_stt_from_mic()
+    print("STT 결과:", result)
