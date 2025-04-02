@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import test
+from api import routers
+import uvicorn
+
 
 app = FastAPI()
 
@@ -14,7 +16,9 @@ app.add_middleware(
 )
 
 # 라우터 등록
-app.include_router(test.router)
+for router in routers:
+    app.include_router(router)
+# app.include_router(test.router)
 # 나중에 user, memory 등도 추가 가능
 # app.include_router(user.router)
 # app.include_router(memory.router)
@@ -22,3 +26,6 @@ app.include_router(test.router)
 @app.get("/")
 def root():
     return {"message": "FastAPI 메인 라우터"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

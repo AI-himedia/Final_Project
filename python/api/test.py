@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-router = APIRouter()
+test_router = APIRouter()
 
-@router.get("/ai/test")
+@test_router.get("/ai/test")
 def test_api():
     return {
         "status": "success",
