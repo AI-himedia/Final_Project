@@ -85,5 +85,9 @@ python/.pytest_cache/
 python/.mypy_cache/
 python/.pytorch_model/
 python/.coverage
-python/input/
-python/output/
+python/tts/input/
+python/tts/output/
+python/tts/final/
+
+# Google Cloud 인증키
+hello-again-ai-project.json

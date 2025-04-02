@@ -1,11 +1,70 @@
-button {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background: none;
-  background-color: transparent;
-  border: 0;
-  border-radius: 0;
-  outline: none;
+.App {
+  position: relative;
+  min-height: 100vh;
+}
+
+body {
+  font-family: "Gowun Batang", serif;
+}
+
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+table,
+th,
+td,
+form,
+fieldset,
+legend,
+textarea,
+input,
+select,
+textarea,
+button,
+article,
+aside,
+dialog,
+footer,
+header,
+section,
+footer,
+nav,
+figure,
+main {
+  margin: 0;
   padding: 0;
+  list-style: none;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  list-style: none;
+  text-decoration: none;
+}
+
+input {
+  border: none;
+}
+
+img {
+  user-drag: none; /* 드래그 방지 */
+  user-select: none; /* 텍스트 선택 방지 */
+  -webkit-user-drag: none; /* 크롬, 사파리 */
+  -webkit-user-select: none; /* 크롬, 사파리 */
+  -moz-user-select: none; /* 파이어폭스 */
+  -ms-user-select: none; /* 익스플로러 */
 }
