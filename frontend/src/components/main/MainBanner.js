@@ -1,4 +1,8 @@
 // src/components/HeroSection.js
+
+// css
+import '../../css/components/main/MainBanner.css';
+
 export default function MainBanner() {
   return (
     <section className="Main_AOS_Banner" data-aos="fade-in">
