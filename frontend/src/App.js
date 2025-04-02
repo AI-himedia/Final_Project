@@ -49,7 +49,7 @@ export default function App() {
   return (
     <LoadingProvider>
       <div className="App">
-        {!isHiddenLayout && <Header />}
+        {!isHiddenLayout ? <Header /> : <div style={{ height: "80px" }}></div>}
         <SideMenu />
         <UpButton />
         <LoadingOverlay />

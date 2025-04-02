@@ -1,13 +1,15 @@
 .Up_Show {
   position: fixed;
-  margin-top: 0px;
   bottom: 100px;
   right: 50px;
   z-index: 999;
-  transition: all 0.4s ease;
   text-align: right;
-  top: auto;
-  transform: none;
+
+  /* 애니메이션 초기값 (숨김 상태) */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
 }
 
 .Up_Button {
@@ -30,7 +32,6 @@
 }
 
 .Up_Button .icon {
-  background-image: url(http://www.bellaluceseoul.co.kr/imgs/side/topArrow.png);
   background-position: center center;
   background-repeat: no-repeat;
 
@@ -40,4 +41,18 @@
   height: 60px;
   overflow: hidden;
   background-size: contain;
+}
+
+.Up_Show.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 숨김 상태일 때 애니메이션 적용 위해 display: none 제거 */
+.Up_Show.hidden {
+  /* display: none 제거 */
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
 }

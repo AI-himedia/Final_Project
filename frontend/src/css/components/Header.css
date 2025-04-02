@@ -37,6 +37,8 @@
   font-family: "Gowun Batang", serif;
   text-decoration: none;
   color: #fff;
+
+  pointer-events: auto;
 }
 
 .Header_Menu {
@@ -60,13 +62,24 @@
 }
 
 .Header_LoginButton {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: transparent;
   color: white;
   padding: 6px 16px;
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.3s;
+
+  border: none;
+  outline: none;
+  line-height: 1;
+}
+
+.Header_LoginButton svg {
+  font-size: 30px;
 }
 
 .Header_LoginButton:hover {

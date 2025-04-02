@@ -13,6 +13,7 @@
   border-radius: 0 16px 16px 0;
   border: 1px solid #ebebeb;
   z-index: 999;
+  transition: transform 0.3s ease;
 }
 
 .SideMenu_Frequency {
@@ -73,15 +74,17 @@
 
 /* 열림/닫힘 상태에 따른 위치 조정 */
 .SideMenu_Container.open {
-  /* right: 0; */
+  /* right: 0;
   left: 0;
-  transition: right 0.3s ease;
+  transition: right 0.3s ease; */
+  transform: translate(0, -50%);
 }
 
 .SideMenu_Container.closed {
-  /* right: -100px; */
+  /* right: -100px;
   left: -100px;
-  transition: right 0.3s ease;
+  transition: right 0.3s ease; */
+  transform: translate(-84%, -50%);
 }
 
 /* 버튼 아이콘 기본 */
