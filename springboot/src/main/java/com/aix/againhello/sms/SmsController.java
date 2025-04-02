@@ -24,8 +24,10 @@ public class SmsController {
     public ResponseEntity startSubscription(@RequestPart("deceasedData") DeceasedDataDTO deceasedDataDTO,
                                             @RequestPart(value = "chatData", required = true) MultipartFile chatData) {
         // 1. Authentication으로 유저의 정보 조회
-        // 2. deceasedData service로 전달
-        // 1. python으로 file 전달
+        // 2. raw file 로컬 저장소에 저장
+        // 3. deceasedData, 저장소url service로 전달
+        // 4. service에서 DB 저장
+        // 5. python으로 file url 전달
         // 2. return 값 + deceasedData DB 저장
         System.out.printf(String.valueOf(deceasedDataDTO));
         System.out.printf("--------------------------------------");
@@ -56,7 +58,7 @@ public class SmsController {
 
         int dbResult = smsService.getPromptFromLLM(deceasedDataDTO, filePathOnDB);
 
-        return ResponseEntity.ok("오케이");  // 응답을 클라이언트로 반환합니다.
+        return ResponseEntity.ok("오케이" + dbResult);
     }
 }
 
