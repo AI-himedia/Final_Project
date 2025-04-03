@@ -1,8 +1,8 @@
+import os
+import time
 from pyannote.audio import Pipeline
 from pydub import AudioSegment
 from moviepy.editor import VideoFileClip
-import os
-import time
 
 def convert_to_wav(input_path: str, output_dir: str = "converted") -> str:
     # 지원되는 음성 또는 동영상 파일을 WAV 형식으로 변환
@@ -89,7 +89,7 @@ def main():
                 # 원본 오디오 로드
                 audio = AudioSegment.from_file(wav_file, format="wav")
 
-                # 화자별 오디오 추출 및 저장 (임시 파일 생성)
+                # 화자별 오디오 추출 및 저장 (원래 분리된 상태 그대로 저장)
                 speaker_index = 0
                 for speaker_label, segments in speakers.items():
                     for i, (start, end) in enumerate(segments):
@@ -100,29 +100,6 @@ def main():
                                 format="wav"
                             )
                     speaker_index += 1
-
-                # speaker별로 파일을 하나로 합치기
-                speaker_index = 0
-                for speaker_label, segments in speakers.items():
-                    speaker_audio = AudioSegment.empty()
-                    for filename_in_output in os.listdir(output_folder):
-                        if filename_in_output.startswith(f"{os.path.splitext(filename)[0]}_speaker_{speaker_index}_"):
-                            file_path = os.path.join(output_folder, filename_in_output)
-                            segment = AudioSegment.from_file(file_path, format="wav")
-                            speaker_audio += segment
-                    
-                    # 합친 파일을 저장
-                    speaker_audio.export(
-                        os.path.join(output_folder, f"{os.path.splitext(filename)[0]}_combined_speaker_{speaker_index}.wav"), 
-                        format="wav"
-                    )
-                    
-                    speaker_index += 1
-
-                # 기존의 짧은 파일들을 삭제
-                for filename_in_output in os.listdir(output_folder):
-                    if filename_in_output.startswith(os.path.splitext(filename)[0]) and "combined" not in filename_in_output:
-                        os.remove(os.path.join(output_folder, filename_in_output))
 
                 print(f"[INFO] {filename}에 대한 화자 분리 완료!")
 
