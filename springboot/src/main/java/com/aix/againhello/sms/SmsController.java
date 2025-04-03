@@ -45,8 +45,8 @@ public class SmsController {
         String originalFileName = chatData.getOriginalFilename();
         String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
         String savedName = UUID.randomUUID().toString().replace("-", "") + ext;
-        String filePath = savePath + "/" + savedName;
-        String filePathOnDB = ServerUrlConstants.SPRING_URL + "/images/text/" + savedName;
+        String filePath = savePath + savedName;
+        String filePathOnDB = ServerUrlConstants.SPRING_URL + "images/text/" + savedName;
 
         try {
             chatData.transferTo(new File(filePath));
@@ -56,7 +56,7 @@ public class SmsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("대화록 업로드 실패");
         }
 
-        int dbResult = smsService.getPromptFromLLM(deceasedDataDTO, filePathOnDB);
+        int dbResult = smsService.getPromptFromLLM(deceasedDataDTO, filePath);
 
         return ResponseEntity.ok("오케이" + dbResult);
     }

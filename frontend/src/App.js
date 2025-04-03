@@ -40,7 +40,7 @@ export default function App() {
   const location = useLocation();
 
   // Header와 Footer를 숨길 경로 목록
-  const hiddenLayoutRoutes = ["/login"];
+  const hiddenLayoutRoutes = ["/login", "/test"];
 
   const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
     location.pathname.startsWith(path)
