@@ -5,7 +5,7 @@ from TTS.api import TTS
 
 # Get device
 device = "cuda" if torch.cuda.is_available() else "cpu"
-# device = "cpu"
+#device = "cpu"
 
 # 모델 초기화
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
@@ -19,4 +19,4 @@ def synthesize(text, speaker_wav, language="ko"):
     tts.tts_to_file(text, speaker_wav=speaker_wav, language=language, file_path="final/output.wav")
 
 # 예시 사용
-synthesize("오늘 많이 피곤했겠다~ 얼른 집에 들어가서 씻고 푹 쉬어!", "") # 음성 파일 경로
+synthesize("아~ 오늘 저녁에 친구들이랑 만나기로해서 지금 지하철타러 가야해...", "") # 음성 파일 경로
