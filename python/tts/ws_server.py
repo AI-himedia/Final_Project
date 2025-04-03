@@ -1,8 +1,8 @@
 import asyncio
 import websockets
 import json
-import base64
-import python.tts.stt_test as stt
+import queue
+from stt_google_api import run_streaming_stt
 
 
 # STT 응답
@@ -47,26 +47,50 @@ async def run_tts(text: str) -> bytes:
 
 # STT 만 테스트
 async def handler(websocket):
-    async for message in websocket:
-        try:
-            msg = json.loads(message)
-            if msg.get("type") == "audio":
-                audio_bytes = base64.b64decode(msg["data"])
+    print("클라이언트 연결됨")
+    audio_queue = queue.Queue()
 
-                text = await run_stt(audio_bytes)
+    # Google STT 스트리밍 비동기 실행
+    loop = asyncio.get_event_loop()
+    stt_task = loop.run_in_executor(None, lambda: run_streaming_stt(audio_queue))
 
-                # 클라이언트로 STT 결과 전송
-                await websocket.send(json.dumps({
-                    "type": "stt",
-                    "text": text
-                }))
+    try:
+        async for message in websocket:
+            if isinstance(message, bytes):
+                audio_queue.put(message)
+            elif isinstance(message, str):
+                try:
+                    data = json.loads(message)
+                    if data.get("event") == "end":
+                        audio_queue.put(None)  # STT 종료 신호
+                        break
+                except Exception as e:
+                    print("JSON 파싱 오류:", e)
 
-        except Exception as e:
-            print("에러 발생:", e)
-            await websocket.send(json.dumps({
-                "type": "error",
-                "message": str(e)
-            }))
+    except Exception as e:
+        print("WebSocket 수신 중 오류:", e)
+
+    # STT 결과 처리
+    try:
+        responses = await stt_task
+        for response in responses:
+            for result in response.results:
+                if result.is_final:
+                    transcript = result.alternatives[0].transcript
+                    print("인식 결과:", transcript)
+
+                    await websocket.send(json.dumps({
+                        "type": "stt",
+                        "text": transcript
+                    }))
+    except Exception as e:
+        print("STT 처리 오류:", e)
+        await websocket.send(json.dumps({
+            "type": "error",
+            "message": str(e)
+        }))
+
+    print("🔌 클라이언트 연결 종료")
 
 start_server = websockets.serve(handler, "0.0.0.0", 8765)
 
