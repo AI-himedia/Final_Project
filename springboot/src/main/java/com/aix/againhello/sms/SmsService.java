@@ -2,6 +2,8 @@ package com.aix.againhello.sms;
 
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -36,9 +38,12 @@ public class SmsService {
     public int getPromptFromLLM(DeceasedDataDTO deceasedData, String filePathOnDB) {
         String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "chat-tone-analysis";
         RestTemplate restTemplate = new RestTemplate();
-        Map<String, String> request = new HashMap<>();
-        request.put("chatData", filePathOnDB);
-        ResponseEntity<String> response = restTemplate.postForEntity(pythonApiUrl, request, String.class);
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("chatData", filePathOnDB);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<String> response = restTemplate.postForEntity(pythonApiUrl, requestBody, String.class);
+
 
         System.out.println("python : " + response.getBody());
 
