@@ -1,10 +1,11 @@
 // src/components/UpButton.js
 
 // css
-import { useEffect, useState } from "react";
-import "../css/components/UpButton.css";
+import { useEffect, useState } from 'react';
+import '../css/components/UpButton.css';
 
 export default function UpButton() {
+  // 스크롤 위치가 기준을 넘었는지 여부
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -12,21 +13,21 @@ export default function UpButton() {
       const scrollY = window.scrollY;
       const scrollableHeight =
         document.documentElement.scrollHeight - window.innerHeight;
-      const threshold = scrollableHeight / 2;
+      const threshold = scrollableHeight * 0.2;
 
       setShowButton(scrollY > threshold);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <ul className={`Up_Show ${showButton ? "visible" : "hidden"}`}>
+    <ul className={`Up_Show ${showButton ? 'visible' : 'hidden'}`}>
       <li>
         <button className="Up_Button" onClick={scrollToTop}>
           <span

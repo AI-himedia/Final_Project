@@ -3,14 +3,18 @@
 // css
 import '../css/pages/MainPage.css';
 
-// 라이브러리
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+// React
 import { useEffect } from 'react';
+
+// Components
 import MainBanner from '../components/main/MainBanner';
 import MainBody from '../components/main/MainVideo';
 import { SubBanner1, SubBanner2 } from '../components/main/SubBanner';
 import ApplicationService from '../components/main/ApplicationService';
+
+// 라이브러리
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 export default function MainPage() {
   useEffect(() => {

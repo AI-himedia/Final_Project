@@ -1,8 +1,8 @@
-import "../css/pages/LoginPage.css";
+import '../../css/pages/login/LoginPage.css';
 
-import { getKakaoLoginLink } from "../api/KakaoApi";
-import { getNaverLoginLink } from "../api/NaverApi";
-import { getGoogleLoginLink } from "../api/GoogleApi";
+import { getKakaoLoginLink } from '../../api/KakaoApi';
+import { getNaverLoginLink } from '../../api/NaverApi';
+import { getGoogleLoginLink } from '../../api/GoogleApi';
 
 export default function LoginPage() {
   const handleKakaoLogin = () => {
