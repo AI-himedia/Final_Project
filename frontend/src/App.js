@@ -24,8 +24,11 @@ import { LoadingProvider, useLoading } from './context/LoadingContext';
 import { useAuthCheck } from './hooks/useAuthCheck';
 
 // 라이브러리
+import RealTimeAudioStream from "./websocket/RealTimeAudioStream";
+
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
+
 
 /**
  * LoadingOverlay 컴포넌트
@@ -75,6 +78,7 @@ export default function App() {
           <Route path="/notice/create" element={<NoticeCreate />} />
 
           <Route path="/test" element={<ConnectionTestPage />} />
+          <Route path="/wstest" element={<RealTimeAudioStream/>} />
         </Routes>
       </div>
     </LoadingProvider>
