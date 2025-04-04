@@ -1,4 +1,8 @@
 spring:
+
+  config:
+    import: optional:file:.env
+
   datasource:
     url: jdbc:postgresql://localhost:5432/againhello
     username: ${POSTGRESQL_USERNAME}
@@ -7,4 +11,14 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
-  type-aliases-package: com.aix.againhello.sms
+  type-aliases-package: com.aix.againhello.sms, com.aix.againhello.notice, com.aix.againhello.notice.comment, com.aix.againhello.notice.like
+
+jwt:
+  secret: #!J)I#FD!IN#EJ#)JRINDIF!#*RJ#!)!#JED
+  access-token-expire-ms: 900000    # 15분
+  refresh-token-expire-ms: 604800000 # 7일
+
+kakao:
+  client-id: ef86fd03e574909afcdf090c36f7c583
+  client-secret: F3k1AJiS65yf8nS7aVptks41A1k0iwzU
+  redirect-uri: http://localhost:3000/member/kakao
