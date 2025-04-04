@@ -23,8 +23,8 @@ export default function MainVideo() {
           <div className="Video_Box">
             <iframe
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen=""
-              frameborder="0"
+              allowFullScreen
+              // frameBorder="0"
               height="100%"
               src="https://www.youtube.com/embed/0FG_prdIPWM"
               title="YouTube video player"
