@@ -19,6 +19,7 @@ import { ScaleLoader } from "react-spinners";
 import MainPage from "./pages/MainPage";
 import SideMenu from "./components/SideMenu";
 import UpButton from "./components/UpButton";
+import RealTimeAudioStream from "./websocket/RealTimeAudioStream";
 
 /**
  * LoadingOverlay 컴포넌트
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/test" element={<ConnectionTestPage />} />
+          <Route path="/wstest" element={<RealTimeAudioStream/>} />
         </Routes>
       </div>
     </LoadingProvider>
