@@ -2,11 +2,10 @@ import os
 import queue
 from dotenv import load_dotenv
 from google.cloud import speech_v1p1beta1 as speech
-
+from typing import Generator
 
 load_dotenv()
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-
 
 client = speech.SpeechClient()
 
@@ -18,23 +17,33 @@ config = speech.RecognitionConfig(
 
 streaming_config = speech.StreamingRecognitionConfig(
     config=config,
-    interim_results=True,
+    interim_results=True,  # 중간 결과도 받을 수 있도록 설정
 )
 
-def stt_streaming_generator(audio_queue: queue.Queue):
-    """
-    Google STT가 읽을 수 있는 generator 반환
-    """
+# 오디오 queue로부터 chunk를 읽어 Google이 요구하는 형식으로 변환
+def stt_streaming_generator(audio_queue: queue.Queue) -> Generator:
+    buffer = b""
+    min_chunk_size = 4069   # 일정 크기 모아서 보내기
+
     while True:
         chunk = audio_queue.get()
         if chunk is None:
+            if buffer:
+                yield speech.StreamingRecognizeRequest(audio_content=buffer)
             break
-        yield speech.StreamingRecognizeRequest(audio_content=chunk)
+        
+        buffer += chunk
+        
+        if len(buffer) >= min_chunk_size:
+            yield speech.StreamingRecognizeRequest(audio_content=buffer)
+            buffer = b""  # 버퍼 초기화
+        
 
+# Streaming STT API 호출 함수
 def run_streaming_stt(audio_queue: queue.Queue):
-    """
-    Google STT 스트리밍 호출
-    :param audio_queue: 클라이언트로부터 실시간으로 들어오는 오디오 chunk
-    :return: responses (generator 형태)
-    """
-    return client.streaming_recognize(streaming_config, stt_streaming_generator(audio_queue))
+    print("구글 API 호출")
+    return client.streaming_recognize(
+        streaming_config, 
+        stt_streaming_generator(audio_queue)
+    )
+
