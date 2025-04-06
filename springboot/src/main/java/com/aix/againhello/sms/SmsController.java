@@ -1,5 +1,8 @@
 package com.aix.againhello.sms;
 
+import com.aix.againhello.sms.apiWrapper.ChatRequestDTO;
+import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
+import com.aix.againhello.sms.apiWrapper.SmsInitResponse;
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,11 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/be")
+@RequestMapping("/be/sms")
 public class SmsController {
 
     @Autowired
@@ -60,6 +64,42 @@ public class SmsController {
 
         return ResponseEntity.ok("오케이" + dbResult);
     }
+
+
+    @GetMapping("/init-check")
+    public ResponseEntity<SmsInitResponse> initCheck() {
+        // 1. 유저 정보 추출
+        // 인증된 유저 정보 추출 (세션, JWT, 또는 헤더 기반)
+//        String userEmail = request.getUserPrincipal().getName();
+
+        // 인증 체크
+//        if (userCode == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body(new SmsInitResponse<>("UNAUTHORIZED", "로그인이 필요합니다.", null));
+//        }
+        // 유저 코드
+        int userCode = 1;
+        return ResponseEntity.ok(smsService.checkInit(userCode));
+    }
+
+    @GetMapping("/recent-contents/{subscriptionCode}")
+    public ResponseEntity<List<RecentContentsDTO>> getRecentContents(
+            @PathVariable int subscriptionCode) {
+
+        return ResponseEntity.ok(smsService.getRecentContents(subscriptionCode));
+    }
+
+    @PostMapping("/chat")
+    public ResponseEntity<String> chatWithAi(@RequestBody ChatRequestDTO requestDto) {
+
+        String response = smsService.sendUserInputToPython(requestDto);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 }
 
 

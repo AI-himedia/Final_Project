@@ -4,7 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aix.againhello.sms.SmsMapper">
 
-    <!--  고인 데이터 추가 테스트  -->
+    <!--  고인 데이터 추가 -->
     <insert id="insertDeceasedData" parameterType="com.aix.againhello.sms.DeceasedDataDTO">
         INSERT INTO deceased_data (name, gender, age, personality, deceased_nickname, user_nickname, relationship, speaking_tone)
         VALUES (
@@ -18,5 +18,47 @@
         #{speakingTone}
         )
     </insert>
+
+    <!--  문자 서비스 신청여부, 고인 데이터, 최근 문자 조회  -->
+    <select id="findSubscriptionSummaryByUserCode" resultType="com.aix.againhello.sms.apiWrapper.SubscriptionSummaryDTO">
+        SELECT
+            sub.subscription_code AS subscriptionCode,
+            d.name AS name,
+            c.content AS content,
+            c.message_time AS messageTime
+        FROM subscription sub
+        JOIN service s ON s.code = sub.service_code
+        LEFT JOIN deceased_data d ON d.deceased_code = sub.deceased_code
+        LEFT JOIN LATERAL (
+            SELECT content, message_time
+            FROM contents
+            WHERE subscription_code = sub.subscription_code
+            ORDER BY message_time DESC
+            LIMIT 1
+        ) c ON true
+        WHERE sub.user_code = #{userCode}
+            AND s.service_name = 'sms'
+    </select>
+
+    <!--  최근 문자 5개 조회 -->
+    <select id="findRecentContentsBySubscriptionCode"
+            resultType="com.aix.againhello.sms.apiWrapper.RecentContentsDTO">
+        SELECT role, content, message_time AS messageTime
+        FROM contents
+        WHERE subscription_code = #{subscriptionCode}
+        ORDER BY message_time DESC
+        LIMIT 5
+    </select>
+
+    <!-- 문자 서비스 구독여부 확인 -->
+    <select id="hasSmsSubscription" resultType="int">
+        SELECT COUNT(*)
+        FROM subscription sub
+        JOIN service s ON s.code = sub.service_code
+        WHERE sub.user_code = #{userCode}
+        AND s.service_name = 'sms'
+    </select>
+
+
 
 </mapper>
