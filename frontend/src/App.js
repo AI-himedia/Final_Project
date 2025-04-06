@@ -7,8 +7,6 @@ import Header from './components/Header';
 import NoticeCreate from './pages/notice/NoticeCreate';
 import NoticeDetail from './pages/notice/NoticeDetail';
 import NoticeList from './pages/notice/NoticeList';
-
-// pages
 import LoginPage from './pages/login/LoginPage';
 import ConnectionTestPage from './pages/ConnectionTestPage';
 import MainPage from './pages/MainPage';
@@ -20,15 +18,14 @@ import SignUpPage from './pages/login/SignUpPage';
 // context
 import { LoadingProvider, useLoading } from './context/LoadingContext';
 
-// hooks
-import { useAuthCheck } from './hooks/useAuthCheck';
-
 // 라이브러리
 import RealTimeAudioStream from './websocket/RealTimeAudioStream';
 
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';
+import { useAuthCheck } from './hooks/useAuthCheck';
+import axiosInstance from './api/AxiosInstance';
 
 const LoadingOverlay = () => {
   const { isLoading } = useLoading();
@@ -43,26 +40,38 @@ const LoadingOverlay = () => {
 };
 
 export default function App() {
-  const [isReady, setIsReady] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
   const location = useLocation();
+  const [isLogin, setIsLogin] = useState(false);
 
+  // useAuthCheck 훅을 사용하여 로그인 상태 확인
   useAuthCheck((loginStatus) => {
-    setIsLogin(loginStatus); // true 또는 false
-    setIsReady(true);
+    setIsLogin(loginStatus);
   });
+
+  // 로그아웃 핸들러를 상위 컴포넌트로 이동
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post('/member/logout');
+      setIsLogin(false); // 상태 즉시 업데이트
+      Navigate('/');
+    } catch (err) {
+      console.error('로그아웃 실패:', err);
+    }
+  };
 
   const hiddenLayoutRoutes = ['/login', '/test'];
   const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
     location.pathname.startsWith(path)
   );
 
-  if (!isReady) return null;
-
   return (
     <LoadingProvider>
       <div className="App">
-        <Header isMainPage={location.pathname === '/'} isLogin={isLogin} />
+        <Header
+          isMainPage={location.pathname === '/'}
+          isLogin={isLogin}
+          onLogout={handleLogout}
+        />
         <SideMenu />
         <UpButton />
         <LoadingOverlay />

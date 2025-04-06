@@ -6,9 +6,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
-import axiosInstance from '../api/AxiosInstance';
 
-export default function Header({ isMainPage, isLogin }) {
+export default function Header({ isMainPage, isLogin, onLogout }) {
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const navigate = useNavigate();
 
@@ -17,16 +16,6 @@ export default function Header({ isMainPage, isLogin }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await axiosInstance.post('/member/logout');
-      navigate('/');
-      window.location.reload(); // 로그아웃 후 상태 반영
-    } catch (err) {
-      console.error('로그아웃 실패:', err);
-    }
-  };
 
   return (
     <header
@@ -56,7 +45,7 @@ export default function Header({ isMainPage, isLogin }) {
         <div className="Header_Actions">
           {isLogin ? (
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className={`Header_LoginButton ${
                 isMainPage ? 'Header_White' : 'Header_Black'
               }`}

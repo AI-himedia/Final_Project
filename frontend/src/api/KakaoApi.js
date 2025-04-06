@@ -32,8 +32,9 @@ export const handleKakaoLoginRedirect = async (dispatch, navigate) => {
     // if (email) dispatch(setLogin(email));
 
     if (res.status === 200) {
-      // 기존 회원: 홈으로 이동
+      // 기존 회원: 홈으로 이동하고 새로고침
       navigate('/');
+      setTimeout(() => window.location.reload(), 100); // 약간의 delay 후 새로고침
     } else if (res.status === 202) {
       // 신규 회원: 추가정보 입력 페이지로 이동
       navigate('/signup', {
