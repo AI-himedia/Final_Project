@@ -8,19 +8,18 @@ import NoticeCreate from './pages/notice/NoticeCreate';
 import NoticeDetail from './pages/notice/NoticeDetail';
 import NoticeList from './pages/notice/NoticeList';
 import LoginPage from './pages/login/LoginPage';
-import ConnectionTestPage from './pages/ConnectionTestPage';
+import ConnectionTestPage from './test/ConnectionTestPage';
 import MainPage from './pages/MainPage';
 import SideMenu from './components/SideMenu';
 import UpButton from './components/UpButton';
 import KakaoRedirectPage from './pages/login/KakaoRedirectPage';
+import RealTimeAudioStream from './test/RealTimeAudioStream';
 import SignUpPage from './pages/login/SignUpPage';
 
 // context
 import { LoadingProvider, useLoading } from './context/LoadingContext';
 
 // 라이브러리
-import RealTimeAudioStream from './websocket/RealTimeAudioStream';
-
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';
