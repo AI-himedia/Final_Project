@@ -3,21 +3,14 @@
 import '../css/components/Header.css';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { setLogout } from '../redux/LoginSlice';
-import { useAuthCheck } from '../hooks/useAuthCheck';
 
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
+import axiosInstance from '../api/AxiosInstance';
 
-export default function Header({ isMainPage }) {
+export default function Header({ isMainPage, isLogin }) {
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const isLogin = useSelector((state) => state.user.isLogin);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // 로그인 상태 체크
-  useAuthCheck();
 
   useEffect(() => {
     const handleResize = () => setViewportWidth(window.innerWidth);
@@ -25,9 +18,14 @@ export default function Header({ isMainPage }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(setLogout());
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post('/member/logout');
+      navigate('/');
+      window.location.reload(); // 로그아웃 후 상태 반영
+    } catch (err) {
+      console.error('로그아웃 실패:', err);
+    }
   };
 
   return (

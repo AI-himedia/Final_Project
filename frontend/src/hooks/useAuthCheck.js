@@ -1,24 +1,23 @@
 // src/hooks/useAuthCheck.js
-
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { setLogin, setLogout } from '../redux/LoginSlice';
+import { useState, useEffect } from 'react';
 import axiosInstance from '../api/AxiosInstance';
 
-export const useAuthCheck = () => {
-  const dispatch = useDispatch();
+export const useAuthCheck = (onDone) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axiosInstance.get('/member/me');
-        const email = res.data.email;
-        dispatch(setLogin(email));
+        await axiosInstance.get('/member/me');
+        setIsLoggedIn(true);
+        if (onDone) onDone(true); // 로그인 성공
       } catch (err) {
-        dispatch(setLogout());
+        setIsLoggedIn(false);
+        if (onDone) onDone(false); // 로그인 실패
       }
     };
-
     checkAuth();
-  }, [dispatch]);
+  }, [onDone]);
+
+  return { isLoggedIn };
 };

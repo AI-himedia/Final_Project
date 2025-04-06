@@ -1,6 +1,5 @@
 // src/App.js
 
-// Styles
 import './App.css';
 
 // components
@@ -16,6 +15,7 @@ import MainPage from './pages/MainPage';
 import SideMenu from './components/SideMenu';
 import UpButton from './components/UpButton';
 import KakaoRedirectPage from './pages/login/KakaoRedirectPage';
+import SignUpPage from './pages/login/SignUpPage';
 
 // context
 import { LoadingProvider, useLoading } from './context/LoadingContext';
@@ -24,16 +24,12 @@ import { LoadingProvider, useLoading } from './context/LoadingContext';
 import { useAuthCheck } from './hooks/useAuthCheck';
 
 // 라이브러리
-import RealTimeAudioStream from "./websocket/RealTimeAudioStream";
+import RealTimeAudioStream from './websocket/RealTimeAudioStream';
 
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
+import { useState } from 'react';
 
-
-/**
- * LoadingOverlay 컴포넌트
- * 로딩 중일 때 스피너를 화면에 표시합니다.
- */
 const LoadingOverlay = () => {
   const { isLoading } = useLoading();
 
@@ -47,38 +43,39 @@ const LoadingOverlay = () => {
 };
 
 export default function App() {
-  useAuthCheck();
-
+  const [isReady, setIsReady] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const location = useLocation();
 
-  // Header와 Footer를 숨길 경로 목록
-  const hiddenLayoutRoutes = ['/login', '/test'];
+  useAuthCheck((loginStatus) => {
+    setIsLogin(loginStatus); // true 또는 false
+    setIsReady(true);
+  });
 
+  const hiddenLayoutRoutes = ['/login', '/test'];
   const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
     location.pathname.startsWith(path)
   );
 
+  if (!isReady) return null;
+
   return (
     <LoadingProvider>
       <div className="App">
-        {!isHiddenLayout ? (
-          <Header isMainPage={location.pathname === '/'} />
-        ) : null}
+        <Header isMainPage={location.pathname === '/'} isLogin={isLogin} />
         <SideMenu />
         <UpButton />
         <LoadingOverlay />
         <Routes>
           <Route path="/" element={<MainPage />} />
-
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route path="/member/kakao" element={<KakaoRedirectPage />} />
-
           <Route path="/notice" element={<NoticeList />} />
           <Route path="/notice/:id" element={<NoticeDetail />} />
           <Route path="/notice/create" element={<NoticeCreate />} />
-
           <Route path="/test" element={<ConnectionTestPage />} />
-          <Route path="/wstest" element={<RealTimeAudioStream/>} />
+          <Route path="/wstest" element={<RealTimeAudioStream />} />
         </Routes>
       </div>
     </LoadingProvider>
