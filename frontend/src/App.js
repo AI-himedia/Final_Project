@@ -8,9 +8,12 @@ import NoticeCreate from './pages/notice/NoticeCreate';
 import NoticeDetail from './pages/notice/NoticeDetail';
 import NoticeList from './pages/notice/NoticeList';
 
+// test page
+import ConnectionTestPage from './test/ConnectionTestPage';
+import RealTimeAudioStream from './test/RealTimeAudioStream';
+
 // pages
 import LoginPage from './pages/login/LoginPage';
-import ConnectionTestPage from './pages/ConnectionTestPage';
 import MainPage from './pages/MainPage';
 import SideMenu from './components/SideMenu';
 import UpButton from './components/UpButton';
@@ -24,8 +27,6 @@ import { LoadingProvider, useLoading } from './context/LoadingContext';
 import { useAuthCheck } from './hooks/useAuthCheck';
 
 // 라이브러리
-import RealTimeAudioStream from './websocket/RealTimeAudioStream';
-
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';

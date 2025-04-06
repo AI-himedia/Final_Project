@@ -1,7 +1,7 @@
 // src/components/SideMenu.js
 
 // css
-import '../css/components/SideMenu.css';
+import '../css/web/components/SideMenu.css';
 
 // React
 import { useState } from 'react';

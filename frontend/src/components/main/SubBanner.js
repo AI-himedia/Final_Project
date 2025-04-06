@@ -1,7 +1,7 @@
-// src/components/main/SubBanner.js
+// src/pages/main/SubBanner.js
 
 // css
-import '../../css/components/main/SubBanner.css';
+import '../../css/web/pages/main/SubBanner.css';
 
 // 라이브러리
 

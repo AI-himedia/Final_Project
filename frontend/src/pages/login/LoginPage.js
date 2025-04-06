@@ -1,4 +1,4 @@
-import '../../css/pages/login/LoginPage.css';
+import '../../css/web/pages/login/LoginPage.css';
 
 import { getKakaoLoginLink } from '../../api/KakaoApi';
 import { getNaverLoginLink } from '../../api/NaverApi';

@@ -1,6 +1,7 @@
 // src/components/Header.js
 
-import '../css/components/Header.css';
+import '../css/web/components/Header.css';
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
