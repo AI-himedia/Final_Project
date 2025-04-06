@@ -1,11 +1,11 @@
-// src/components/ContentSection.js
+// src/pages/ContentSection.js
 
 // css
-import '../../css/components/main/MainVideo.css';
+import '../../css/web/pages/main/MainVideo.css';
 
 export default function MainVideo() {
   return (
-    <section data-aos="fade-left" className="MainVideo_Container">
+    <section className="MainVideo_Container">
       <div className="MainVideo_Wrap">
         <div className="Video_Wrap">
           <div className="Video_Info">

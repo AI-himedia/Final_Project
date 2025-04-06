@@ -1,8 +1,10 @@
 // src/components/UpButton.js
 
 // css
+import '../css/web/components/UpButton.css';
+
+// React
 import { useEffect, useState } from 'react';
-import '../css/components/UpButton.css';
 
 export default function UpButton() {
   // 스크롤 위치가 기준을 넘었는지 여부
