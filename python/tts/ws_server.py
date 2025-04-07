@@ -18,77 +18,80 @@ async def run_tts(text: str) -> bytes:
 async def handler(websocket: WebSocketServerProtocol):
     print("클라이언트 연결됨")
     audio_queue = queue.Queue()
+    responses = run_streaming_stt(audio_queue)
+    seen_final_transcripts = set()
+    last_partial_transcript = ""
 
-    # Google STT 스트리밍 비동기 실행
-    loop = asyncio.get_event_loop()
-    stt_task = loop.run_in_executor(None, lambda: run_streaming_stt(audio_queue))
+    # # Google STT 스트리밍 비동기 실행
+    # loop = asyncio.get_event_loop()
+    # stt_task = loop.run_in_executor(None, lambda: run_streaming_stt(audio_queue))
 
-    # 클라이언트로부터 오디오 수신
-    try:
-        async for message in websocket:
-            if isinstance(message, bytes):
-                audio_queue.put(message)
-            elif isinstance(message, str):
-                try:
-                    data = json.loads(message)
-                    if data.get("event") == "end":
-                        print("수신 종료 신호")
-                        audio_queue.put(None)  # STT 종료 신호
-                        break
-                except Exception as e:
-                    print("JSON 파싱 오류:", e)
+    # 오디오 수신 비동기 처리
+    async def receive_audio():
+        try:
+            async for message in websocket:
+                if isinstance(message, bytes):
+                    audio_queue.put(message)
+                elif isinstance(message, str):
+                    try:
+                        data = json.loads(message)
+                        if data.get("event") == "end":
+                            print("수신 종료 신호")
+                            audio_queue.put(None)
+                            break
+                    except Exception as e:
+                        print("JSON 파싱 오류:", e)
+        except Exception as e:
+            print("WebSocket 수신 중 오류:", e)
 
-    except Exception as e:
-        print("WebSocket 수신 중 오류:", e)
-
-    # STT 결과 처리
-    try:
-        responses = await stt_task
-        print("응답 수신됨")
-
-        for response in responses:
-            print("전체 응답 객체:", response)
-
-            if not response.results:
-                print("응답은 왔지만 results 없음")
-                continue
-
-            if response.results:
+    # STT 결과 처리 비동기
+    async def process_stt_results():
+        nonlocal last_partial_transcript
+        print("응답 수신 대기 중...")
+        try:
+            for response in responses:
+                print("응답 수신됨")
+                if not response.results:
+                    continue
                 for result in response.results:
                     if not result.alternatives:
-                        print("결과에 대안 없음")
                         continue
 
-                    transcript = result.alternatives[0].transcript
-                    print("[인식 결과] ", transcript)
+                    transcript = result.alternatives[0].transcript.strip()
 
                     if result.is_final:
-                        try:
-                            await websocket.send(json.dumps({
-                                "type": "stt",
-                                "text": transcript
-                            }))
-                        except Exception as e:
-                            print("클라이언트에게 전송 실패:", e)
+                        if transcript and transcript not in seen_final_transcripts:
+                            seen_final_transcripts.add(transcript)
+                            print("[최종 결과]", transcript)
+                            try:
+                                await websocket.send(json.dumps({
+                                    "type": "stt",
+                                    "text": transcript,
+                                    "is_final": True
+                                }))
+                            except Exception as e:
+                                print("클라이언트에게 전송 실패:", e)
                     else:
-                        print("[중간 결과] ", transcript)
+                        if transcript and transcript != last_partial_transcript:
+                            last_partial_transcript = transcript
+                            print("[중간 결과]", transcript)
+                            try:
+                                await websocket.send(json.dumps({
+                                    "type": "stt",
+                                    "text": transcript,
+                                    "is_final": False
+                                }))
+                            except Exception as e:
+                                print("중간 결과 전송 실패:", e)
 
-                    # if result.is_final:
-                    # # LLM → TTS 호출
-                    # response_text = await run_llm(transcript)
-                    # tts_audio = await run_tts(response_text)
+        except Exception as e:
+            print("STT 처리 오류:", e)
 
-                    # # TTS 응답 전송
-                    # try:
-                    #     await websocket.send(json.dumps({
-                    #         "type": "tts",
-                    #         "data": base64.b64encode(tts_audio).decode("utf-8")
-                    #     }))
-                    #     print("TTS 전송 완료")
-                    # except Exception as e:
-                    #     print("클라이언트에게 전송 실패:", e)
-    except Exception as e:
-        print("STT 처리 오류:", e)
+    # 동시에 실행
+    await asyncio.gather(
+        receive_audio(),
+        process_stt_results()
+    )
 
     print("클라이언트 연결 종료")
 
