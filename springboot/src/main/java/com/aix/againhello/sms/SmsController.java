@@ -1,5 +1,6 @@
 package com.aix.againhello.sms;
 
+import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.sms.apiWrapper.ChatRequestDTO;
 import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
 import com.aix.againhello.sms.apiWrapper.SmsInitResponse;

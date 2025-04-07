@@ -1,4 +1,4 @@
-package com.aix.againhello.sms;
+package com.aix.againhello.common;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.aix.againhello.sms;
+package com.aix.againhello.common;
 
 public class ServiceDTO {
     public int code;              // 서비스 고유 식별자

@@ -1,4 +1,4 @@
-package com.aix.againhello.sms;
+package com.aix.againhello.common;
 
 public class RawFileDTO {
     private int code;  // 초 기 데이터 파일 고유 식별자
