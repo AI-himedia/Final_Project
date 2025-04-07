@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/AxiosInstance';
-import '../../css/pages/login/SignUpPage.css';
+import '../../css/web/pages/login/SignUpPage.css';
 
 export default function SignUpPage() {
   const location = useLocation();

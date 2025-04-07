@@ -1,6 +1,8 @@
 // src/App.js
-
 import './App.css';
+
+// api
+import axiosInstance from './api/AxiosInstance';
 
 // components
 import Header from './components/Header';
@@ -8,12 +10,16 @@ import NoticeCreate from './pages/notice/NoticeCreate';
 import NoticeDetail from './pages/notice/NoticeDetail';
 import NoticeList from './pages/notice/NoticeList';
 import LoginPage from './pages/login/LoginPage';
+
+// test page
 import ConnectionTestPage from './test/ConnectionTestPage';
+import RealTimeAudioStream from './test/RealTimeAudioStream';
+
+// pages
 import MainPage from './pages/MainPage';
 import SideMenu from './components/SideMenu';
 import UpButton from './components/UpButton';
 import KakaoRedirectPage from './pages/login/KakaoRedirectPage';
-import RealTimeAudioStream from './test/RealTimeAudioStream';
 import SignUpPage from './pages/login/SignUpPage';
 
 // context
@@ -24,7 +30,6 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';
 import { useAuthCheck } from './hooks/useAuthCheck';
-import axiosInstance from './api/AxiosInstance';
 
 const LoadingOverlay = () => {
   const { isLoading } = useLoading();

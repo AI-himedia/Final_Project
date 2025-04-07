@@ -1,14 +1,14 @@
 // src/pages/MainPage.js
 
 // css
-import '../css/pages/MainPage.css';
+import '../css/web/pages/MainPage.css';
 
 // React
 import { useEffect } from 'react';
 
 // Components
 import MainBanner from '../components/main/MainBanner';
-import MainBody from '../components/main/MainVideo';
+import MainVideo from '../components/main/MainVideo';
 import { SubBanner1, SubBanner2 } from '../components/main/SubBanner';
 import ApplicationService from '../components/main/ApplicationService';
 
@@ -28,7 +28,7 @@ export default function MainPage() {
   return (
     <>
       <MainBanner />
-      <MainBody />
+      <MainVideo />
       <SubBanner1 />
       <ApplicationService />
       <SubBanner2 />

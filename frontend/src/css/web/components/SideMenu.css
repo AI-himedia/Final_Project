@@ -96,3 +96,9 @@
   height: 100%;
   color: #666;
 }
+
+@media (max-width: 480px) {
+  .SideMenu_Container {
+    display: none;
+  }
+}

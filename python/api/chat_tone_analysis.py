@@ -17,7 +17,7 @@ import io
 # .env 로드
 load_dotenv()
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
+# openai.api_key = os.environ["OPENAI_API_KEY"]
 client = openai.OpenAI()
 
 def parse_gpt_json_response(text: str) -> dict:

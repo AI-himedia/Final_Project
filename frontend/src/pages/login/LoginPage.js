@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getKakaoLoginLink } from '../../api/KakaoApi';
 import axiosInstance from '../../api/AxiosInstance';
-import '../../css/pages/login/LoginPage.css';
+import '../../css/web/pages/login/LoginPage.css';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false); // 로딩 상태 관리

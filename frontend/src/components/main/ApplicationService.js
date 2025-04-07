@@ -1,7 +1,7 @@
 // src/components/main/ApplicationService.js
 
 // css
-import '../../css/components/main/ApplicationService.css';
+import '../../css/web/pages/main/ApplicationService.css';
 
 export default function ApplicationService() {
   return (
