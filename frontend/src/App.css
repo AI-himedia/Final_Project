@@ -3,6 +3,24 @@
   min-height: 100vh;
 }
 
+.webOnlyBr {
+  display: inline;
+}
+
+.mobileOnlyBr {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .webOnlyBr {
+    display: none;
+  }
+
+  .mobileOnlyBr {
+    display: inline;
+  }
+}
+
 body {
   font-family: 'Gowun Batang', serif;
 }

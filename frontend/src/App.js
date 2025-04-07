@@ -2,34 +2,33 @@
 import './App.css';
 
 // api
-import axiosInstance from './api/AxiosInstance';
+import axiosInstance from './shared/api/AxiosInstance';
 
 // components
-import Header from './components/Header';
-import NoticeCreate from './pages/notice/NoticeCreate';
-import NoticeDetail from './pages/notice/NoticeDetail';
-import NoticeList from './pages/notice/NoticeList';
-import LoginPage from './pages/login/LoginPage';
+import Header from './shared/components/Header';
+import LoginPage from './shared/pages/login/LoginPage';
 
 // test page
-import ConnectionTestPage from './test/ConnectionTestPage';
-import RealTimeAudioStream from './test/RealTimeAudioStream';
+import ConnectionTestPage from './web/test/ConnectionTestPage';
+import RealTimeAudioStream from './web/test/RealTimeAudioStream';
 
 // pages
-import MainPage from './pages/MainPage';
-import SideMenu from './components/SideMenu';
-import UpButton from './components/UpButton';
-import KakaoRedirectPage from './pages/login/KakaoRedirectPage';
-import SignUpPage from './pages/login/SignUpPage';
+import MainPage from './shared/pages/MainPage';
+import SideMenu from './shared/components/SideMenu';
+import UpButton from './shared/components/UpButton';
+import KakaoRedirectPage from './shared/pages/login/KakaoRedirectPage';
+import SignUpPage from './shared/pages/login/SignUpPage';
+
+// hooks
+import { useAuthCheck } from './shared/hooks/useAuthCheck';
 
 // context
-import { LoadingProvider, useLoading } from './context/LoadingContext';
+import { LoadingProvider, useLoading } from './shared/context/LoadingContext';
 
 // 라이브러리
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';
-import { useAuthCheck } from './hooks/useAuthCheck';
 
 const LoadingOverlay = () => {
   const { isLoading } = useLoading();
@@ -71,22 +70,24 @@ export default function App() {
   return (
     <LoadingProvider>
       <div className="App">
-        <Header
-          isMainPage={location.pathname === '/'}
-          isLogin={isLogin}
-          onLogout={handleLogout}
-        />
-        <SideMenu />
-        <UpButton />
+        {!isHiddenLayout && (
+          <>
+            <Header
+              isMainPage={location.pathname === '/'}
+              isLogin={isLogin}
+              onLogout={handleLogout}
+            />
+            <SideMenu />
+            <UpButton />
+          </>
+        )}
         <LoadingOverlay />
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/member/kakao" element={<KakaoRedirectPage />} />
-          <Route path="/notice" element={<NoticeList />} />
-          <Route path="/notice/:id" element={<NoticeDetail />} />
-          <Route path="/notice/create" element={<NoticeCreate />} />
+
           <Route path="/test" element={<ConnectionTestPage />} />
           <Route path="/wstest" element={<RealTimeAudioStream />} />
         </Routes>

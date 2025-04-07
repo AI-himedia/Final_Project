@@ -1,0 +1,62 @@
+@media (max-width: 480px) {
+  .Login_Container {
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    padding: 0 20px;
+
+    /* background-image: url('https://cdn.imweb.me/thumbnail/20250204/e2a9b186be915.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat; */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* .Login_Container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: rgb(207, 207, 207, 0.4);
+      backdrop-filter: blur(3px);
+      z-index: -1;
+    } */
+  .Mobile_Header {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 16px 0;
+    padding-left: 23.5px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgb(95, 164, 255);
+    background: transparent;
+    border-bottom: 1px solid #000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+  }
+
+  .Login_Text_Title,
+  .Login_Text_Subtitle {
+    display: block;
+    text-align: center;
+    color: rgb(95, 164, 255);
+    text-shadow: none;
+  }
+
+  .Login_Text_Wrapper {
+    padding-top: 23.5rem;
+    text-align: center;
+  }
+
+  .Social_Login {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 10rem;
+  }
+}
