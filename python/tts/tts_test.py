@@ -39,7 +39,7 @@ def ensure_environment_ready():
         print("프롬프트 존재 확인")
 
     if not os.path.exists(MODEL_SAVE_DIR):
-        print("Spark-TTS 모델 다운로드 시작...")
+        print("Spark-TTS 모델 다운로드 시작")
         snapshot_download(
             repo_id="SparkAudio/Spark-TTS-0.5B",
             local_dir=MODEL_SAVE_DIR,
