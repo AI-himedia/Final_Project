@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from api import routers
+import psycopg2
 import uvicorn
+import os
 
 
 app = FastAPI()
@@ -18,6 +20,7 @@ app.add_middleware(
 
 # .env 로드
 load_dotenv()
+
 
 # 라우터 등록
 for router in routers:
