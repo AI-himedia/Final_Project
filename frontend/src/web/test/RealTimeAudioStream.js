@@ -25,6 +25,8 @@ const RealTimeAudioStream = () => {
         const msg = JSON.parse(event.data);
         if (msg.type === "tts") {
           console.log("[TTS 응답 수신]", msg.data);
+          const audio = new Audio("data:audio/wav;base64," + msg.data);
+          audio.play();
           playAudioAndRestartSTT(msg.data);
         } else if (msg.type === "stt") {
           const prefix = msg.is_final ? "[최종 결과]" : "[중간 결과]";
