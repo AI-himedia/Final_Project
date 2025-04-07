@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getNoticeList } from '../../api/NoticeApi';
-import '../../css/pages/notice/NoticeList.css';
+import '../../css/web/pages/notice/NoticeList.css';
 
 const NoticeList = () => {
   const [notices, setNotices] = useState([]);

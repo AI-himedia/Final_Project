@@ -23,18 +23,42 @@ repositories {
 }
 
 dependencies {
-//    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-//    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Spring 기본 웹/보안
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-web-services'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Lombok
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // JWT 라이브러리
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 파싱을 위한 jackson 연동
+
+    // MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
-//    implementation 'org.springframework.ai:spring-ai-pgvector-store-spring-boot-starter'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    implementation 'org.postgresql:postgresql:42.7.2'
+
+    // DB 로그 확인용
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+
+    // 데이터 검증용
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // WebServices (필요 없으면 제거 가능)
+    implementation 'org.springframework.boot:spring-boot-starter-web-services'
+
+    // .env 환경변수 처리
     implementation 'io.github.cdimascio:dotenv-java:2.2.4'
 
+    // PostgreSQL
+    implementation 'org.postgresql:postgresql:42.7.2'
+
+    // 개발 중 자동 재시작
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

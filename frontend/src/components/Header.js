@@ -1,34 +1,22 @@
 // src/components/Header.js
 
-import '../css/components/Header.css';
+import '../css/web/components/Header.css';
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { setLogout } from '../redux/LoginSlice';
-import { useAuthCheck } from '../hooks/useAuthCheck';
 
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-export default function Header({ isMainPage }) {
+export default function Header({ isMainPage, isLogin, onLogout }) {
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const isLogin = useSelector((state) => state.user.isLogin);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // 로그인 상태 체크
-  useAuthCheck();
 
   useEffect(() => {
     const handleResize = () => setViewportWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const handleLogout = () => {
-    dispatch(setLogout());
-    navigate('/');
-  };
 
   return (
     <header
@@ -58,7 +46,7 @@ export default function Header({ isMainPage }) {
         <div className="Header_Actions">
           {isLogin ? (
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className={`Header_LoginButton ${
                 isMainPage ? 'Header_White' : 'Header_Black'
               }`}

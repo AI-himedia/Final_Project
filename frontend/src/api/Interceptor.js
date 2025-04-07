@@ -16,19 +16,16 @@ export const applyInterceptors = (axiosInstance) => {
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-      console.log('🧨 인터셉터 발동');
-      console.log('📛 error status:', error.response?.status);
-      console.log('📛 error data:', error.response?.data);
-
-      const isTokenError = error.response?.data?.error === 'ERROR_ACCESS_TOKEN';
+      const isTokenError =
+        error.response?.data?.error === 'ERROR_ACCESS_TOKEN' ||
+        error.response?.status === 401;
 
       if (isTokenError) {
         try {
-          console.log('🔁 리프레시 토큰 요청 시도');
           await refreshJWT();
           return axiosInstance(error.config);
         } catch (refreshErr) {
-          console.log('❌ 리프레시 실패', refreshErr);
+          console.log('RefreshError', refreshErr);
         }
       }
 

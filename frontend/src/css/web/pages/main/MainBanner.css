@@ -66,3 +66,9 @@
     transform: translateX(-50%) translateY(12px);
   }
 }
+
+@media (max-width: 480px) {
+  .Main_AOS_Icon {
+    border-radius: 5px;
+  }
+}
