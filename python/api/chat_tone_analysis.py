@@ -15,7 +15,7 @@ import io
 
 
 # .env 로드
-load_dotenv()
+# load_dotenv()
 
 # openai.api_key = os.environ["OPENAI_API_KEY"]
 client = openai.OpenAI()
@@ -38,13 +38,13 @@ def parse_gpt_json_response(text: str) -> dict:
     else:
         raise ValueError("!!!!!JSON 블록을 찾을 수 없습니다.")
 
-sms_router = APIRouter()
+sms_init_router = APIRouter()
 
 # 요청 데이터 구조 정의
 class ChatRequest(BaseModel):
     chatData: str
 
-@sms_router.post("/chat-tone-analysis")
+@sms_init_router.post("/chat-tone-analysis")
 async def analyze_chat(data: ChatRequest):
     url = data.chatData
     print(url)
