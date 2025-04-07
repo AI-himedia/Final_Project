@@ -75,6 +75,8 @@ flutter/android/
 springboot/target/
 springboot/.mvn/
 springboot/mvnw*
+springboot/src/main/java/com/aix/againhello/call/input
+springboot/src/main/java/com/aix/againhello/call/output
 
 # backend - Python
 python/__pycache__/
