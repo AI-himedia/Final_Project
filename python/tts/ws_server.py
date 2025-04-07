@@ -1,99 +1,113 @@
 import asyncio
-import websockets
+from websockets.legacy.server import serve, WebSocketServerProtocol
 import json
 import queue
+import base64
 from stt_google_api import run_streaming_stt
-
-
-# STT 응답
-async def run_stt(audio_data=None):
-    return stt.run_stt_from_bytes(audio_data)
-
-# LLM 호출
-async def run_llm(text: str) -> str:
-    return f"LLM이 '{text}'에 대한 답변입니다."
+from test import run_llm, run_tts
 
 # TTS 호출
 async def run_tts(text: str) -> bytes:
-    # TTS 호출해서 음성 데이터(byte) 반환
-    return b"FAKEAUDIOBYTES"  # 실제론 바이너리 오디오
-
-# async def handler(websocket):
-#     async for message in websocket:
-#         try:
-#             # 메시지 파싱
-#             msg = json.loads(message)
-#             if msg.get("type") == "audio":
-#                 # base64 디코딩
-#                 audio_bytes = base64.b64decode(msg["data"])
-
-#                 # STT → LLM → TTS
-#                 text = await run_stt(audio_bytes)
-#                 response_text = await run_llm(text)
-#                 tts_audio = await run_tts(response_text)
-
-#                 # 다시 클라이언트로 응답 전송
-#                 await websocket.send(json.dumps({
-#                     "type": "tts",
-#                     "data": base64.b64encode(tts_audio).decode("utf-8")
-#                 }))
-#         except Exception as e:
-#             print("에러 발생:", e)
-#             await websocket.send(json.dumps({
-#                 "type": "error",
-#                 "message": str(e)
-#             }))
+    return b"FAKE_TTS_AUDIO_BYTES"  # 실제 TTS 바이트 데이터
 
 
-# STT 만 테스트
-async def handler(websocket):
+async def handler(websocket: WebSocketServerProtocol):
     print("클라이언트 연결됨")
     audio_queue = queue.Queue()
+    responses = run_streaming_stt(audio_queue)
+    seen_final_transcripts = set()
+    last_partial_transcript = ""
 
-    # Google STT 스트리밍 비동기 실행
-    loop = asyncio.get_event_loop()
-    stt_task = loop.run_in_executor(None, lambda: run_streaming_stt(audio_queue))
+    # 오디오 수신 비동기 처리
+    async def receive_audio():
+        try:
+            async for message in websocket:
+                if isinstance(message, bytes):
+                    audio_queue.put(message)
+                elif isinstance(message, str):
+                    try:
+                        data = json.loads(message)
+                        if data.get("event") == "end":
+                            print("수신 종료 신호")
+                            audio_queue.put(None)
+                            break
+                    except Exception as e:
+                        print("JSON 파싱 오류:", e)
+        except Exception as e:
+            print("WebSocket 수신 중 오류:", e)
 
-    try:
-        async for message in websocket:
-            if isinstance(message, bytes):
-                audio_queue.put(message)
-            elif isinstance(message, str):
-                try:
-                    data = json.loads(message)
-                    if data.get("event") == "end":
-                        audio_queue.put(None)  # STT 종료 신호
-                        break
-                except Exception as e:
-                    print("JSON 파싱 오류:", e)
+    # STT 결과 처리 비동기
+    async def process_stt_results():
+        nonlocal last_partial_transcript
+        print("응답 수신 대기 중")
+        try:
+            for response in responses:
+                print("응답 수신됨")
+                if not response.results:
+                    continue
+                for result in response.results:
+                    if not result.alternatives:
+                        continue
 
-    except Exception as e:
-        print("WebSocket 수신 중 오류:", e)
+                    transcript = result.alternatives[0].transcript.strip()
 
-    # STT 결과 처리
-    try:
-        responses = await stt_task
-        for response in responses:
-            for result in response.results:
-                if result.is_final:
-                    transcript = result.alternatives[0].transcript
-                    print("인식 결과:", transcript)
+                    if result.is_final:
+                        if transcript and transcript not in seen_final_transcripts:
+                            seen_final_transcripts.add(transcript)
+                            print("[최종 결과]", transcript)
+                            try:
+                                await websocket.send(json.dumps({
+                                    "type": "stt",
+                                    "text": transcript,
+                                    "is_final": True
+                                }))
+                            except Exception as e:
+                                print("클라이언트에게 전송 실패:", e)
+                    else:
+                        if transcript and transcript != last_partial_transcript:
+                            last_partial_transcript = transcript
+                            print("[중간 결과]", transcript)
+                            try:
+                                await websocket.send(json.dumps({
+                                    "type": "stt",
+                                    "text": transcript,
+                                    "is_final": False
+                                }))
+                            except Exception as e:
+                                print("중간 결과 전송 실패:", e)
+                            
+                    # 최종 결과가 확인되면 LLM + TTS 처리
+                    if result.is_final:
+                        try:
+                            response_text = run_llm(transcript)
+                            tts_audio = run_tts(response_text)
 
-                    await websocket.send(json.dumps({
-                        "type": "stt",
-                        "text": transcript
-                    }))
-    except Exception as e:
-        print("STT 처리 오류:", e)
-        await websocket.send(json.dumps({
-            "type": "error",
-            "message": str(e)
-        }))
+                            await websocket.send(json.dumps({
+                                "type": "tts",
+                                "data": base64.b64encode(tts_audio).decode("utf-8")
+                            }))
+                            print("TTS 전송 완료")
 
-    print("🔌 클라이언트 연결 종료")
+                        except Exception as e:
+                            print("TTS 처리 오류:", e)
 
-start_server = websockets.serve(handler, "0.0.0.0", 8765)
+        except Exception as e:
+            print("STT 처리 오류:", e)
 
-asyncio.get_event_loop().run_until_complete(start_server)
-print("WebSocket 서버 실행 중 (포트 8765)")
-asyncio.get_event_loop().run_forever()
+    # 동시에 실행
+    await asyncio.gather(
+        receive_audio(),
+        process_stt_results()
+    )
+
+    print("클라이언트 연결 종료")
+
+
+async def main():
+    print("WebSocket 서버 실행 중 (포트 8765)")
+    async with serve(handler, "0.0.0.0", 8765):
+        await asyncio.Future()  # 무한 대기
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
