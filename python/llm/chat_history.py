@@ -1,6 +1,6 @@
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import HumanMessage, AIMessage
-from db_postgresql import get_db_connection
+from db.db_postgresql import get_db_connection
 
 class YourPostgresChatMessageHistory(BaseChatMessageHistory):
     def __init__(self, session_id: str):

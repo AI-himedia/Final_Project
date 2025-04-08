@@ -66,7 +66,7 @@ public class SmsController {
         return ResponseEntity.ok("오케이" + dbResult);
     }
 
-
+    /**문자서비스 실행시*/
     @GetMapping("/init-check")
     public ResponseEntity<SmsInitResponse> initCheck() {
         // 1. 유저 정보 추출
@@ -83,6 +83,7 @@ public class SmsController {
         return ResponseEntity.ok(smsService.checkInit(userCode));
     }
 
+    /**특정 채팅방 입장시*/
     @GetMapping("/recent-contents/{subscriptionCode}")
     public ResponseEntity<List<RecentContentsDTO>> getRecentContents(
             @PathVariable int subscriptionCode) {
@@ -90,6 +91,7 @@ public class SmsController {
         return ResponseEntity.ok(smsService.getRecentContents(subscriptionCode));
     }
 
+    /**문자 입력시*/
     @PostMapping("/chat")
     public ResponseEntity<String> chatWithAi(@RequestBody ChatRequestDTO requestDto) {
 
