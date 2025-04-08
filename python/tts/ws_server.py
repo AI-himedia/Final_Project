@@ -57,14 +57,19 @@ async def handler(websocket: WebSocketServerProtocol):
                                     "is_final": True
                                 }))
 
-                                # LLM + TTS 처리
-                                response_text = run_llm(transcript)
-                                tts_audio = run_tts(response_text)
+                                # LLM → TTS → 클라이언트 전송
+                                try:
+                                    response_text = run_llm(transcript)
+                                    tts_audio = run_tts(response_text)
 
-                                await websocket.send(json.dumps({
-                                    "type": "tts",
-                                    "data": base64.b64encode(tts_audio).decode("utf-8")
-                                }))
+                                    await websocket.send(json.dumps({
+                                        "type": "tts",
+                                        "data": base64.b64encode(tts_audio).decode("utf-8")
+                                    }))
+                                    print("TTS 응답 전송 완료")
+
+                                except Exception as e:
+                                    print("TTS 처리 오류:", e)
                                 print("TTS 전송 완료")
 
                                 # 세션 종료
