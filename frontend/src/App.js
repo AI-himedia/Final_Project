@@ -2,45 +2,31 @@
 import './App.css';
 
 // api
-import axiosInstance from './shared/api/AxiosInstance';
+import axiosInstance from './services/api/AxiosInstance';
 
 // components
-import Header from './shared/components/Header';
-import LoginPage from './shared/pages/login/LoginPage';
+import Header from './components/Header/Header.js';
+import Footer from './components/Footer/Footer.js';
+import SideBar from './components/SideBar/SideBar.js';
+import UpButton from './components/UpButton/UpButton.js';
 
 // test page
-import ConnectionTestPage from './web/test/ConnectionTestPage';
-import RealTimeAudioStream from './web/test/RealTimeAudioStream';
+import ConnectionTestPage from './test/ConnectionTestPage.js';
+import RealTimeAudioStream from './test/RealTimeAudioStream.js';
 
 // pages
-import MainPage from './shared/pages/MainPage';
-import SideMenu from './shared/components/SideMenu';
-import UpButton from './shared/components/UpButton';
-import KakaoRedirectPage from './shared/pages/login/KakaoRedirectPage';
-import SignUpPage from './shared/pages/login/SignUpPage';
+import MainPage from './pages/shared/main/MainPage.js';
+import LoginPage from './pages/shared/auth/LoginPage.js';
+import SignUpPage from './pages/shared/auth/SignUpPage/SignUpPage.js';
+import KakaoRedirectPage from './pages/shared/auth/KakaoRedirectPage/KakaoRedirectPage.js';
+import ApplyPage from './pages/app/service/ApplyPage/ApplyPage.js';
 
 // hooks
-import { useAuthCheck } from './shared/hooks/useAuthCheck';
-
-// context
-import { LoadingProvider, useLoading } from './shared/context/LoadingContext';
+import { useAuthCheck } from './hooks/useAuthCheck';
 
 // 라이브러리
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';
-
-const LoadingOverlay = () => {
-  const { isLoading } = useLoading();
-
-  return (
-    isLoading && (
-      <div className="Spinner_Overlay">
-        <ScaleLoader />
-      </div>
-    )
-  );
-};
 
 export default function App() {
   const location = useLocation();
@@ -55,43 +41,47 @@ export default function App() {
   const handleLogout = async () => {
     try {
       await axiosInstance.post('/member/logout');
-      setIsLogin(false); // 상태 즉시 업데이트
+      setIsLogin(false);
       Navigate('/');
     } catch (err) {
       console.error('로그아웃 실패:', err);
     }
   };
 
-  const hiddenLayoutRoutes = ['/login', '/test'];
+  // Footer 공백 지원 주소
+  const isFooterPage = ['/'].includes(location.pathname);
+
+  // Header 숨김 지원 주소
+  const hiddenLayoutRoutes = ['/apply', '/test', '/wstest'];
   const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
     location.pathname.startsWith(path)
   );
 
   return (
-    <LoadingProvider>
-      <div className="App">
-        {!isHiddenLayout && (
-          <>
-            <Header
-              isMainPage={location.pathname === '/'}
-              isLogin={isLogin}
-              onLogout={handleLogout}
-            />
-            <SideMenu />
-            <UpButton />
-          </>
-        )}
-        <LoadingOverlay />
-        <Routes>
-          <Route path="/" element={<MainPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/member/kakao" element={<KakaoRedirectPage />} />
+    <div className={`App ${isFooterPage ? 'hasFooter' : ''}`}>
+      {!isHiddenLayout && (
+        <>
+          <Header
+            isMainPage={location.pathname === '/'}
+            isLogin={isLogin}
+            onLogout={handleLogout}
+          />
+          <SideBar />
+          <UpButton />
+        </>
+      )}
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/member/kakao" element={<KakaoRedirectPage />} />
 
-          <Route path="/test" element={<ConnectionTestPage />} />
-          <Route path="/wstest" element={<RealTimeAudioStream />} />
-        </Routes>
-      </div>
-    </LoadingProvider>
+        <Route path="/apply" element={<ApplyPage />} />
+
+        <Route path="/test" element={<ConnectionTestPage />} />
+        <Route path="/wstest" element={<RealTimeAudioStream />} />
+      </Routes>
+      <Footer />
+    </div>
   );
 }
