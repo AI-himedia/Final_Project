@@ -1,27 +1,29 @@
-// src/App.js
+// 공통 스타일
 import './App.css';
 
-// api
+// API 인스턴스
 import axiosInstance from './services/api/AxiosInstance';
 
-// components
+// 컴포넌트
 import Header from './components/Header/Header.js';
 import Footer from './components/Footer/Footer.js';
 import SideBar from './components/SideBar/SideBar.js';
 import UpButton from './components/UpButton/UpButton.js';
 
-// test page
+// 테스트용 페이지
 import ConnectionTestPage from './test/ConnectionTestPage.js';
 import RealTimeAudioStream from './test/RealTimeAudioStream.js';
 
-// pages
+// 페이지
 import MainPage from './pages/shared/main/MainPage.js';
 import LoginPage from './pages/shared/auth/LoginPage.js';
 import SignUpPage from './pages/shared/auth/SignUpPage/SignUpPage.js';
 import KakaoRedirectPage from './pages/shared/auth/KakaoRedirectPage/KakaoRedirectPage.js';
 import ApplyPage from './pages/app/service/ApplyPage/ApplyPage.js';
-import CallPage from './pages/app/service/Call/CallPage.js';
-import SmsPage from './pages/app/service/Sms/SmsPage.js';
+import CallPage from './pages/app/service/CallPage/CallPage.js';
+import SmsPage from './pages/app/service/SmsPage/SmsPage.js';
+import TermsOfServicePage from './pages/app/service/TermsOfServicePage/TermsOfServicePage.js';
+import PaymentNoticePage from './pages/app/service/PaymentNoticePage/PaymentNoticePage.js';
 
 // hooks
 import { useAuthCheck } from './hooks/useAuthCheck';
@@ -34,12 +36,12 @@ export default function App() {
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(false);
 
-  // useAuthCheck 훅을 사용하여 로그인 상태 확인
+  // 로그인 상태 확인 (최초 렌더 시)
   useAuthCheck((loginStatus) => {
     setIsLogin(loginStatus);
   });
 
-  // 로그아웃 핸들러를 상위 컴포넌트로 이동
+  // 로그아웃 처리 함수
   const handleLogout = async () => {
     try {
       await axiosInstance.post('/member/logout');
@@ -50,34 +52,36 @@ export default function App() {
     }
   };
 
-  // Footer 공백 지원 주소
+  // Footer가 필요한 페이지
   const isFooterPage = ['/'].includes(location.pathname);
 
-  // Header 숨김 지원 주소
-  const hiddenLayoutRoutes = [
+  // Header 숨겨야 하는 라우트
+  const noHeaderRoutes = [
     '/service',
     '/service/call',
     '/service/sms',
     '/test',
     '/wstest',
   ];
-  const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
-    location.pathname.startsWith(path)
-  );
+  const isHeaderHidden = noHeaderRoutes.includes(location.pathname);
+
+  // SideBar, UpButton 숨김 처리 라우트
+  const noSidebarRoutes = [...noHeaderRoutes];
+  const noUpButtonRoutes = [...noHeaderRoutes];
 
   return (
     <div className={`App ${isFooterPage ? 'hasFooter' : ''}`}>
-      {!isHiddenLayout && (
-        <>
-          <Header
-            isMainPage={location.pathname === '/'}
-            isLogin={isLogin}
-            onLogout={handleLogout}
-          />
-          <SideBar />
-          <UpButton />
-        </>
+      {!isHeaderHidden && (
+        <Header
+          isMainPage={location.pathname === '/'}
+          isLogin={isLogin}
+          onLogout={handleLogout}
+        />
       )}
+
+      {!noSidebarRoutes.includes(location.pathname) && <SideBar />}
+      {!noUpButtonRoutes.includes(location.pathname) && <UpButton />}
+
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -85,12 +89,15 @@ export default function App() {
         <Route path="/member/kakao" element={<KakaoRedirectPage />} />
 
         <Route path="/service" element={<ApplyPage />} />
-        <Route path="/service/call" element={<SmsPage />} />
-        <Route path="/service/sms" element={<CallPage />} />
+        <Route path="/service/terms" element={<TermsOfServicePage />} />
+        <Route path="/service/sms" element={<SmsPage />} />
+        <Route path="/service/call" element={<CallPage />} />
+        <Route path="/service/payment-notice" element={<PaymentNoticePage />} />
 
         <Route path="/test" element={<ConnectionTestPage />} />
         <Route path="/wstest" element={<RealTimeAudioStream />} />
       </Routes>
+
       <Footer />
     </div>
   );
