@@ -23,7 +23,7 @@
     <select id="findSubscriptionSummaryByUserCode" resultType="com.aix.againhello.sms.apiWrapper.SubscriptionSummaryDTO">
         SELECT
             sub.subscription_code AS subscriptionCode,
-            d.name AS name,
+            d.deceased_name AS name,
             c.content AS content,
             c.message_time AS messageTime
         FROM subscription sub
