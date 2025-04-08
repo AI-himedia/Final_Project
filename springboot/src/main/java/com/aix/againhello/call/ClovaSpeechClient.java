@@ -71,10 +71,10 @@ class AudioSegment {
 public class ClovaSpeechClient {
 
     // Clova Speech secret key
-    private static final String SECRET = "8d0a301d5bd74d56962a5d60cca8bd7b";
+    private static final String SECRET = "";
     // Clova Speech invoke URL
-    private static final String INVOKE_URL = "https://clovaspeech-gw.ncloud.com/external/v1/10958/de48a511bb7758f55ce82456a2e8602e0f49afae3779ac31e894fc7af4f5bdf1";
-
+    private static final String INVOKE_URL = ""
+    
     private CloseableHttpClient httpClient = HttpClients.createDefault();
     private Gson gson = new Gson();
 
