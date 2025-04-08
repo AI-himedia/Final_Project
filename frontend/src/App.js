@@ -20,6 +20,8 @@ import LoginPage from './pages/shared/auth/LoginPage.js';
 import SignUpPage from './pages/shared/auth/SignUpPage/SignUpPage.js';
 import KakaoRedirectPage from './pages/shared/auth/KakaoRedirectPage/KakaoRedirectPage.js';
 import ApplyPage from './pages/app/service/ApplyPage/ApplyPage.js';
+import CallPage from './pages/app/service/Call/CallPage.js';
+import SmsPage from './pages/app/service/Sms/SmsPage.js';
 
 // hooks
 import { useAuthCheck } from './hooks/useAuthCheck';
@@ -52,7 +54,13 @@ export default function App() {
   const isFooterPage = ['/'].includes(location.pathname);
 
   // Header 숨김 지원 주소
-  const hiddenLayoutRoutes = ['/apply', '/test', '/wstest'];
+  const hiddenLayoutRoutes = [
+    '/service',
+    '/service/call',
+    '/service/sms',
+    '/test',
+    '/wstest',
+  ];
   const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
     location.pathname.startsWith(path)
   );
@@ -76,7 +84,9 @@ export default function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/member/kakao" element={<KakaoRedirectPage />} />
 
-        <Route path="/apply" element={<ApplyPage />} />
+        <Route path="/service" element={<ApplyPage />} />
+        <Route path="/service/call" element={<SmsPage />} />
+        <Route path="/service/sms" element={<CallPage />} />
 
         <Route path="/test" element={<ConnectionTestPage />} />
         <Route path="/wstest" element={<RealTimeAudioStream />} />

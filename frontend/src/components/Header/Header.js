@@ -9,7 +9,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { GoPerson } from 'react-icons/go';
 import { LuLogOut } from 'react-icons/lu';
 
-import { MdFirstPage } from 'react-icons/md';
+import { IoMdArrowBack } from 'react-icons/io';
 
 export default function Header({ isMainPage, isLogin, onLogout }) {
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
@@ -29,26 +29,28 @@ export default function Header({ isMainPage, isLogin, onLogout }) {
     <header
       className={`Header_Container ${
         isHeaderWhitePage ? 'Header_Main' : 'Header_Default'
-      }`}
+      } ${isLoginPage ? 'Header_LoginPage' : ''}`}
     >
       <div className="Header_Inner">
-        <Link to="/">
-          <div
-            className={`Header_Logo ${
-              isHeaderWhitePage ? 'Header_White' : 'Header_Black'
-            }`}
-          >
-            다시, 안녕
-          </div>
-        </Link>
+        {!isLoginPage && (
+          <Link to="/">
+            <div
+              className={`Header_Logo ${
+                isHeaderWhitePage ? 'Header_White' : 'Header_Black'
+              }`}
+            >
+              다시, 안녕
+            </div>
+          </Link>
+        )}
 
-        <ul className="Header_Menu">
+        {/* <ul className="Header_Menu">
           <li>기억의 연대기</li>
           <li>마음의 정원</li>
           <li>우리의 안녕</li>
           <li>기억 앨범</li>
           <li>고인의 이야기</li>
-        </ul>
+        </ul> */}
 
         <div className="Header_Actions">
           {isLoginPage ? (
@@ -59,7 +61,7 @@ export default function Header({ isMainPage, isLogin, onLogout }) {
                 }`}
                 title="홈으로"
               >
-                <MdFirstPage fontSize="medium" />
+                <IoMdArrowBack fontSize="medium" />
               </button>
             </Link>
           ) : isLogin ? (

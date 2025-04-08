@@ -1,11 +1,10 @@
 @media (max-width: 480px) {
-  .ApplyPage_Container_app {
+  .ApplyPage_Container {
     height: 100vh;
-    padding: 32px 24px;
+    padding: 0 24px 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #f8f9fb;
     box-sizing: border-box;
   }
 
@@ -17,8 +16,15 @@
   }
 
   .ApplyPage_Title h2 {
-    font-size: 22px;
+    font-size: 19px;
     color: #262958;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .ApplyPage_Description {
+    font-size: 12px;
+    color: #808080;
     font-weight: 700;
     margin-bottom: 10px;
   }
@@ -28,36 +34,112 @@
     height: 300px;
     margin-top: 40px;
     border-radius: 35px;
-    background-color: white;
+    background-color: transparent;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */
+    animation: floatContainer 3s ease-in-out infinite;
+    overflow: visible;
+    position: relative;
+    z-index: 0;
+  }
+
+  .ApplyPage_Swiper {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .ApplyPage_Swiper .swiper-slide {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 35px;
+    overflow: hidden;
+    box-shadow: 6px 8px 16px rgba(0, 0, 0, 0.15);
+    background-color: transparent;
   }
 
-  .ApplyPage_Banner img {
+  .swiper-pagination {
+    bottom: -2rem !important;
+  }
+
+  .ApplyPage_BannerImage {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 35px;
+    animation: floatImage 3s ease-in-out infinite;
+    box-shadow: 6px 8px 16px rgba(0, 0, 0, 0.15);
   }
 
-  .ApplyPage_Icon {
-    font-size: 48px;
+  .ApplyPage_SkipButton {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    bottom: 9.5rem;
+    left: 0;
+    z-index: 10;
+  }
+
+  .ApplyPage_SkipButton button {
+    background: none;
+    border: none;
+    color: #999999;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+  }
+
+  @keyframes floatContainer {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  .ApplyPage_Buttons {
+    margin-top: auto;
+    margin-bottom: 6rem;
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
   }
 
   .ApplyPage_Button {
-    margin-top: auto;
-    margin-bottom: 5rem;
-    width: 100%;
-    max-width: 360px;
-    padding: 14px 0;
-    background-color: #3b5bfe;
-    color: white;
-    border: none;
+    padding: 14px 24px;
+    background-color: white;
+    color: #3b5bfe;
+    border: 2px solid #3b5bfe;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+    flex: 1;
+    max-width: 140px;
+  }
+
+  .ApplyPage_Button.selected {
+    background-color: #3b5bfe;
+    color: white;
+  }
+
+  .ApplyPage_SelectedInfo {
+    margin-top: 24px;
+    font-size: 16px;
+    color: #333;
   }
 }

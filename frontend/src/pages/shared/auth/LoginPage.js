@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getKakaoLoginLink } from '../../../services/api/KakaoApi.js';
 import axiosInstance from '../../../services/api/AxiosInstance';
 
+import './LoginPage.web.css';
 import './LoginPage.mobile.css';
 
 export default function LoginPage() {
