@@ -2,7 +2,7 @@ import asyncio
 from websockets.legacy.server import serve, WebSocketServerProtocol
 import json
 import base64
-from test import run_llm, run_tts
+from tts_test import run_llm, run_tts
 
 
 async def handler(websocket: WebSocketServerProtocol):
