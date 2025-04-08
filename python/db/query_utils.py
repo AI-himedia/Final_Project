@@ -1,4 +1,4 @@
-from db_postgresql import get_db_connection
+from db.db_postgresql import get_db_connection
 
 
 def fetch_prompt_data(subscription_code: int) -> dict:
