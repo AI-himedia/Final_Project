@@ -7,6 +7,7 @@ def fetch_prompt_data(subscription_code: int) -> dict:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT
+                    s.deceased_code,
                     u.full_name AS user_name,
                     dd.user_nickname,
                     dd.relationship,
