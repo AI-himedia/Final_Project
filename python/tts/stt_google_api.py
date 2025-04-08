@@ -11,7 +11,7 @@ client = speech.SpeechClient()
 
 config = speech.RecognitionConfig(
     encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-    sample_rate_hertz=44100,
+    sample_rate_hertz=48000,
     language_code="ko-KR",
 )
 

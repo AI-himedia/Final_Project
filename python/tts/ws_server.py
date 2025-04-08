@@ -6,10 +6,6 @@ import base64
 from stt_google_api import run_streaming_stt
 from test import run_llm, run_tts
 
-# TTS 호출
-async def run_tts(text: str) -> bytes:
-    return b"FAKE_TTS_AUDIO_BYTES"  # 실제 TTS 바이트 데이터
-
 
 async def handler(websocket: WebSocketServerProtocol):
     print("클라이언트 연결됨")
@@ -77,19 +73,19 @@ async def handler(websocket: WebSocketServerProtocol):
                                 print("중간 결과 전송 실패:", e)
                             
                     # 최종 결과가 확인되면 LLM + TTS 처리
-                    if result.is_final:
-                        try:
-                            response_text = run_llm(transcript)
-                            tts_audio = run_tts(response_text)
+                    # if result.is_final:
+                    #     try:
+                    #         response_text = run_llm(transcript)
+                    #         tts_audio = run_tts(response_text)
 
-                            await websocket.send(json.dumps({
-                                "type": "tts",
-                                "data": base64.b64encode(tts_audio).decode("utf-8")
-                            }))
-                            print("TTS 전송 완료")
+                    #         await websocket.send(json.dumps({
+                    #             "type": "tts",
+                    #             "data": base64.b64encode(tts_audio).decode("utf-8")
+                    #         }))
+                    #         print("TTS 전송 완료")
 
-                        except Exception as e:
-                            print("TTS 처리 오류:", e)
+                    #     except Exception as e:
+                    #         print("TTS 처리 오류:", e)
 
         except Exception as e:
             print("STT 처리 오류:", e)
