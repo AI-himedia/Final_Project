@@ -41,3 +41,7 @@ aws:
     secret-key: ${AWS_SECRET_ACCESS_KEY:}
   s3:
     bucket-name: ai-himedia
+
+clova:
+  SECRET: ${CLOVA_SPEECH_SECRET}
+  INVOKE_URL: ${CLOVA_SPEECH_INVOKE-URL}
