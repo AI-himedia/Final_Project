@@ -60,7 +60,6 @@ public class SmsController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("대화록 업로드 실패");
         }
-
         int dbResult = smsService.getPromptFromLLM(deceasedDataDTO, filePath);
 
         return ResponseEntity.ok("오케이" + dbResult);
@@ -79,7 +78,7 @@ public class SmsController {
 //                    .body(new SmsInitResponse<>("UNAUTHORIZED", "로그인이 필요합니다.", null));
 //        }
         // 유저 코드
-        int userCode = 1;
+        int userCode = 3;
         return ResponseEntity.ok(smsService.checkInit(userCode));
     }
 

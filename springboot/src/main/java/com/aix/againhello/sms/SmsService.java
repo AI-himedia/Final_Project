@@ -97,7 +97,7 @@ public class SmsService {
 
     public String sendUserInputToPython(ChatRequestDTO requestDto) {
         // FastAPI 엔드포인트
-        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "generate-response";
+        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "responses";
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

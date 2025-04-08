@@ -4,7 +4,7 @@ from langchain_core.runnables import RunnableConfig
 from llm.prompt_template import SYSTEM_PROMPT_TEMPLATE
 from llm.chain_config import base_chain
 from llm.memory_chain import MyChatChain
-from llm.prompt_data import fetch_prompt_data
+from db.query_utils import fetch_prompt_data
 
 
 sms_router = APIRouter()
@@ -30,13 +30,13 @@ class ChatRequest(BaseModel):
 
 
 
-@sms_router.post("/generate-response")
+@sms_router.post("/responses")
 def generate_response(request: ChatRequest):
     subscription_code = request.subscriptionCode
     user_input = request.userInput
 
     # 1. DB에서 prompt용 정보 조회
-    prompt_data = fetch_prompt_data(subscription_code)
+    prompt_data = generate_response(subscription_code)
 
     # 2. system prompt 생성
     system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
@@ -50,5 +50,7 @@ def generate_response(request: ChatRequest):
 
     my_chat_chain = MyChatChain(base_chain)
     response = my_chat_chain.invoke(inputs, config=config)
+
+
     
     return {"response": response.content}
