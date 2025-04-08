@@ -60,13 +60,12 @@ public class SmsController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("대화록 업로드 실패");
         }
-
         int dbResult = smsService.getPromptFromLLM(deceasedDataDTO, filePath);
 
         return ResponseEntity.ok("오케이" + dbResult);
     }
 
-
+    /**문자서비스 실행시*/
     @GetMapping("/init-check")
     public ResponseEntity<SmsInitResponse> initCheck() {
         // 1. 유저 정보 추출
@@ -79,10 +78,11 @@ public class SmsController {
 //                    .body(new SmsInitResponse<>("UNAUTHORIZED", "로그인이 필요합니다.", null));
 //        }
         // 유저 코드
-        int userCode = 1;
+        int userCode = 3;
         return ResponseEntity.ok(smsService.checkInit(userCode));
     }
 
+    /**특정 채팅방 입장시*/
     @GetMapping("/recent-contents/{subscriptionCode}")
     public ResponseEntity<List<RecentContentsDTO>> getRecentContents(
             @PathVariable int subscriptionCode) {
@@ -90,6 +90,7 @@ public class SmsController {
         return ResponseEntity.ok(smsService.getRecentContents(subscriptionCode));
     }
 
+    /**문자 입력시*/
     @PostMapping("/chat")
     public ResponseEntity<String> chatWithAi(@RequestBody ChatRequestDTO requestDto) {
 

@@ -1,0 +1,58 @@
+.Up_Show {
+  position: fixed;
+  bottom: 100px;
+  right: 50px;
+  z-index: 999;
+  text-align: right;
+
+  /* 애니메이션 초기값 (숨김 상태) */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.Up_Button {
+  border: none;
+  margin-bottom: 0px;
+  opacity: 1;
+  visibility: visible;
+
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  width: auto;
+  height: 60px;
+  border-radius: 30px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 3px 4px 10px 2px rgba(0, 0, 0, 0.2);
+  transition: 0.4s ease-out;
+  transform-origin: 0 100%;
+}
+
+.Up_Button .icon {
+  background-position: center center;
+  background-repeat: no-repeat;
+
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  background-size: contain;
+}
+
+.Up_Show.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 숨김 상태일 때 애니메이션 적용 위해 display: none 제거 */
+.Up_Show.hidden {
+  /* display: none 제거 */
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}

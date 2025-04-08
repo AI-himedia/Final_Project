@@ -12,6 +12,10 @@
 }
 
 @media (max-width: 480px) {
+  .mobile.hasFooter {
+    padding-bottom: 75px;
+  }
+
   .webOnlyBr {
     display: none;
   }

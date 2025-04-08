@@ -1,97 +1,104 @@
-// src/App.js
+// 공통 스타일
 import './App.css';
 
-// api
-import axiosInstance from './shared/api/AxiosInstance';
+// API 인스턴스
+import axiosInstance from './services/api/AxiosInstance';
 
-// components
-import Header from './shared/components/Header';
-import LoginPage from './shared/pages/login/LoginPage';
+// 컴포넌트
+import Header from './components/Header/Header.js';
+import Footer from './components/Footer/Footer.js';
+import SideBar from './components/SideBar/SideBar.js';
+import UpButton from './components/UpButton/UpButton.js';
 
-// test page
-import ConnectionTestPage from './web/test/ConnectionTestPage';
-import RealTimeAudioStream from './web/test/RealTimeAudioStream';
+// 테스트용 페이지
+import ConnectionTestPage from './test/ConnectionTestPage.js';
+import RealTimeAudioStream from './test/RealTimeAudioStream.js';
 
-// pages
-import MainPage from './shared/pages/MainPage';
-import SideMenu from './shared/components/SideMenu';
-import UpButton from './shared/components/UpButton';
-import KakaoRedirectPage from './shared/pages/login/KakaoRedirectPage';
-import SignUpPage from './shared/pages/login/SignUpPage';
+// 페이지
+import MainPage from './pages/shared/main/MainPage.js';
+import LoginPage from './pages/shared/auth/LoginPage.js';
+import SignUpPage from './pages/shared/auth/SignUpPage/SignUpPage.js';
+import KakaoRedirectPage from './pages/shared/auth/KakaoRedirectPage/KakaoRedirectPage.js';
+import ApplyPage from './pages/app/service/ApplyPage/ApplyPage.js';
+import CallPage from './pages/app/service/CallPage/CallPage.js';
+import SmsPage from './pages/app/service/SmsPage/SmsPage.js';
+import TermsOfServicePage from './pages/app/service/TermsOfServicePage/TermsOfServicePage.js';
+import PaymentNoticePage from './pages/app/service/PaymentNoticePage/PaymentNoticePage.js';
 
 // hooks
-import { useAuthCheck } from './shared/hooks/useAuthCheck';
-
-// context
-import { LoadingProvider, useLoading } from './shared/context/LoadingContext';
+import { useAuthCheck } from './hooks/useAuthCheck';
 
 // 라이브러리
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { ScaleLoader } from 'react-spinners';
 import { useState } from 'react';
-
-const LoadingOverlay = () => {
-  const { isLoading } = useLoading();
-
-  return (
-    isLoading && (
-      <div className="Spinner_Overlay">
-        <ScaleLoader />
-      </div>
-    )
-  );
-};
 
 export default function App() {
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(false);
 
-  // useAuthCheck 훅을 사용하여 로그인 상태 확인
+  // 로그인 상태 확인 (최초 렌더 시)
   useAuthCheck((loginStatus) => {
     setIsLogin(loginStatus);
   });
 
-  // 로그아웃 핸들러를 상위 컴포넌트로 이동
+  // 로그아웃 처리 함수
   const handleLogout = async () => {
     try {
       await axiosInstance.post('/member/logout');
-      setIsLogin(false); // 상태 즉시 업데이트
+      setIsLogin(false);
       Navigate('/');
     } catch (err) {
       console.error('로그아웃 실패:', err);
     }
   };
 
-  const hiddenLayoutRoutes = ['/login', '/test'];
-  const isHiddenLayout = hiddenLayoutRoutes.some((path) =>
-    location.pathname.startsWith(path)
-  );
+  // Footer가 필요한 페이지
+  const isFooterPage = ['/'].includes(location.pathname);
+
+  // Header 숨겨야 하는 라우트
+  const noHeaderRoutes = [
+    '/service',
+    '/service/call',
+    '/service/sms',
+    '/test',
+    '/wstest',
+  ];
+  const isHeaderHidden = noHeaderRoutes.includes(location.pathname);
+
+  // SideBar, UpButton 숨김 처리 라우트
+  const noSidebarRoutes = [...noHeaderRoutes];
+  const noUpButtonRoutes = [...noHeaderRoutes];
 
   return (
-    <LoadingProvider>
-      <div className="App">
-        {!isHiddenLayout && (
-          <>
-            <Header
-              isMainPage={location.pathname === '/'}
-              isLogin={isLogin}
-              onLogout={handleLogout}
-            />
-            <SideMenu />
-            <UpButton />
-          </>
-        )}
-        <LoadingOverlay />
-        <Routes>
-          <Route path="/" element={<MainPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/member/kakao" element={<KakaoRedirectPage />} />
+    <div className={`App ${isFooterPage ? 'hasFooter' : ''}`}>
+      {!isHeaderHidden && (
+        <Header
+          isMainPage={location.pathname === '/'}
+          isLogin={isLogin}
+          onLogout={handleLogout}
+        />
+      )}
 
-          <Route path="/test" element={<ConnectionTestPage />} />
-          <Route path="/wstest" element={<RealTimeAudioStream />} />
-        </Routes>
-      </div>
-    </LoadingProvider>
+      {!noSidebarRoutes.includes(location.pathname) && <SideBar />}
+      {!noUpButtonRoutes.includes(location.pathname) && <UpButton />}
+
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/member/kakao" element={<KakaoRedirectPage />} />
+
+        <Route path="/service" element={<ApplyPage />} />
+        <Route path="/service/terms" element={<TermsOfServicePage />} />
+        <Route path="/service/sms" element={<SmsPage />} />
+        <Route path="/service/call" element={<CallPage />} />
+        <Route path="/service/payment-notice" element={<PaymentNoticePage />} />
+
+        <Route path="/test" element={<ConnectionTestPage />} />
+        <Route path="/wstest" element={<RealTimeAudioStream />} />
+      </Routes>
+
+      <Footer />
+    </div>
   );
 }

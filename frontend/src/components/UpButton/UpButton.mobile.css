@@ -1,0 +1,16 @@
+@media (max-width: 480px) {
+  .Up_Show {
+    bottom: 7rem;
+    right: 20px;
+  }
+
+  .Up_Button {
+    height: 44px;
+    border-radius: 22px;
+  }
+
+  .Up_Button .icon {
+    width: 44px;
+    height: 44px;
+  }
+}
