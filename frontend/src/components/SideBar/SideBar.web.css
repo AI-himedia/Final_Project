@@ -1,0 +1,97 @@
+.SideMenu_Container {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  /* right: -100px; */
+  width: 120px;
+  min-height: 100px;
+  left: 0;
+  /* right: 0; */
+  transform: translateY(-50%);
+  background-color: #fff;
+  /* border-radius: 16px 0 0 16px; */
+  border-radius: 0 16px 16px 0;
+  border: 1px solid #ebebeb;
+  z-index: 999;
+  transition: transform 0.3s ease;
+}
+
+.SideMenu_Frequency {
+  background-color: rgba(171, 202, 233, 0.17);
+  padding: 36px 10px 38px;
+  border-radius: 16px 0 0 0;
+}
+
+.SideMenu_Frequency li {
+  padding-bottom: 24px;
+}
+
+.SideMenu_Frequency li a span {
+  display: block;
+  font-size: 14px;
+  color: #666666;
+  letter-spacing: 0;
+  text-align: center;
+  padding-top: 8px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.SideMenu_Frequency li a {
+  display: block;
+}
+
+.SideMenu_Button {
+  position: absolute;
+  top: 277px;
+  /* left: -18px; */
+  right: -18px;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border: 1.2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.SideMenu_Media {
+  padding: 36px 45px;
+}
+
+.SideMenu_CustomIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.SideMenu_Media li {
+  padding-bottom: 25px;
+}
+
+.SideMenu_Media li:last-child {
+  padding-bottom: 0px;
+}
+
+/* 열림/닫힘 상태에 따른 위치 조정 */
+.SideMenu_Container.open {
+  /* right: 0;
+    left: 0;
+    transition: right 0.3s ease; */
+  transform: translate(0, -50%);
+}
+
+.SideMenu_Container.closed {
+  /* right: -100px;
+    left: -100px;
+    transition: right 0.3s ease; */
+  transform: translate(-84%, -50%);
+}
+
+.SideMenu_Button_Icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: #666;
+}
