@@ -1,0 +1,103 @@
+@media (max-width: 480px) {
+  .Terms_Container {
+    padding: 24px;
+  }
+
+  .Terms_Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+  }
+
+  .Terms_NextButton {
+    font-size: 16px;
+    color: #ccc;
+    background: none;
+    border: none;
+  }
+
+  .Terms_NextButton.active {
+    color: #007aff;
+    font-weight: bold;
+  }
+
+  .Terms_Timer {
+    display: inline-block;
+    color: #007aff;
+    border: 1px solid #007aff;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+  }
+
+  .Terms_Title {
+    margin-bottom: 24px;
+  }
+
+  .Terms_Heading {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 10px 0;
+  }
+
+  .Terms_Description {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .Terms_CheckboxItem:first-child {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+
+  .Terms_CheckboxList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .Terms_CheckboxItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .Terms_CheckboxLabel {
+    font-size: 16px;
+  }
+
+  .Terms_CheckboxLabel__All {
+    font-weight: bold;
+  }
+
+  .Terms_CheckboxCircle {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    position: relative;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+
+  .Terms_CheckboxCircle.checked {
+    background-color: #007aff;
+    border-color: #007aff;
+  }
+
+  .Terms_CheckboxCircle.checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -58%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+  }
+}

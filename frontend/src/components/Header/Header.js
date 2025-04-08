@@ -23,6 +23,7 @@ export default function Header({ isMainPage, isLogin, onLogout }) {
   }, []);
 
   const isLoginPage = location.pathname === '/login';
+  const isPaymentNoticePage = location.pathname === '/service/payment-notice';
   const isHeaderWhitePage = location.pathname === '/' || isLoginPage;
 
   return (
@@ -32,28 +33,8 @@ export default function Header({ isMainPage, isLogin, onLogout }) {
       } ${isLoginPage ? 'Header_LoginPage' : ''}`}
     >
       <div className="Header_Inner">
-        {!isLoginPage && (
-          <Link to="/">
-            <div
-              className={`Header_Logo ${
-                isHeaderWhitePage ? 'Header_White' : 'Header_Black'
-              }`}
-            >
-              다시, 안녕
-            </div>
-          </Link>
-        )}
-
-        {/* <ul className="Header_Menu">
-          <li>기억의 연대기</li>
-          <li>마음의 정원</li>
-          <li>우리의 안녕</li>
-          <li>기억 앨범</li>
-          <li>고인의 이야기</li>
-        </ul> */}
-
-        <div className="Header_Actions">
-          {isLoginPage ? (
+        {isPaymentNoticePage ? (
+          <div className="Header_PaymentNotice">
             <Link to="/">
               <button
                 className={`Header_LoginButton ${
@@ -64,29 +45,60 @@ export default function Header({ isMainPage, isLogin, onLogout }) {
                 <IoMdArrowBack fontSize="medium" />
               </button>
             </Link>
-          ) : isLogin ? (
-            <button
-              onClick={onLogout}
-              className={`Header_LoginButton ${
-                isMainPage ? 'Header_White' : 'Header_Black'
-              }`}
-              title="로그아웃"
-            >
-              <LuLogOut fontSize="medium" />
-            </button>
-          ) : (
-            <Link to="/login">
-              <button
-                className={`Header_LoginButton ${
-                  isMainPage ? 'Header_White' : 'Header_Black'
-                }`}
-                title="로그인"
-              >
-                <GoPerson fontSize="medium" />
-              </button>
-            </Link>
-          )}
-        </div>
+            <h2 className="Header_PaymentTitle">결제 안내</h2>
+            <div style={{ width: 24 }}></div>
+          </div>
+        ) : (
+          <>
+            {!isLoginPage && (
+              <Link to="/">
+                <div
+                  className={`Header_Logo ${
+                    isHeaderWhitePage ? 'Header_White' : 'Header_Black'
+                  }`}
+                >
+                  다시, 안녕
+                </div>
+              </Link>
+            )}
+
+            <div className="Header_Actions">
+              {isLoginPage ? (
+                <Link to="/">
+                  <button
+                    className={`Header_LoginButton ${
+                      isHeaderWhitePage ? 'Header_White' : 'Header_Black'
+                    }`}
+                    title="홈으로"
+                  >
+                    <IoMdArrowBack fontSize="medium" />
+                  </button>
+                </Link>
+              ) : isLogin ? (
+                <button
+                  onClick={onLogout}
+                  className={`Header_LoginButton ${
+                    isMainPage ? 'Header_White' : 'Header_Black'
+                  }`}
+                  title="로그아웃"
+                >
+                  <LuLogOut fontSize="medium" />
+                </button>
+              ) : (
+                <Link to="/login">
+                  <button
+                    className={`Header_LoginButton ${
+                      isMainPage ? 'Header_White' : 'Header_Black'
+                    }`}
+                    title="로그인"
+                  >
+                    <GoPerson fontSize="medium" />
+                  </button>
+                </Link>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </header>
   );

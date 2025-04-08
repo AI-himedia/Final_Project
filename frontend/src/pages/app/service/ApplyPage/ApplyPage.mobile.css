@@ -77,6 +77,11 @@
     box-shadow: 6px 8px 16px rgba(0, 0, 0, 0.15);
   }
 
+  .Image_Zoom {
+    transform: scale(1.3);
+    transition: transform 0.3s ease-in-out;
+  }
+
   .ApplyPage_SkipButton {
     width: 100%;
     display: flex;
@@ -141,5 +146,22 @@
     margin-top: 24px;
     font-size: 16px;
     color: #333;
+  }
+
+  .ApplyPage_CustomNext {
+    width: 100%;
+    margin-top: 5.5rem;
+  }
+
+  .ApplyPage_NextButton {
+    width: 100%;
+    padding: 14px 0;
+    background-color: #3b5bfe;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
   }
 }

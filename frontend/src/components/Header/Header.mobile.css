@@ -33,4 +33,25 @@
   .Header_LoginButton svg {
     font-size: 24px;
   }
+
+  .Header_PaymentNotice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .Header_BackButton {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 24px;
+    padding: 0;
+  }
+
+  .Header_PaymentTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #111;
+  }
 }

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { Pagination } from 'swiper/modules';
@@ -14,7 +14,7 @@ export default function ApplyPage() {
 
   const handleSelect = (service) => {
     setSelectedService(service);
-    navigate(`/service/${service}`);
+    navigate('/service/terms', { state: { service } });
   };
 
   const slideContents = [
@@ -31,22 +31,22 @@ export default function ApplyPage() {
     {
       title: (
         <>
-          문자 서비스 안내
+          문자로 마음을 전해요
           <br />
-          고인을 추억하는 메시지를 전달할 수 있어요.
+          짧은 한마디가 큰 위로가 돼요.
         </>
       ),
-      description: '문자는 예약 발송으로 하루에 한 번 전달돼요.',
+      description: '하루 한 번, 고인에게 메시지를 보낼 수 있어요.',
     },
     {
       title: (
         <>
-          전화 서비스 안내
+          음성으로 감정을 나눠요
           <br />
-          음성으로 감정을 전하고 들을 수 있어요.
+          목소리로 기억을 이어가요.
         </>
       ),
-      description: '통화 시간은 제한되어 있으며, 실시간으로 연결돼요.',
+      description: '전화는 실시간으로 연결되며, 시간 제한이 있어요.',
     },
   ];
 
@@ -71,7 +71,7 @@ export default function ApplyPage() {
         >
           <SwiperSlide>
             <img
-              src="/assets/apply.jpg"
+              src="/assets/apply1.jpg"
               alt="설명1"
               className="ApplyPage_BannerImage"
             />
@@ -87,7 +87,7 @@ export default function ApplyPage() {
             <img
               src="/assets/apply3.jpg"
               alt="설명3"
-              className="ApplyPage_BannerImage"
+              className="ApplyPage_BannerImage Image_Zoom"
             />
           </SwiperSlide>
         </Swiper>
@@ -95,26 +95,15 @@ export default function ApplyPage() {
 
       {currentSlide < 2 ? (
         <div className="ApplyPage_SkipButton">
-          <button onClick={() => setCurrentSlide(2)}>건너뛰기</button>
+          <button onClick={() => swiperRef.current?.slideTo(2)}>
+            건너뛰기
+          </button>
         </div>
       ) : (
-        <div className="ApplyPage_Buttons">
-          <button
-            className={`ApplyPage_Button ${
-              selectedService === 'sms' ? 'selected' : ''
-            }`}
-            onClick={() => handleSelect('sms')}
-          >
-            문자 서비스
-          </button>
-          <button
-            className={`ApplyPage_Button ${
-              selectedService === 'call' ? 'selected' : ''
-            }`}
-            onClick={() => handleSelect('call')}
-          >
-            전화 서비스
-          </button>
+        <div className="ApplyPage_CustomNext">
+          <Link to="/service/payment-notice">
+            <button className="ApplyPage_NextButton">시작하기</button>
+          </Link>
         </div>
       )}
     </div>
