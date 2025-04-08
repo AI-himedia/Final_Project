@@ -42,22 +42,22 @@ export default function Footer() {
         <span>채팅</span>
       </Link>
       <Link
-        to="/apply"
+        to="/service"
         className={`Footer_Item ${
-          location.pathname === '/apply' ? 'active' : ''
+          location.pathname === '/service' ? 'active' : ''
         }`}
       >
         <RxFilePlus />
         <span>서비스 신청</span>
       </Link>
       <Link
-        to="/mypage"
+        to="/sms"
         className={`Footer_Item ${
           location.pathname === '/mypage' ? 'active' : ''
         }`}
       >
         <GoPerson />
-        <span>마이페이지</span>
+        <span>테스트</span>
       </Link>
     </footer>
   );
