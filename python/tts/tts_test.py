@@ -11,7 +11,7 @@ project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
 PROCESSED_AUDIO_PATH = os.path.join(current_dir, "processed_prompt.wav")
-ORIGINAL_AUDIO_PATH = r"C:\Users\201-06\Desktop\test.m4a"  # 실제 경로
+ORIGINAL_AUDIO_PATH = r"C:\Users\201-06\Desktop\sample.wav"  # 실제 경로
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
 OUTPUT_AUDIO_PATH = os.path.join(OUTPUT_DIR, "output.wav")
@@ -56,7 +56,7 @@ def convert_prompt_audio(input_path, output_path):
     audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
     audio.export(output_path, format="wav")
     print(f"오디오 변환 완료: {output_path}")
-
+ 
 
 # TTS 합성 및 바이트 반환
 def run_tts(text: str) -> bytes:

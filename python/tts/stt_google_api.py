@@ -11,7 +11,7 @@ client = speech.SpeechClient()
 
 config = speech.RecognitionConfig(
     encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-    sample_rate_hertz=48000,
+    sample_rate_hertz=16000,
     language_code="ko-KR",
 )
 
@@ -20,30 +20,63 @@ streaming_config = speech.StreamingRecognitionConfig(
     interim_results=True,  # 중간 결과도 받을 수 있도록 설정
 )
 
-# 오디오 queue로부터 chunk를 읽어 Google이 요구하는 형식으로 변환
+# 디버깅용 raw 오디오 저장 함수
+def save_debug_audio(chunk: bytes):
+    os.makedirs("debug_audio", exist_ok=True)
+    raw_path = "debug_audio/input_audio.raw"
+    with open(raw_path, "ab") as f:
+        f.write(chunk)
+
+
 def stt_streaming_generator(audio_queue: queue.Queue) -> Generator:
+    print("[STT Generator 시작]")
     buffer = b""
-    min_chunk_size = 4069   # 일정 크기 모아서 보내기
+    min_chunk_size = 1024  # 너무 작으면 timeout 가능성 있으니 일정 크기 보장
 
     while True:
         chunk = audio_queue.get()
+
         if chunk is None:
+            print("Generator 종료 신호 수신]")
             if buffer:
                 yield speech.StreamingRecognizeRequest(audio_content=buffer)
             break
-        
+
+        save_debug_audio(chunk)  # 디버깅용 저장
         buffer += chunk
-        
+
         if len(buffer) >= min_chunk_size:
+            print(f"[Generator] 수신 chunk: {len(buffer)} bytes")
             yield speech.StreamingRecognizeRequest(audio_content=buffer)
             buffer = b""  # 버퍼 초기화
-        
 
-# Streaming STT API 호출 함수
+
+
+# # STT용 generator (오디오 chunk를 하나씩 넘김)
+# def stt_streaming_generator(audio_queue: queue.Queue) -> Generator:
+#     print("[STT Generator 시작]")
+#     while True:
+#         chunk = audio_queue.get()
+
+#         if chunk is None:
+#             print("[Generator 종료 신호 수신]")
+#             break
+
+#         print(f"[Generator] 수신 chunk: {len(chunk)} bytes")
+
+#         # 디버그용: 저장
+#         save_debug_audio(chunk)
+
+#         yield speech.StreamingRecognizeRequest(audio_content=chunk)
+
+
+
+# Google STT Streaming API 호출 함수
 def run_streaming_stt(audio_queue: queue.Queue):
-    print("구글 API 호출")
+    print("STT 요청 시작")
     return client.streaming_recognize(
-        streaming_config, 
+        streaming_config,
         stt_streaming_generator(audio_queue)
     )
+
 
