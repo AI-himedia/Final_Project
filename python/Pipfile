@@ -8,6 +8,7 @@ fastapi = "==0.100.0"
 uvicorn = "==0.21.0"
 pydantic = "==2.6.3"
 openai = "==1.70.0"
+dotenv = "*"
 
 [dev-packages]
 

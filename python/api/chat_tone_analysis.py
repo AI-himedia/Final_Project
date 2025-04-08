@@ -15,7 +15,7 @@ import io
 
 
 # .env 로드
-# load_dotenv()
+load_dotenv()
 
 # openai.api_key = os.environ["OPENAI_API_KEY"]
 client = openai.OpenAI()
