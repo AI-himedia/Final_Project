@@ -91,18 +91,8 @@ public class FileStorageService {
             List<String> audioExtList = Arrays.asList(allowedAudioExtensions.split(","));
             List<String> videoExtList = Arrays.asList(allowedVideoExtensions.split(","));
 
-            // 파일 타입에 따라 저장 경로 결정
-            String fileType;
-            if (audioExtList.contains(extension)) {
-                fileType = "audio";
-            } else if (videoExtList.contains(extension)) {
-                fileType = "video";
-            } else {
-                throw new RuntimeException("지원하지 않는 파일 형식입니다: " + extension);
-            }
-
             // 파일 저장 디렉토리 생성
-            Path uploadPath = Paths.get(uploadDir, fileType);
+            Path uploadPath = Paths.get(uploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
