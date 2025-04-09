@@ -3,26 +3,11 @@ from langchain_core.messages import HumanMessage, AIMessage
 from db.postgresql_connector import get_db_connection
 
 class YourPostgresChatMessageHistory(BaseChatMessageHistory):
-    def __init__(self, session_id: str):
+    def __init__(self, session_id: str, deceased_code: int):
         self.session_id = session_id  # 예: "sms-123"
         self.subscription_code = int(session_id)
+        self.deceased_code = deceased_code
         self.conn = get_db_connection()
-
-    # def add_user_message(self, message: str) -> None:
-    #     with self.conn.cursor() as cur:
-    #         cur.execute("""
-    #             INSERT INTO contents (subscription_code, role, message_time, content)
-    #             VALUES (%s, 'user', NOW(), %s)
-    #         """, (self.subscription_code, message))
-    #         self.conn.commit()
-
-    # def add_ai_message(self, message: str) -> None:
-    #     with self.conn.cursor() as cur:
-    #         cur.execute("""
-    #             INSERT INTO contents (subscription_code, role, message_time, content)
-    #             VALUES (%s, 'ai', NOW(), %s)
-    #         """, (self.subscription_code, message))
-    #         self.conn.commit()
 
     @property
     def messages(self):
@@ -30,13 +15,9 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
             cur.execute("""
             SELECT role, content
             FROM contents
-            WHERE deceased_code = (
-                SELECT deceased_code
-                FROM subscription
-                WHERE subscription_code = %s
-            )
+            WHERE deceased_code = %s
             ORDER BY message_time ASC
-        """, (self.subscription_code,))
+        """, (self.deceased_code,))
             rows = cur.fetchall()
 
         message_objs = []
@@ -45,4 +26,13 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
                 message_objs.append(HumanMessage(content=content))
             else:
                 message_objs.append(AIMessage(content=content))
+
         return message_objs
+    
+    def clear(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+            DELETE FROM contents
+            WHERE deceased_code = %s
+            """, (self.deceased_code,))
+            self.conn.commit()

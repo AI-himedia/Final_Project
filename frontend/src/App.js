@@ -20,6 +20,7 @@ import { useAuthCheck } from './hooks/useAuthCheck';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 
+
 // 주요 페이지 컴포넌트
 import MainPage from './pages/shared/main/MainPage';
 import LoginPage from './pages/shared/auth/LoginPage';
@@ -33,8 +34,8 @@ import TermsOfServicePage from './pages/app/service/TermsOfServicePage/TermsOfSe
 import ProductPage from './pages/app/service/ProductPage/ProductPage';
 
 // 테스트 페이지
-import ConnectionTestPage from './test/ConnectionTestPage';
-import RealTimeAudioStream from './test/RealTimeAudioStream';
+import ConnectionTestPage from './test/ConnectionTestPage.js';
+import RealTimeAudioStream from './test/RealTimeAudioStream.js';
 import TTSAudioPlayer from './test/TTSAudioPlayer.js';
 import CallService from './test/CallService.js';
 
