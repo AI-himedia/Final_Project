@@ -20,12 +20,12 @@ class MyChatChain:
         )
 
     def get_memory(self, session_id):
-        print("🔍 session_id in get_memory:", session_id)
+        print("session_id in get_memory:", session_id)
 
         deceased_code = self.deceased_code_map.get(int(session_id))
         if not deceased_code:
             raise ValueError(f"deceased_code not found for session_id: {session_id}")
-        else: print("🔍 deceased_code:", deceased_code)
+        else: print("deceased_code:", deceased_code)
 
         return YourPostgresChatMessageHistory(
             session_id=session_id,

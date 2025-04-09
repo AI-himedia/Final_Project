@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import "./ChatTestPage.css";
 
 const ChatTestPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const bottomRef = useRef(null);
 
   const subscriptionCode = 300; // 하드코딩된 테스트용 코드
 
@@ -21,16 +23,13 @@ const ChatTestPage = () => {
 
       const aiMessage = {
         type: "ai",
-        content: response.data.response || "(응답 없음)",
+        content: response.data.message || "(응답 없음)",
       };
-    //   print(response);
-
-
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       const errorMessage = {
         type: "ai",
-        content: `오류: ${error.response?.data?.message || error.message}`,
+        content: error.response?.data?.message || error.message,
       };
       setMessages((prev) => [...prev, errorMessage]);
     }
@@ -45,30 +44,33 @@ const ChatTestPage = () => {
     }
   };
 
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
-    <div className="flex flex-col h-screen p-4">
-      <div className="flex-1 overflow-y-auto border rounded p-4 space-y-2 bg-white">
+    <div className="chat-container">
+      <div className="chat-box">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`max-w-[70%] px-4 py-2 rounded-xl ${
-              msg.type === "user"
-                ? "bg-blue-100 self-start text-left"
-                : "bg-green-100 self-end text-right"
-            }`}
+            className={`chat-message ${msg.type === "user" ? "user-message" : "ai-message"}`}
           >
             {msg.content}
           </div>
         ))}
+        <div ref={bottomRef} />
       </div>
 
-      <textarea
-        className="mt-4 border p-2 rounded resize-none h-24"
-        placeholder="메시지를 입력하세요..."
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
+      <div className="chat-input-wrapper">
+        <textarea
+          className="chat-input"
+          placeholder="메시지를 입력하세요..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
     </div>
   );
 };
