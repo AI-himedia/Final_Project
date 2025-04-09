@@ -32,7 +32,7 @@ const TTSAudioPlayer = () => {
             console.log("TTS 오디오 재생 시작");
           } catch (err) {
             console.error("오디오 재생 실패:", err);
-            alert("브라우저에서 오디오 자동 재생이 차단되었습니다.\n클릭 등 사용자 상호작용 후 다시 시도해주세요.");
+            alert("브라우저에서 오디오 자동 재생 차단");
           }
 
           audio.onended = () => {

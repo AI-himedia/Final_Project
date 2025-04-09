@@ -32,6 +32,7 @@ import { useAuthCheck } from './hooks/useAuthCheck';
 // 라이브러리
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import CallService from './test/CallService.js';
 
 export default function App() {
   const location = useLocation();
@@ -98,6 +99,7 @@ export default function App() {
         <Route path="/test" element={<ConnectionTestPage />} />
         <Route path="/wstest" element={<RealTimeAudioStream />} />
         <Route path='/ttstest' element={<TTSAudioPlayer/>}/>
+        <Route path="/call" element={<CallService />} />
       </Routes>
 
       <Footer />
