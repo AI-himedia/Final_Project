@@ -16,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -413,14 +414,19 @@ public class ClovaSpeechClient {
         }
     }
 
+    @Value("${file.upload.dir}")
+    private static String uploadDir;
+
+    @Value("${file.output.dir}")
+    private static String outputDir;
+
     public static void main(String[] args) {
         try {
-            // 입력 폴더 경로
-            String inputFolder = "/Users/jin/final_project/Final_Project/Final_Project/springboot/src/main/java/com/aix/againhello/call/input";
-            File folder = new File(inputFolder);
+            // 입력 폴더 경로 (사용자의 업로드 디렉토리와 동일)
+            File folder = new File(uploadDir);
 
             // 출력 기본 디렉토리
-            Path baseOutputDir = Paths.get("/Users/jin/final_project/Final_Project/Final_Project/springboot/src/main/java/com/aix/againhello/call/output");
+            Path baseOutputDir = Paths.get(outputDir);
             Files.createDirectories(baseOutputDir);
 
             // 지원되는 미디어 파일 목록 가져오기

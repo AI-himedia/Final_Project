@@ -10,4 +10,5 @@ public interface UserMapper {
     void save(User user);
     void updateRefreshToken(String email, String refreshToken);
     void deactivate(String email);
+    boolean existsById(int userCode);
 }

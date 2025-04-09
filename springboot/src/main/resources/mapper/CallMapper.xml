@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aix.againhello.call.CallMapper">
+
+    <select id="findActiveSubscription" resultType="com.aix.againhello.common.SubscriptionDTO">
+        SELECT subscription_code as subscriptionCode,
+               user_code as userCode,
+               service_code as serviceCode,
+               deceased_code as deceasedCode,
+               start_date as startDate,
+               end_date as endDate,
+               cancel_date as cancelDate
+        FROM subscription
+        WHERE user_code = #{userCode}
+          AND service_code = #{serviceCode}
+          AND end_date IS NULL
+    </select>
+
+    <insert id="insertDeceasedData" parameterType="com.aix.againhello.common.DeceasedDataDTO" useGeneratedKeys="true" keyProperty="deceasedCode">
+        INSERT INTO deceased_data (
+            deceased_name,
+            gender,
+            deceased_age,
+            personality,
+            deceased_nickname,
+            user_nickname,
+            relationship,
+            speaking_tone,
+            tone_style,
+            common_phrases,
+            example_lines
+        ) VALUES (
+                     #{deceasedName},
+                     #{gender},
+                     #{deceasedAge},
+                     #{personality},
+                     #{deceasedNickname},
+                     #{userNickname},
+                     #{relationship},
+                     #{speakingTone},
+                     #{toneStyle},
+                     #{commonPhrases},
+                     #{exampleLines}
+                 )
+    </insert>
+
+    <insert id="insertSubscription" parameterType="com.aix.againhello.common.SubscriptionDTO" useGeneratedKeys="true" keyProperty="subscriptionCode">
+        INSERT INTO subscription (
+            user_code,
+            service_code,
+            deceased_code,
+            start_date
+        ) VALUES (
+                     #{userCode},
+                     #{serviceCode},
+                     #{deceasedCode},
+                     CURRENT_TIMESTAMP
+                 )
+    </insert>
+
+    <insert id="insertRawFile" parameterType="com.aix.againhello.common.RawFileDTO" useGeneratedKeys="true" keyProperty="code">
+        INSERT INTO raw_file (
+            subscription_code,
+            audio_file_paths
+        ) VALUES (
+                     #{subscriptionCode},
+                     #{audioFilePaths,typeHandler=com.aix.againhello.common.StringArrayTypeHandler}
+                 )
+    </insert>
+
+</mapper>

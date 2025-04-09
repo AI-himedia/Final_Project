@@ -52,8 +52,8 @@ public class SmsService {
         System.out.println("python : " + response.getBody());
 
         // DB 저장 테스트
-        deceasedData.setGender('M');
-        deceasedData.setAge(30);
+        //deceasedData.setGender('M');
+        //deceasedData.setAge(30);
         deceasedData.setPersonality("활달하다");
         deceasedData.setDeceasedNickname("아부지");
         deceasedData.setSpeakingTone(true);
