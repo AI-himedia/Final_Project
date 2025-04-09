@@ -11,3 +11,7 @@ python-dotenv
 huggingface_hub
 pydub
 numpy
+transformers
+torch
+bert-score
+accelerate
