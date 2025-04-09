@@ -6,7 +6,7 @@ from datetime import datetime
 
 def fetch_prompt_data(subscription_code: int) -> dict:
 
-    with get_db_connection as conn:
+    with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT

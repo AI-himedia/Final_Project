@@ -1,18 +1,19 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from dotenv import load_dotenv
 from langchain_core.runnables import RunnableConfig
 from llm.prompt_template import SYSTEM_PROMPT_TEMPLATE
 from llm.chain_config import base_chain
 from llm.memory_chain import MyChatChain
+from llm.chat_history import YourPostgresChatMessageHistory
 from db.query_utils import fetch_prompt_data, add_messages
 
-
+load_dotenv()
 sms_router = APIRouter()
 
 class ChatRequest(BaseModel):
     subscriptionCode: int
     userInput: str
-
 
 
 @sms_router.post("/responses")
@@ -36,10 +37,13 @@ def generate_response(request: ChatRequest):
 
     config = RunnableConfig(configurable={"session_id": subscription_code})
 
-    my_chat_chain = MyChatChain(base_chain)
+    chat_chain = MyChatChain(
+        base_chain,
+        deceased_code_map={subscription_code: deceased_code}
+    )
 
     try:
-        ai_response = my_chat_chain.invoke(inputs, config=config)
+        ai_response = chat_chain.invoke(inputs, config=config)
     except Exception as e:
         # 실패 시 저장 없이 종료
         return {"status": "ERROR", "message": str(e)}
