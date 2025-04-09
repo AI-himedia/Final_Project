@@ -13,6 +13,7 @@ import UpButton from './components/UpButton/UpButton.js';
 // 테스트용 페이지
 import ConnectionTestPage from './test/ConnectionTestPage.js';
 import RealTimeAudioStream from './test/RealTimeAudioStream.js';
+import TTSAudioPlayer from './test/TTSAudioPlayer.js';
 
 // 페이지
 import MainPage from './pages/shared/main/MainPage.js';
@@ -96,6 +97,7 @@ export default function App() {
 
         <Route path="/test" element={<ConnectionTestPage />} />
         <Route path="/wstest" element={<RealTimeAudioStream />} />
+        <Route path='/ttstest' element={<TTSAudioPlayer/>}/>
       </Routes>
 
       <Footer />
