@@ -17,14 +17,7 @@ const RealTimeAudioStream = () => {
 
       socketRef.current.onmessage = (event) => {
         const msg = JSON.parse(event.data);
-        if (msg.type === "tts") {
-          const audio = new Audio("data:audio/wav;base64," + msg.data);
-          audio.play();
-          audio.onended = () => {
-            console.log("TTS 재생 완료 → STT 재시작");
-            startStreaming();
-          };
-        } else if (msg.type === "stt") {
+        if(msg.type === "stt") {
           const prefix = msg.is_final ? "[최종 결과]" : "[중간 결과]";
           console.log(prefix, msg.text);
 

@@ -9,6 +9,11 @@ spring:
     password: ${POSTGRESQL_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 315MB # 최대 3개의 파일(300MB 영상 + 기타 데이터)을 고려한 크기
+
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.aix.againhello.**
@@ -45,3 +50,14 @@ aws:
 clova:
   SECRET: ${CLOVA_SPEECH_SECRET}
   INVOKE_URL: ${CLOVA_SPEECH_INVOKE-URL}
+
+file:
+  upload:
+    dir: upload
+    max-count: 3
+    allowed-audio-extensions: mp3,aac,ac3,ogg,flac,wav,m4a
+    allowed-video-extensions: avi,mp4,mov,wmv,flv,mkv
+    max-audio-size: 5242880  # 5MB in bytes
+    max-video-size: 314572800  # 300MB in bytes
+  output:
+    dir: ./output
