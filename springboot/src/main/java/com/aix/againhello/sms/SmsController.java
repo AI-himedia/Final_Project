@@ -4,6 +4,7 @@ import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.sms.apiWrapper.ChatRequestDTO;
 import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
 import com.aix.againhello.sms.apiWrapper.SmsInitResponse;
+import com.aix.againhello.sms.apiWrapper.SmsResponse;
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -92,9 +93,9 @@ public class SmsController {
 
     /**문자 입력시*/
     @PostMapping("/chat")
-    public ResponseEntity<String> chatWithAi(@RequestBody ChatRequestDTO requestDto) {
+    public ResponseEntity<SmsResponse> chatWithAi(@RequestBody ChatRequestDTO requestDto) {
 
-        String response = smsService.sendUserInputToPython(requestDto);
+        SmsResponse response = smsService.sendUserInputToPython(requestDto);
 
         return ResponseEntity.ok(response);
     }
