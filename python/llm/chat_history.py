@@ -1,6 +1,6 @@
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import HumanMessage, AIMessage
-from db.db_postgresql_connection import get_db_connection
+from db.postgresql_connector import get_db_connection
 
 class YourPostgresChatMessageHistory(BaseChatMessageHistory):
     def __init__(self, session_id: str):
@@ -8,21 +8,21 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
         self.subscription_code = int(session_id)
         self.conn = get_db_connection()
 
-    def add_user_message(self, message: str) -> None:
-        with self.conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO contents (subscription_code, role, message_time, content)
-                VALUES (%s, 'user', NOW(), %s)
-            """, (self.subscription_code, message))
-            self.conn.commit()
+    # def add_user_message(self, message: str) -> None:
+    #     with self.conn.cursor() as cur:
+    #         cur.execute("""
+    #             INSERT INTO contents (subscription_code, role, message_time, content)
+    #             VALUES (%s, 'user', NOW(), %s)
+    #         """, (self.subscription_code, message))
+    #         self.conn.commit()
 
-    def add_ai_message(self, message: str) -> None:
-        with self.conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO contents (subscription_code, role, message_time, content)
-                VALUES (%s, 'ai', NOW(), %s)
-            """, (self.subscription_code, message))
-            self.conn.commit()
+    # def add_ai_message(self, message: str) -> None:
+    #     with self.conn.cursor() as cur:
+    #         cur.execute("""
+    #             INSERT INTO contents (subscription_code, role, message_time, content)
+    #             VALUES (%s, 'ai', NOW(), %s)
+    #         """, (self.subscription_code, message))
+    #         self.conn.commit()
 
     @property
     def messages(self):

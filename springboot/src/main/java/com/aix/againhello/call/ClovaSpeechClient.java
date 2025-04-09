@@ -16,13 +16,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 // 오디오 세그먼트
@@ -69,6 +69,7 @@ class AudioSegment {
     }
 }
 
+@Component
 public class ClovaSpeechClient {
 
     Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
@@ -413,69 +414,4 @@ public class ClovaSpeechClient {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            // 입력 폴더 경로
-            String inputFolder = "/Users/jin/final_project/Final_Project/Final_Project/springboot/src/main/java/com/aix/againhello/call/input";
-            File folder = new File(inputFolder);
-
-            // 출력 기본 디렉토리
-            Path baseOutputDir = Paths.get("/Users/jin/final_project/Final_Project/Final_Project/springboot/src/main/java/com/aix/againhello/call/output");
-            Files.createDirectories(baseOutputDir);
-
-            // 지원되는 미디어 파일 목록 가져오기
-            File[] mediaFiles = folder.listFiles(file ->
-                    file.isFile() && isSupportedMediaFile(file)
-            );
-
-            if (mediaFiles == null || mediaFiles.length == 0) {
-                System.out.println("지원되는 미디어 파일을 찾을 수 없습니다.");
-                return;
-            }
-
-            // API 클라이언트 초기화
-            final ClovaSpeechClient clovaSpeechClient = new ClovaSpeechClient();
-
-            // 모든 미디어 파일 처리
-            for (File mediaFile : mediaFiles) {
-                System.out.println("처리 중: " + mediaFile.getName());
-
-                // 요청 객체 설정
-                NestRequestEntity requestEntity = new NestRequestEntity();
-
-                // 화자 분리 활성화
-                Diarization diarization = new Diarization();
-                diarization.setEnable(Boolean.TRUE);
-                requestEntity.setDiarization(diarization);
-
-                // 음성 인식 및 화자 분리 요청
-                System.out.println("음성 파일 업로드 및 화자 분리 요청 중...");
-                final String result = clovaSpeechClient.upload(mediaFile, requestEntity);
-
-                // 응답 확인 및 처리
-                if (result != null && !result.isEmpty()) {
-                    try {
-                        // JSON 파싱 테스트
-                        JsonObject jsonResponse = JsonParser.parseString(result).getAsJsonObject();
-
-                        System.out.println("API 요청 성공! 화자별 개별 세그먼트 추출 중...");
-                        clovaSpeechClient.extractSpeakerSegmentsIndividually(result, mediaFile, baseOutputDir);
-                        System.out.println(mediaFile.getName() + " 처리 완료!");
-                    } catch (Exception e) {
-                        System.out.println("응답 처리 중 오류 발생: " + e.getMessage());
-                        System.out.println("응답 텍스트: " + result);
-                    }
-                } else {
-                    System.out.println("API 요청 실패!");
-                    System.out.println("API URL과 키가 올바르게 설정되었는지 확인하세요.");
-                }
-            }
-
-            System.out.println("모든 파일 처리 완료!");
-
-        } catch (Exception e) {
-            System.out.println("오류 발생: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 }
