@@ -11,9 +11,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/be/call")
@@ -31,7 +30,7 @@ public class CallController {
     @Value("${file.output.dir}")
     private String outputDir;
 
-    // 전화 서비스 신청 및 사용자와 고인 초기 데이터 저장
+    // 전화 서비스 신청
     @PostMapping("/service/start")
     public ResponseEntity<?> startService(
             @RequestParam("userCode") int userCode,
@@ -85,10 +84,26 @@ public class CallController {
             }
 
             // 결과 반환
-            Map<String, String> response = new HashMap<>();
-            response.put("status", "success");
-            response.put("message", "모든 파일의 화자 분리가 완료되었습니다.");
-            response.put("outputDir", baseOutputDir.resolve("long").toString());
+            PreviewResponseDTO response = new PreviewResponseDTO();
+            response.setStatus("success");
+            response.setMessage("모든 파일의 화자 분리가 완료되었습니다.");
+
+            // long 폴더 내의 파일 목록 가져오기
+            Path longOutputDir = baseOutputDir.resolve("long");
+            File[] longFiles = longOutputDir.toFile().listFiles();
+
+            // 파일명 매핑
+            List<String> displayNames = new ArrayList<>();
+            for (File file : longFiles) {
+                String originalName = file.getName();
+                // 보여질 이름 생성
+                String displayName = originalName.replaceAll("\\d{8}_", "")
+                        .replaceFirst("_speaker_(\\d+)_(\\w+)_longest.wav", "_화자$1.wav");
+                displayNames.add(displayName);
+            }
+
+            response.setOutputDir(baseOutputDir.resolve("long").toString());
+            response.setFileNames(displayNames);
 
             return ResponseEntity.ok(response);
 
@@ -96,8 +111,6 @@ public class CallController {
             return ResponseEntity.internalServerError().body("화자 분리 처리 중 오류 발생: " + e.getMessage());
         }
     }
-
-    // 화자 선택 요청
 
     // 화자 선택 및 S3 저장
 
