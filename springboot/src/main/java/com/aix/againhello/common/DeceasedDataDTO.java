@@ -1,142 +1,25 @@
 package com.aix.againhello.common;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeceasedDataDTO {
 
-    private int deceasedCode;
-    private String name;
-    private char gender;
-    private int age;
-    private String personality;
-    private String deceasedNickname;
-    private String userNickname;
-    private String relationship;
-    private boolean speakingTone;
-    private List<Float> voiceEmbedding;
-    private String prompt;
+    private Integer deceasedCode;       // 고인 데이터 고유 식별자
+    private String deceasedName;        // 고인 이름
+    private String gender;              // 고인 성별 (M, F만 허용)
+    private Integer deceasedAge;        // 고인 나이
+    private String personality;         // 고인 특성
+    private String deceasedNickname;    // 사용자가 고인을 부르는 호칭
+    private String userNickname;        // 고인이 사용자를 부르는 호칭
+    private String relationship;        // 고인과의 관계
+    private Boolean speakingTone;       // 반말 여부 (true: 반말, false:  존댓말)
+    private String toneStyle;           // LLM 추출 말투
+    private String commonPhrases;       // LLM 추출 자주 쓰는 표현
+    private String exampleLines;        // LLM 추출 예시 문장
 
-
-    public DeceasedDataDTO() {
-    }
-
-    public DeceasedDataDTO(int deceasedCode, String name, char gender, int age, String personality, String deceasedNickname, String userNickname, String relationship, boolean speakingTone, List<Float> voiceEmbedding, String prompt) {
-        this.deceasedCode = deceasedCode;
-        this.name = name;
-        this.gender = gender;
-        this.age = age;
-        this.personality = personality;
-        this.deceasedNickname = deceasedNickname;
-        this.userNickname = userNickname;
-        this.relationship = relationship;
-        this.speakingTone = speakingTone;
-        this.voiceEmbedding = voiceEmbedding;
-        this.prompt = prompt;
-    }
-
-    public int getDeceasedCode() {
-        return deceasedCode;
-    }
-
-    public void setDeceasedCode(int deceasedCode) {
-        this.deceasedCode = deceasedCode;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public char getGender() {
-        return gender;
-    }
-
-    public void setGender(char gender) {
-        this.gender = gender;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getPersonality() {
-        return personality;
-    }
-
-    public void setPersonality(String personality) {
-        this.personality = personality;
-    }
-
-    public String getDeceasedNickname() {
-        return deceasedNickname;
-    }
-
-    public void setDeceasedNickname(String deceasedNickname) {
-        this.deceasedNickname = deceasedNickname;
-    }
-
-    public String getUserNickname() {
-        return userNickname;
-    }
-
-    public void setUserNickname(String userNickname) {
-        this.userNickname = userNickname;
-    }
-
-    public String getRelationship() {
-        return relationship;
-    }
-
-    public void setRelationship(String relationship) {
-        this.relationship = relationship;
-    }
-
-    public boolean isSpeakingTone() {
-        return speakingTone;
-    }
-
-    public void setSpeakingTone(boolean speakingTone) {
-        this.speakingTone = speakingTone;
-    }
-
-    public List<Float> getVoiceEmbedding() {
-        return voiceEmbedding;
-    }
-
-    public void setVoiceEmbedding(List<Float> voiceEmbedding) {
-        this.voiceEmbedding = voiceEmbedding;
-    }
-
-    public String getPrompt() {
-        return prompt;
-    }
-
-    public void setPrompt(String prompt) {
-        this.prompt = prompt;
-    }
-
-    @Override
-    public String toString() {
-        return "DeceasedDataDTO{" +
-                "deceasedCode=" + deceasedCode +
-                ", name='" + name + '\'' +
-                ", gender=" + gender +
-                ", age=" + age +
-                ", personality='" + personality + '\'' +
-                ", deceasedNickname='" + deceasedNickname + '\'' +
-                ", userNickname='" + userNickname + '\'' +
-                ", relationship='" + relationship + '\'' +
-                ", speakingTone=" + speakingTone +
-                ", voiceEmbedding=" + voiceEmbedding +
-                ", prompt='" + prompt + '\'' +
-                '}';
-    }
 }
-
