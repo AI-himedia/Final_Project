@@ -11,7 +11,7 @@ project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
 PROCESSED_AUDIO_PATH = os.path.join(current_dir, "processed_prompt.wav")
-ORIGINAL_AUDIO_PATH = r"C:\Users\201-06\Desktop\sample.wav"  # 실제 경로
+ORIGINAL_AUDIO_PATH = r"C:/Users/201-06/Final_Project/python/tts/sample.wav"  # 실제 경로
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
 OUTPUT_AUDIO_PATH = os.path.join(OUTPUT_DIR, "output.wav")
@@ -60,11 +60,14 @@ def convert_prompt_audio(input_path, output_path):
 
 # TTS 합성 및 바이트 반환
 def run_tts(text: str) -> bytes:
+    import shutil  # 복사용 모듈 추가
+    import glob    # 파일 검색용
+
     ensure_environment_ready()
 
     command = [
         sys.executable,
-        "-m", "cli.inference",
+        os.path.join(current_dir, "cli", "inference.py"),  # inference.py의 절대경로
         "--text", text,
         "--device", "0",
         "--save_dir", OUTPUT_DIR,
@@ -74,11 +77,27 @@ def run_tts(text: str) -> bytes:
 
     try:
         subprocess.run(command, check=True)
-        print(f"TTS 생성 완료: {OUTPUT_AUDIO_PATH}")
     except subprocess.CalledProcessError as e:
         print(f"TTS 생성 실패: {e}")
         return b""
 
+    # 🔍 최신으로 생성된 .wav 파일 찾기
+    wav_files = glob.glob(os.path.join(OUTPUT_DIR, "*.wav"))
+    if not wav_files:
+        print("생성된 .wav 파일 없음")
+        return b""
+
+    # 생성 시간 기준으로 가장 최근 파일 선택
+    latest_file = max(wav_files, key=os.path.getmtime)
+    print(f"TTS 생성 완료: {latest_file}")
+
+    try:
+        shutil.copy(latest_file, OUTPUT_AUDIO_PATH)  # output.wav로 복사
+    except Exception as e:
+        print(f"파일 복사 실패: {e}")
+        return b""
+
+    # 🔊 클라이언트 전송용으로 output.wav 읽기
     if not os.path.exists(OUTPUT_AUDIO_PATH):
         print("output.wav 파일 없음")
         return b""
