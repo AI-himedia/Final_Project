@@ -1,10 +1,7 @@
 package com.aix.againhello.sms;
 
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.sms.apiWrapper.ChatRequestDTO;
-import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
-import com.aix.againhello.sms.apiWrapper.SmsInitResponse;
-import com.aix.againhello.sms.apiWrapper.SubscriptionSummaryDTO;
+import com.aix.againhello.sms.apiWrapper.*;
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -95,7 +92,7 @@ public class SmsService {
         return rawList;
     }
 
-    public String sendUserInputToPython(ChatRequestDTO requestDto) {
+    public SmsResponse sendUserInputToPython(ChatRequestDTO requestDto) {
         // FastAPI 엔드포인트
         String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "responses";
 
@@ -104,10 +101,10 @@ public class SmsService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<ChatRequestDTO> request = new HttpEntity<>(requestDto, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
+        ResponseEntity<SmsResponse> response = restTemplate.postForEntity(
                 pythonApiUrl,
                 request,
-                String.class
+                SmsResponse.class
         );
 
         return response.getBody();
