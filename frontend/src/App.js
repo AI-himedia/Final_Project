@@ -35,6 +35,8 @@ import ProductPage from './pages/app/service/ProductPage/ProductPage';
 // 테스트 페이지
 import ConnectionTestPage from './test/ConnectionTestPage';
 import RealTimeAudioStream from './test/RealTimeAudioStream';
+import TTSAudioPlayer from './test/TTSAudioPlayer.js';
+import CallService from './test/CallService.js';
 
 export default function App() {
   const location = useLocation();
@@ -98,6 +100,8 @@ export default function App() {
 
         <Route path="/test" element={<ConnectionTestPage />} />
         <Route path="/wstest" element={<RealTimeAudioStream />} />
+        <Route path="/ttstest" element={<TTSAudioPlayer />} />
+        <Route path="/call" element={<CallService />} />
       </Routes>
 
       {/* Footer 노출 조건 */}
