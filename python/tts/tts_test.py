@@ -1,9 +1,12 @@
 import os
 import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "cli"))
 import subprocess
-import base64
 from huggingface_hub import snapshot_download
 from pydub import AudioSegment
+from pathlib import Path
+import torch
+from cli.SparkTTS import SparkTTS
 
 # 경로 설정
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -11,24 +14,26 @@ project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
 PROCESSED_AUDIO_PATH = os.path.join(current_dir, "processed_prompt.wav")
-ORIGINAL_AUDIO_PATH = r"C:/Users/201-06/Final_Project/python/tts/sample.wav"  # 실제 경로
+ORIGINAL_AUDIO_PATH = r"C:/Users/201-06/Final_Project/python/tts/sample.wav"
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
 OUTPUT_AUDIO_PATH = os.path.join(OUTPUT_DIR, "output.wav")
 
+# 캐시용 전역 변수
+spark_model = None
+cached_global_token_ids = None
 
-# LLM 더미 응답 생성
+# 더미 LLM 함수
 def run_llm(text: str) -> str:
     dummy_responses = {
-        "안녕": "안녕하세요! 무엇을 도와드릴까요?",
-        "시간": "지금은 오후 3시입니다.",
+        "안녕": "안녕하세요! 무엇을 도와드릴까요?, 도와드릴게 있나요?",
+        "시간": "지금은 오후 5시입니다. 조금 있으면 집에 갈 수 있어요.졸리네요",
         "테스트": "이것은 테스트 음성입니다.",
     }
     for key, value in dummy_responses.items():
         if key in text:
             return value
     return f"{text}에 대한 답변이 없습니다."
-
 
 # 모델 및 프롬프트 준비
 def ensure_environment_ready():
@@ -49,58 +54,44 @@ def ensure_environment_ready():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-
 # 오디오 변환
 def convert_prompt_audio(input_path, output_path):
     audio = AudioSegment.from_file(input_path)
     audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
     audio.export(output_path, format="wav")
     print(f"오디오 변환 완료: {output_path}")
- 
 
-# TTS 합성 및 바이트 반환
+# TTS 합성
+# TTS 합성
 def run_tts(text: str) -> bytes:
-    import shutil  # 복사용 모듈 추가
-    import glob    # 파일 검색용
+    global spark_model, cached_global_token_ids
 
     ensure_environment_ready()
 
-    command = [
-        sys.executable,
-        os.path.join(current_dir, "cli", "inference.py"),  # inference.py의 절대경로
-        "--text", text,
-        "--device", "0",
-        "--save_dir", OUTPUT_DIR,
-        "--model_dir", MODEL_SAVE_DIR,
-        "--prompt_speech_path", PROCESSED_AUDIO_PATH
-    ]
+    if spark_model is None:
+        print("Spark-TTS 모델 초기화")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
 
-    try:
-        subprocess.run(command, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"TTS 생성 실패: {e}")
-        return b""
+    if cached_global_token_ids is None:
+        print("Voice cloning 최초 임베딩 생성 중")
+        _, cached_global_token_ids = spark_model.process_prompt(
+            text="임베딩 생성용 텍스트",
+            prompt_speech_path=Path(PROCESSED_AUDIO_PATH)
+        )
+        print("Global token 캐싱 완료")
+    else:
+        print("기존 캐시된 임베딩 값 사용 중")
 
-    # 🔍 최신으로 생성된 .wav 파일 찾기
-    wav_files = glob.glob(os.path.join(OUTPUT_DIR, "*.wav"))
-    if not wav_files:
-        print("생성된 .wav 파일 없음")
-        return b""
+    print("TTS 음성 생성 중")
+    wav_np = spark_model.inference(
+        text=text,
+        global_token_ids=cached_global_token_ids  # 캐시 재사용
+    )  # 이미 numpy 반환됨
 
-    # 생성 시간 기준으로 가장 최근 파일 선택
-    latest_file = max(wav_files, key=os.path.getmtime)
-    print(f"TTS 생성 완료: {latest_file}")
-
-    try:
-        shutil.copy(latest_file, OUTPUT_AUDIO_PATH)  # output.wav로 복사
-    except Exception as e:
-        print(f"파일 복사 실패: {e}")
-        return b""
-
-    # 🔊 클라이언트 전송용으로 output.wav 읽기
-    if not os.path.exists(OUTPUT_AUDIO_PATH):
-        print("output.wav 파일 없음")
-        return b""
+    from scipy.io.wavfile import write
+    write(OUTPUT_AUDIO_PATH, 16000, wav_np)
+    print(f"TTS 생성 완료: {OUTPUT_AUDIO_PATH}")
 
     with open(OUTPUT_AUDIO_PATH, "rb") as f:
         return f.read()

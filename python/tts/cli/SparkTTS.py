@@ -166,6 +166,7 @@ class SparkTTS:
         temperature: float = 0.8,
         top_k: float = 50,
         top_p: float = 0.95,
+        global_token_ids: torch.Tensor = None
     ) -> torch.Tensor:
         """
         Performs inference to generate speech from text, incorporating prompt audio and/or text.
@@ -184,13 +185,79 @@ class SparkTTS:
         Returns:
             torch.Tensor: Generated waveform as a tensor.
         """
-        if gender is not None:
-            prompt = self.process_prompt_control(gender, pitch, speed, text)
+        # if gender is not None:
+        #     prompt = self.process_prompt_control(gender, pitch, speed, text)
 
-        else:
+        # else:
+        #     prompt, global_token_ids = self.process_prompt(
+        #         text, prompt_speech_path, prompt_text
+        #     )
+        # model_inputs = self.tokenizer([prompt], return_tensors="pt").to(self.device)
+
+        # # Generate speech using the model
+        # generated_ids = self.model.generate(
+        #     **model_inputs,
+        #     max_new_tokens=3000,
+        #     do_sample=True,
+        #     top_k=top_k,
+        #     top_p=top_p,
+        #     temperature=temperature,
+        # )
+
+        # # Trim the output tokens to remove the input tokens
+        # generated_ids = [
+        #     output_ids[len(input_ids) :]
+        #     for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
+        # ]
+
+        # # Decode the generated tokens into text
+        # predicts = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+        # # Extract semantic token IDs from the generated text
+        # pred_semantic_ids = (
+        #     torch.tensor([int(token) for token in re.findall(r"bicodec_semantic_(\d+)", predicts)])
+        #     .long()
+        #     .unsqueeze(0)
+        # )
+
+        # if gender is not None:
+        #     global_token_ids = (
+        #         torch.tensor([int(token) for token in re.findall(r"bicodec_global_(\d+)", predicts)])
+        #         .long()
+        #         .unsqueeze(0)
+        #         .unsqueeze(0)
+        #     )
+
+        # # Convert semantic tokens back to waveform
+        # wav = self.audio_tokenizer.detokenize(
+        #     global_token_ids.to(self.device).squeeze(0),
+        #     pred_semantic_ids.to(self.device),
+        # )
+
+        # return wav
+        if global_token_ids is None and gender is None:
+        # 최초 호출 시 클로닝용 임베딩 추출
             prompt, global_token_ids = self.process_prompt(
                 text, prompt_speech_path, prompt_text
             )
+        elif gender is not None:
+            # 속성 기반 스타일 지정 (컨트롤용)
+            prompt = self.process_prompt_control(gender, pitch, speed, text)
+        else:
+            # 캐시된 global_token_ids를 사용하는 경우
+            global_tokens = "".join(
+                [f"<|bicodec_global_{i}|>" for i in global_token_ids.squeeze()]
+            )
+            prompt = "".join([
+                TASK_TOKEN_MAP["tts"],
+                "<|start_content|>",
+                text,
+                "<|end_content|>",
+                "<|start_global_token|>",
+                global_tokens,
+                "<|end_global_token|>",
+            ])
+
         model_inputs = self.tokenizer([prompt], return_tensors="pt").to(self.device)
 
         # Generate speech using the model
@@ -205,7 +272,7 @@ class SparkTTS:
 
         # Trim the output tokens to remove the input tokens
         generated_ids = [
-            output_ids[len(input_ids) :]
+            output_ids[len(input_ids):]
             for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
         ]
 
@@ -219,15 +286,7 @@ class SparkTTS:
             .unsqueeze(0)
         )
 
-        if gender is not None:
-            global_token_ids = (
-                torch.tensor([int(token) for token in re.findall(r"bicodec_global_(\d+)", predicts)])
-                .long()
-                .unsqueeze(0)
-                .unsqueeze(0)
-            )
-
-        # Convert semantic tokens back to waveform
+        # voice cloning 시 global_token_ids는 이미 전달됨
         wav = self.audio_tokenizer.detokenize(
             global_token_ids.to(self.device).squeeze(0),
             pred_semantic_ids.to(self.device),

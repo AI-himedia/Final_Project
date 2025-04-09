@@ -1,11 +1,8 @@
 import asyncio
 import json
 import queue
-import base64
-import time
 from websockets.legacy.server import serve, WebSocketServerProtocol
 from stt_google_api import run_streaming_stt
-from tts_test import run_llm, run_tts
 
 
 async def handler(websocket: WebSocketServerProtocol):
@@ -57,21 +54,6 @@ async def handler(websocket: WebSocketServerProtocol):
                                     "is_final": True
                                 }))
 
-                                # LLM → TTS → 클라이언트 전송
-                                try:
-                                    response_text = run_llm(transcript)
-                                    tts_audio = run_tts(response_text)
-
-                                    await websocket.send(json.dumps({
-                                        "type": "tts",
-                                        "data": base64.b64encode(tts_audio).decode("utf-8")
-                                    }))
-                                    print("TTS 응답 전송 완료")
-
-                                except Exception as e:
-                                    print("TTS 처리 오류:", e)
-                                print("TTS 전송 완료")
-
                                 # 세션 종료
                                 stt_done.set()
                                 return
@@ -90,7 +72,7 @@ async def handler(websocket: WebSocketServerProtocol):
 
         await asyncio.gather(receive_audio(), process_stt_results())
         await stt_done.wait()
-        print("STT 세션 종료됨 → 다음 발화 대기 중")
+        print("STT 세션 종료")
 
 
 async def main():
