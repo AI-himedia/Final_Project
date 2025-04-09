@@ -7,6 +7,7 @@ from llm.chain_config import base_chain
 from llm.memory_chain import MyChatChain
 from llm.chat_history import YourPostgresChatMessageHistory
 from db.query_utils import fetch_prompt_data, add_messages
+import time
 
 load_dotenv()
 sms_router = APIRouter()
@@ -18,6 +19,9 @@ class ChatRequest(BaseModel):
 
 @sms_router.post("/responses")
 def generate_response(request: ChatRequest):
+    
+    start_time = time.time()
+
     subscription_code = request.subscriptionCode
     user_input = request.userInput
 
@@ -27,7 +31,6 @@ def generate_response(request: ChatRequest):
 
     # 2. system prompt 생성
     system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
-
 
     # 3. runnable + memory + invoke
     inputs = {
@@ -47,6 +50,12 @@ def generate_response(request: ChatRequest):
     except Exception as e:
         # 실패 시 저장 없이 종료
         return {"status": "ERROR", "message": str(e)}
+    
+    end_time = time.time()
+    # Calculate the time taken
+    time_taken = end_time - start_time
+    print("------------------------------------------")
+    print('Time Taken (seconds):', time_taken)
     
     add_messages(subscription_code, deceased_code, 
                  messages=[

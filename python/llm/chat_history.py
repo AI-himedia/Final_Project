@@ -27,7 +27,15 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
             else:
                 message_objs.append(AIMessage(content=content))
 
+
+         # 로그 찍기!
+        print("\n[DEBUG] Chat History Loaded:")
+        for m in message_objs:
+            print(f"[{m.type.upper()}] {m.content}")
+
         return message_objs
+    
+        
     
     def clear(self):
         with self.conn.cursor() as cur:
