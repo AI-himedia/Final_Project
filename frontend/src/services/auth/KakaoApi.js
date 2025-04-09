@@ -1,4 +1,4 @@
-// src/api/KakaoApi.js
+// src/services/api/KakaoApi.js
 
 import axios from 'axios';
 import { API_SERVER_HOST, FRONT_HOST } from '../../config/ApiConfig.js';

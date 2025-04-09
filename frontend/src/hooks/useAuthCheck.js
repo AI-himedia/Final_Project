@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axiosInstance from '../services/api/AxiosInstance.js';
+import { axiosInstance } from '../services/axios/AxiosInstance';
 
 export const useAuthCheck = (onDone) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

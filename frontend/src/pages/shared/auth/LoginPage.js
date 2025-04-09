@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getKakaoLoginLink } from '../../../services/api/KakaoApi.js';
-import axiosInstance from '../../../services/api/AxiosInstance';
+import { getKakaoLoginLink } from '../../../services/auth/KakaoApi.js';
+import { axiosInstance } from '../../../services/axios/AxiosInstance.js';
 
 import './LoginPage.web.css';
 import './LoginPage.mobile.css';
