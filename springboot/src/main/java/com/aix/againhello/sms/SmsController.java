@@ -1,10 +1,7 @@
 package com.aix.againhello.sms;
 
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.sms.apiWrapper.ChatRequestDTO;
-import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
-import com.aix.againhello.sms.apiWrapper.SmsInitResponse;
-import com.aix.againhello.sms.apiWrapper.SmsResponse;
+import com.aix.againhello.sms.responseWrapper.*;
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,7 +24,7 @@ public class SmsController {
 
     /**문자서비스 신청*/
     @PostMapping("/service/start")
-    public ResponseEntity startSubscription(@RequestPart("deceasedData") DeceasedDataDTO deceasedDataDTO,
+    public ResponseEntity<?> startSubscription(@RequestPart("deceasedData") DeceasedDataDTO deceasedDataDTO,
                                             @RequestPart(value = "chatData", required = true) MultipartFile chatData) {
         // 1. Authentication으로 유저의 정보 조회
         // 2. raw file 로컬 저장소에 저장
@@ -69,15 +66,13 @@ public class SmsController {
     /**문자서비스 실행시*/
     @GetMapping("/init-check")
     public ResponseEntity<SmsInitResponse> initCheck() {
-        // 1. 유저 정보 추출
-        // 인증된 유저 정보 추출 (세션, JWT, 또는 헤더 기반)
-//        String userEmail = request.getUserPrincipal().getName();
+        // 1. 문자서비스 미신청인 경우
+        // return new SmsInitResponse("NO_SUBSCRIPTION", "문자 서비스 미신청", null);
+        // 2. 서비스 신청은 했지만 아직 고인에 대한 데이터 없는 경우
+        // return new SmsInitResponse("NO_DECEASED_DATA", "고인 정보가 없습니다.", null);
+        // 3. 서비스 신청, 고인 데이터 기록 모두 있는 경우
+        // return new SmsInitResponse("READY", "문자 서비스 사용 준비 완료", subscriptionSummaryDTOList);
 
-        // 인증 체크
-//        if (userCode == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                    .body(new SmsInitResponse<>("UNAUTHORIZED", "로그인이 필요합니다.", null));
-//        }
         // 유저 코드
         int userCode = 3;
         return ResponseEntity.ok(smsService.checkInit(userCode));

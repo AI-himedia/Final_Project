@@ -10,7 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan({
         "com.aix.againhello.oauth.kakao.mapper",
         "com.aix.againhello.sms",
-        "com.aix.againhello.call"
+        "com.aix.againhello.call",
+        "com.aix.againhello.subscription"
 })
 public class SpringbootApplication {
 

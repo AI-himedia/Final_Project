@@ -1,4 +1,4 @@
-package com.aix.againhello.sms.apiWrapper;
+package com.aix.againhello.sms.responseWrapper;
 
 import java.util.List;
 
