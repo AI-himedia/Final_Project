@@ -1,10 +1,15 @@
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
-prompt = ChatPromptTemplate.from_messages([
-    ("system", "{system_prompt}"),
-    ("user", "{input}")
-])
+prompt = ChatPromptTemplate.from_template("""
+{system_prompt}
 
-llm = ChatOpenAI(model="gpt-4o-mini")
+{messages}
+
+User: {input}
+""")
+
+
+
+llm = ChatOpenAI(model="gpt-4o-mini", verbose=True)
 base_chain = prompt | llm

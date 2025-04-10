@@ -17,4 +17,3 @@ def get_db_connection():
         password=os.getenv("DB_PASSWORD")
     )
 
-
