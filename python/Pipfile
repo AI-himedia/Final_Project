@@ -5,13 +5,13 @@ name = "pypi"
 
 [packages]
 psycopg2-binary = "*"
-langchain = "*"
+langchain = "==0.3.23"
 langchain-community = "*"
 langchain-openai = "*"
 numpy = "*"
 fastapi = "==0.100.0"
 uvicorn = "==0.21.0"
-pydantic = "==2.6.3"
+pydantic = "*"
 openai = "==1.70.0"
 huggingface-hub = "*"
 google-cloud-speech = "*"
@@ -32,6 +32,8 @@ scipy = "==1.13.0"
 transformers = "*"
 bert-score = "*"
 accelerate = "*"
+langchain-anthropic = "*"
+langchain_perplexity = "==0.1.0"
 
 [dev-packages]
 
