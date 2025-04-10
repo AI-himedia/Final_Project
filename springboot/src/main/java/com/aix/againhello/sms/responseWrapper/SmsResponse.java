@@ -1,4 +1,4 @@
-package com.aix.againhello.sms.apiWrapper;
+package com.aix.againhello.sms.responseWrapper;
 
 public class SmsResponse {
     private String status;

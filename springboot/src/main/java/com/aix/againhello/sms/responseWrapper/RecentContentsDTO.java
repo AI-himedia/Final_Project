@@ -1,11 +1,11 @@
-package com.aix.againhello.sms.apiWrapper;
+package com.aix.againhello.sms.responseWrapper;
 
 import java.time.LocalDateTime;
 
 public class RecentContentsDTO {
-    public String role;               // "user" 또는 "ai"
-    public String content;
-    public LocalDateTime messageTime;
+    private String role;               // "user" 또는 "ai"
+    private String content;
+    private LocalDateTime messageTime;
 
     public RecentContentsDTO() {
     }
