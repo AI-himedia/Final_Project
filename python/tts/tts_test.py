@@ -7,6 +7,7 @@ from pydub import AudioSegment
 from pathlib import Path
 import torch
 from cli.SparkTTS import SparkTTS
+from scipy.io.wavfile import write
 
 # 경로 설정
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -89,7 +90,6 @@ def run_tts(text: str) -> bytes:
         global_token_ids=cached_global_token_ids  # 캐시 재사용
     )  # 이미 numpy 반환됨
 
-    from scipy.io.wavfile import write
     write(OUTPUT_AUDIO_PATH, 16000, wav_np)
     print(f"TTS 생성 완료: {OUTPUT_AUDIO_PATH}")
 
