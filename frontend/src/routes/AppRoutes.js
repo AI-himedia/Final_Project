@@ -1,6 +1,6 @@
 // src/routes/AppRoutes.js
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import MainPage from '../pages/shared/main/MainPage';
 import LoginPage from '../pages/shared/auth/LoginPage';
@@ -32,8 +32,8 @@ export const AppRoutes = () => (
     <Route path="/service/call" element={<CallPage />} />
     <Route path="/service/product" element={<ProductPage />} />
 
-    <Route path="/payment/fail" element={<div>결제 실패</div>} />
-    <Route path="/payment/complete" element={<div>결제 완료</div>} />
+    <Route path="/success" element={<Navigate to="/test" replace />} />
+    <Route path="/fail" element={<Navigate to="/service/product" replace />} />
 
     <Route path="/test" element={<ConnectionTestPage />} />
     <Route path="/wstest" element={<RealTimeAudioStream />} />
