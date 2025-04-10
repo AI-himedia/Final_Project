@@ -101,7 +101,7 @@ export default function ApplyPage() {
         </div>
       ) : (
         <div className="ApplyPage_CustomNext">
-          <Link to="/service/payment-notice">
+          <Link to="/service/terms">
             <button className="ApplyPage_NextButton">시작하기</button>
           </Link>
         </div>

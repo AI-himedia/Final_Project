@@ -78,6 +78,8 @@ springboot/mvnw*
 springboot/src/main/java/com/aix/againhello/call/input
 springboot/src/main/java/com/aix/againhello/call/output
 springboot/src/test
+springboot/upload
+springboot/output
 
 # backend - Python
 python/__pycache__/

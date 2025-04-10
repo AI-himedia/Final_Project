@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../../../services/api/AxiosInstance.js';
+import { axiosInstance } from '../../../../services/axios/AxiosInstance';
 
 export default function KakaoRedirectPage() {
   const navigate = useNavigate();

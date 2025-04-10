@@ -90,7 +90,6 @@ def run_tts(text: str) -> bytes:
         global_token_ids=cached_global_token_ids  # 캐시 재사용
     )  # 이미 numpy 반환됨
 
-   
     write(OUTPUT_AUDIO_PATH, 16000, wav_np)
     print(f"TTS 생성 완료: {OUTPUT_AUDIO_PATH}")
 

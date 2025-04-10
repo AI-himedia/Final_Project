@@ -1,4 +1,4 @@
-// src/api/JwtApi.js
+// src/services/api/JwtApi.js
 
 import axios from 'axios';
 import { API_SERVER_HOST } from '../../config/ApiConfig.js';
