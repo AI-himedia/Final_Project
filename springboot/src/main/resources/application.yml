@@ -37,7 +37,7 @@ jwt:
 kakao:
   client-id: ef86fd03e574909afcdf090c36f7c583
   client-secret: F3k1AJiS65yf8nS7aVptks41A1k0iwzU
-  redirect-uri: http://localhost:3000/login
+  redirect-uri: http://againhello:3000/login
 
 aws:
   region: ${AWS_REGION:ap-northeast-2}
