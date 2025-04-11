@@ -1,4 +1,4 @@
-package com.aix.againhello.call;
+package com.aix.againhello.common.exception;
 
 public class ServiceException extends RuntimeException {
 

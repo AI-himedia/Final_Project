@@ -1,4 +1,4 @@
-package com.aix.againhello.call;
+package com.aix.againhello.call.dto;
 
 import com.aix.againhello.common.DeceasedDataDTO;
 import lombok.AllArgsConstructor;
