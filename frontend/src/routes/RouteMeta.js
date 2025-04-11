@@ -31,7 +31,7 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
-  '/service/product': {
+  '/service/terms/product': {
     showHeader: false,
     showFooter: false,
     showSidebar: false,

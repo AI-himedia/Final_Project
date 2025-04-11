@@ -100,4 +100,9 @@
     font-weight: bold;
     line-height: 1;
   }
+
+  .Indented {
+    padding-left: 3rem;
+    display: inline-block;
+  }
 }

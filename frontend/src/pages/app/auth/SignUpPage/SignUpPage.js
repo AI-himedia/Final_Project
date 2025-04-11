@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { axiosInstance } from '../../../../services/axios/AxiosInstance';
+import { axiosInstance } from '../../../../api/axios/AxiosInstance';
 import './SignUpPage.web.css';
 
 export default function SignUpPage() {

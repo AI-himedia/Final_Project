@@ -1,3 +1,5 @@
+// src/api/axios/AxoisInterceptors
+
 import { refreshJWT } from '../auth/JwtApi';
 
 export const applyInterceptors = (axiosInstance) => {
@@ -27,7 +29,7 @@ export const applyInterceptors = (axiosInstance) => {
 
         try {
           await refreshJWT();
-          return axiosInstance(originalRequest);
+          // return axiosInstance(originalRequest); // 재요청
         } catch (refreshErr) {
           console.error('토큰 갱신 실패:', refreshErr);
         }
