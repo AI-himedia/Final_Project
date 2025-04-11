@@ -1,7 +1,7 @@
 package com.aix.againhello.sms;
 
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.sms.apiWrapper.*;
+import com.aix.againhello.sms.responseWrapper.*;
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;

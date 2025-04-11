@@ -1,8 +1,8 @@
 package com.aix.againhello.sms;
 
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
-import com.aix.againhello.sms.apiWrapper.SubscriptionSummaryDTO;
+import com.aix.againhello.sms.responseWrapper.RecentContentsDTO;
+import com.aix.againhello.sms.responseWrapper.SubscriptionSummaryDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

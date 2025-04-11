@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0.4//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aix.againhello.subscription.SubscriptionMapper">
+
+    <!-- 구독중인 데이터 조회 -->
+    <select id="getSubscriptionList" resultType="com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse">
+        SELECT
+            sub.service_code,
+            sub.deceased_code,
+            dd.deceased_name
+        FROM subscription sub
+        JOIN deceased_data dd ON sub.deceased_code = dd.deceased_code
+        WHERE sub.user_code = #{userCode};
+    </select>
+
+    <!-- 고인 한명에 대한 문자,전화 서비스 모두 구독중인지 확인 -->
+    <select id="countServiceTypesByDeceasedCode" resultType="int">
+        SELECT COUNT(DISTINCT service_code)
+        FROM subscription
+        WHERE deceased_code = #{deceasedCode}
+    </select>
+
+    <!-- 해당 고인과 이미 해당 서비스 이용중인지 -->
+    <select id="existsByUserAndDeceasedAndService" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM subscription
+        WHERE user_code = #{userCode}
+        AND deceased_code = #{deceasedCode}
+        AND service_code = #{serviceCode}
+        )
+    </select>
+
+
+    <!-- 구독 추가 -->
+    <insert id="insertSubscription" parameterType="com.aix.againhello.common.SubscriptionDTO" useGeneratedKeys="true" keyProperty="subscriptionCode">
+        INSERT INTO subscription (
+            user_code, service_code
+        <if test="deceasedCode != null">
+            , deceased_code
+        </if>
+        )
+        VALUES (
+        #{userCode}, #{serviceCode}
+        <if test="deceasedCode != null">
+            , #{deceasedCode}
+        </if>
+        )
+    </insert>
+
+    <!-- 고인 정보 조회 -->
+    <select id="getDeceasedData" resultType="com.aix.againhello.common.DeceasedDataDTO">
+        SELECT
+            *
+        FROM deceased_data
+        WHERE deceased_code = #{deceasedCode};
+    </select>
+
+
+</mapper>

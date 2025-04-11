@@ -53,7 +53,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
 
     // .env 환경변수 처리
-    implementation 'io.github.cdimascio:dotenv-java:2.2.4'
+    implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
     // PostgreSQL
     implementation 'org.postgresql:postgresql:42.7.2'

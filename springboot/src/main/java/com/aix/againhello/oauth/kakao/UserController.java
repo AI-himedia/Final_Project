@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/be/member")
 public class UserController {
 
     private final UserService userService;

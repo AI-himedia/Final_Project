@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 export default function Header(props) {
   const { pathname } = useLocation();
 
-  if (pathname === '/service/product') {
+  if (pathname === '/service/terms/product') {
     return <HeaderProduct {...props} />;
   }
 

@@ -15,10 +15,11 @@ soundfile==0.12.1
 soxr==0.5.0.post1
 torch==2.5.1
 torchaudio==2.5.1
-transformers==4.46.2
-numpy
 packaging==24.2
 tqdm==4.66.5
 scipy==1.13.0
+numpy
+transformers
+torch
 bert-score
 accelerate

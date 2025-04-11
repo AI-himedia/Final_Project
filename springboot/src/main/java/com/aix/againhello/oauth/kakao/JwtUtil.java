@@ -1,11 +1,10 @@
-// oauth.kakao.JwtUtil
 package com.aix.againhello.oauth.kakao;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -14,12 +13,14 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final Dotenv dotenv = Dotenv.load();
-    private final String secret = dotenv.get("JWT_SECRET");
-    private final Key secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    private final Key secretKey;
 
     private final long ACCESS_EXP = 1000L * 60 * 15; // 15분
     private final long REFRESH_EXP = 1000L * 60 * 60 * 24 * 14; // 2주
+
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     // Access Token 생성
     public String createAccessToken(String email) {
@@ -54,7 +55,7 @@ public class JwtUtil {
         }
     }
 
-    // ✅ 토큰에서 이메일 추출
+    // 토큰에서 이메일 추출
     public String extractEmail(String token) {
         try {
             Claims claims = Jwts.parserBuilder()

@@ -12,7 +12,7 @@ export default function HeaderTerms({ isTermsAgreed }) {
       <div className={styles.Header_Inner}>
         <button
           className={`${styles.Header_LoginButton} ${styles.Header_Black}`}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/service')}
         >
           <IoMdArrowBack fontSize="medium" />
         </button>
@@ -21,7 +21,7 @@ export default function HeaderTerms({ isTermsAgreed }) {
           className={`${styles.Header_PaymentButton} ${
             isTermsAgreed ? styles.active : ''
           }`}
-          onClick={() => navigate('/service/product')}
+          onClick={() => navigate('/service/terms/product')}
           disabled={!isTermsAgreed}
         >
           다음
