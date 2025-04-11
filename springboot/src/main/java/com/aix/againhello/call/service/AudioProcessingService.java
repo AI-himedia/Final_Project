@@ -30,6 +30,9 @@ public class AudioProcessingService {
     private S3Service s3Service;
 
     @Autowired
+    private FastApiAudioService fastApiAudioService;
+
+    @Autowired
     private CallMapper callMapper;
 
     @Value("${file.upload.dir}")
@@ -240,7 +243,7 @@ public class AudioProcessingService {
     }
 
     /**
-     * 최종 파일 S3 업로드 및 DB 저장
+     * 최종 파일 S3 업로드, DB 저장 및 FastAPI로 파일 직접 전송
      */
     private String uploadFileToS3(File file, int subscriptionCode) throws IOException {
         // MultipartFile로 변환 (S3Service가 MultipartFile을 필요로 함)
@@ -258,6 +261,27 @@ public class AudioProcessingService {
         rawFile.setAudioFilePaths(fileUrl);
 
         callMapper.insertRawFile(rawFile);
+
+        // FastAPI로 파일 직접 전송
+        try {
+            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendAudioFileToPython(file, subscriptionCode);
+
+            System.out.println("FastAPI 응답: " + pythonResponse.getMessage());
+
+            // 여기서 Python 응답에 따른 추가 처리 로직을 구현할 수 있습니다
+            if ("success".equals(pythonResponse.getStatus())) {
+                // 성공 처리
+                System.out.println("파일 처리 성공: " + pythonResponse.getProcessedData());
+            } else {
+                // 실패 처리
+                System.err.println("파일 처리 실패: " + pythonResponse.getMessage());
+            }
+        } catch (Exception e) {
+            // FastAPI 호출 실패 처리
+            System.err.println("FastAPI 호출 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            // 필요한 경우 예외를 던지거나 로깅 처리
+        }
 
         return fileUrl;
     }

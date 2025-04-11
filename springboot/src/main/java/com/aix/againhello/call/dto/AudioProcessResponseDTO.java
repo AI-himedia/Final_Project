@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SelectedSpeakerDTO {
+public class AudioProcessResponseDTO {
 
-    private String originalFilename;
-    private String selectedSpeakerId;
+    private String status;
+    private String message;
+    private Object processedData;
 
 }
