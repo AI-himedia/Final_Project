@@ -9,6 +9,7 @@ const CallService = () => {
   const streamRef = useRef(null);
   const silenceTimer = useRef(null);
   const audioRef = useRef(new Audio());
+  const readyToStream = useRef(false);
 
   const SILENCE_TIMEOUT_MS = 2000;
 
@@ -20,8 +21,19 @@ const CallService = () => {
       console.log('WebSocket 연결됨');
     };
 
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ event: 'ready' }));
+    }
+
     socketRef.current.onmessage = async (event) => {
       const msg = JSON.parse(event.data);
+
+      if (msg.event === 'ready') {
+        console.log('서버 준비 완료 - 오디오 전송 시작');
+        readyToStream.current = true;
+        startStreaming();
+        return;
+      }
 
       if (msg.type === 'tts') {
         console.log('TTS 수신');
@@ -38,7 +50,7 @@ const CallService = () => {
 
         audio.onended = () => {
           console.log('TTS 재생 완료. STT 재시작');
-          startStreaming();
+          socketRef.current.send(JSON.stringify({ event: 'ready' }));
         };
       }
     };
@@ -49,6 +61,8 @@ const CallService = () => {
   };
 
   const startStreaming = async () => {
+    if (!readyToStream.current) return;
+
     if (!streamRef.current) {
       streamRef.current = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -87,7 +101,7 @@ const CallService = () => {
 
       if (type === 'silence') {
         const elapsed = Date.now() - startTime;
-        const isEnoughAudio = elapsed > 1000 && totalSentBytes > 8192;
+        const isEnoughAudio = elapsed > 800 && totalSentBytes > 4096;
 
         if (silent && isStreaming && isEnoughAudio) {
           if (!silenceTimer.current) {
@@ -116,35 +130,28 @@ const CallService = () => {
       audioContextRef.current.close();
     }
     setIsStreaming(false);
+    readyToStream.current = false;
     socketRef.current?.send(JSON.stringify({ event: 'end' }));
     console.log('STT 세션 종료');
   };
 
-  //   const handleToggleCall = async () => {
-  //     if (!isStreaming) {
-  //       connectWebSocket();
-  //       setTimeout(() => startStreaming(), 500);
-  //     } else {
-  //       stopStreaming();
-  //       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-  //         socketRef.current.close();
-  //         console.log("WebSocket 연결 종료됨");
-  //       }
-  //       setIsStreaming(false);
-  //     }
-  //   };
-
-  const handleToggleCall = () => {
-    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-      connectWebSocket();
-    }
-
-    if (!isStreaming) {
-      startStreaming();
-    } else {
-      stopStreaming();
-    }
-  };
+    const handleToggleCall = async () => {
+      if (!isStreaming) {
+        connectWebSocket();
+        setTimeout(() => {
+          if (socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(JSON.stringify({ event: 'ready' }));
+          }
+        }, 500);
+      } else {
+        stopStreaming();
+        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+          socketRef.current.close();
+          console.log("WebSocket 연결 종료됨");
+        }
+        setIsStreaming(false);
+      }
+    };
 
   const handleManualPlay = async () => {
     try {
