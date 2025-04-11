@@ -20,7 +20,7 @@ project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
 PROCESSED_AUDIO_PATH = os.path.join(current_dir, "processed_prompt.wav")
-ORIGINAL_AUDIO_PATH = r"C:/Users/201-06/Final_Project/python/tts/sample.wav"
+ORIGINAL_AUDIO_PATH = os.path.join(current_dir, "S3download_prompt.wav")
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
 OUTPUT_AUDIO_PATH = os.path.join(OUTPUT_DIR, "output.wav")
