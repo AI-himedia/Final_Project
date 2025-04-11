@@ -10,7 +10,7 @@ public class ServerUrlConstants {
 //    public static final String SPRING_URL = "http://localhost:8080/";
 //    public static final String PYTHON_URL = "http://localhost:8000/";
 
-    public static final String SPRING_URL = "https://againhello.site/be/";
-    public static final String PYTHON_URL = "https://againhello.site/ai/";
+    public static final String SPRING_URL = "https://againhello.site/";
+    public static final String PYTHON_URL = "https://againhello.site/";
 
 }
