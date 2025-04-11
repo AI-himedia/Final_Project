@@ -6,7 +6,7 @@ import jakarta.servlet.http.Cookie;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/be/member")
 public class SignupController {
 
     private final UserService userService;

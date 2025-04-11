@@ -21,7 +21,7 @@ export default function HeaderTerms({ isTermsAgreed }) {
           className={`${styles.Header_PaymentButton} ${
             isTermsAgreed ? styles.active : ''
           }`}
-          onClick={() => navigate('/service/product')}
+          onClick={() => navigate('/service/terms/product')}
           disabled={!isTermsAgreed}
         >
           다음

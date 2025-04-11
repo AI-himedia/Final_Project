@@ -1,6 +1,6 @@
 package com.aix.againhello.subscription;
 
-import com.aix.againhello.call.ServiceException;
+import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.SubscriptionDTO;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
