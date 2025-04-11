@@ -1,15 +1,13 @@
-package com.aix.againhello.call;
+package com.aix.againhello.call.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class FileStorageService {
         }
     }
 
-    public String storeFile(MultipartFile file, String type) {
+    public String storeFile(MultipartFile file, String type, int deceasedCode) {
         try {
             // 파일 확장자 확인
             String originalFilename = file.getOriginalFilename();
@@ -98,8 +96,7 @@ public class FileStorageService {
             }
 
             // 파일명 생성
-            String datePrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String newFilename = datePrefix + "_" + originalFilename;
+            String newFilename = deceasedCode + "_" + originalFilename;
 
             // 파일 저장
             Path targetLocation = uploadPath.resolve(newFilename);

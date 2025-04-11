@@ -1,4 +1,4 @@
-package com.aix.againhello.call;
+package com.aix.againhello.call.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,6 +18,12 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -112,8 +118,6 @@ public class ClovaSpeechClient {
 
     public static class Diarization {
         private Boolean enable = Boolean.FALSE;
-        private Integer speakerCountMin;
-        private Integer speakerCountMax;
 
         public Boolean getEnable() {
             return enable;
@@ -121,22 +125,6 @@ public class ClovaSpeechClient {
 
         public void setEnable(Boolean enable) {
             this.enable = enable;
-        }
-
-        public Integer getSpeakerCountMin() {
-            return speakerCountMin;
-        }
-
-        public void setSpeakerCountMin(Integer speakerCountMin) {
-            this.speakerCountMin = speakerCountMin;
-        }
-
-        public Integer getSpeakerCountMax() {
-            return speakerCountMax;
-        }
-
-        public void setSpeakerCountMax(Integer speakerCountMax) {
-            this.speakerCountMax = speakerCountMax;
         }
     }
 
@@ -412,6 +400,36 @@ public class ClovaSpeechClient {
                 longestSegment.exportToWav(outputFile);
             }
         }
+    }
+
+    public File combineAudioFiles(List<File> files) throws IOException, UnsupportedAudioFileException {
+        // ByteArrayOutputStream 생성
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        // AudioInputStream을 사용하여 파일 연결
+        for (File file : files) {
+            AudioInputStream ais = AudioSystem.getAudioInputStream(file);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = ais.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+            }
+            ais.close();
+        }
+
+        // 연결된 오디오 데이터를 ByteArrayInputStream으로 변환
+        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+
+        // 연결된 오디오 파일을 저장
+        AudioInputStream concatenatedAis = new AudioInputStream(bis, AudioSystem.getAudioFileFormat(files.get(0)).getFormat(), bos.size());
+
+        // 임시 파일 생성
+        File tempFile = File.createTempFile("temp", ".wav");
+        tempFile.deleteOnExit(); // 프로그램 종료 시 삭제
+
+        AudioSystem.write(concatenatedAis, AudioFileFormat.Type.WAVE, tempFile);
+
+        return tempFile;
     }
 
 }

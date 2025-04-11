@@ -1,7 +1,9 @@
-package com.aix.againhello.call;
+package com.aix.againhello.call.service;
 
+import com.aix.againhello.call.dto.ServiceRequestDTO;
+import com.aix.againhello.call.mapper.CallMapper;
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.common.RawFileDTO;
+import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.common.SubscriptionDTO;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +90,7 @@ public class CallService {
         SubscriptionDTO subscription = createSubscription(userCode, CALL_SERVICE_CODE, deceasedCode);
 
         // 파일 업로드 처리
-        processAudioFiles(subscription.getSubscriptionCode(), audioFiles);
+        processAudioFiles(subscription.getSubscriptionCode(), subscription.getDeceasedCode(), audioFiles);
 
         return subscription;
     }
@@ -124,7 +126,7 @@ public class CallService {
         SubscriptionDTO subscription = createSubscription(userCode, CALL_SERVICE_CODE, deceasedCode);
 
         // 파일 업로드 처리
-        processAudioFiles(subscription.getSubscriptionCode(), audioFiles);
+        processAudioFiles(subscription.getSubscriptionCode(), subscription.getDeceasedCode(), audioFiles);
 
         return subscription;
     }
@@ -164,7 +166,7 @@ public class CallService {
     /**
      * 음성/영상 파일 업로드 처리 헬퍼 메서드
      */
-    private void processAudioFiles(int subscriptionCode, List<MultipartFile> audioFiles) {
+    private void processAudioFiles(int subscriptionCode, int deceasedCode, List<MultipartFile> audioFiles) {
         if (audioFiles != null && !audioFiles.isEmpty()) {
             // 파일 유효성 검증
             fileStorageService.validateFiles(audioFiles);
@@ -173,17 +175,9 @@ public class CallService {
 
             for (MultipartFile file : audioFiles) {
                 if (!file.isEmpty()) {
-                    String filePath = fileStorageService.storeFile(file, "audio");
+                    String filePath = fileStorageService.storeFile(file, "audio", deceasedCode);
                     audioFilePaths.add(filePath);
                 }
-            }
-
-            if (!audioFilePaths.isEmpty()) {
-                RawFileDTO rawFile = new RawFileDTO();
-                rawFile.setSubscriptionCode(subscriptionCode);
-                rawFile.setAudioFilePaths(audioFilePaths.toArray(new String[0]));
-
-                callMapper.insertRawFile(rawFile);
             }
         }
     }
