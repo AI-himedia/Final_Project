@@ -14,15 +14,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "com.aix.againhello.subscription"
 })
 public class SpringbootApplication {
-
     public static void main(String[] args) {
-        // Load .env file
-        Dotenv dotenv = Dotenv.load();
+        // .env 파일 로드
+        Dotenv dotenv = Dotenv.configure()
+                .directory("./") // .env 파일 경로 설정 (기본: 프로젝트 루트)
+                .load();
 
-        // Set as system properties so Spring Boot can use them
-        System.setProperty("POSTGRESQL_USERNAME", dotenv.get("POSTGRESQL_USERNAME"));
-        System.setProperty("POSTGRESQL_PASSWORD", dotenv.get("POSTGRESQL_PASSWORD"));
+        // 환경변수를 시스템 프로퍼티에 추가
+        dotenv.entries().forEach(entry ->
+                System.setProperty(entry.getKey(), entry.getValue())
+        );
+
         SpringApplication.run(SpringbootApplication.class, args);
     }
-
 }

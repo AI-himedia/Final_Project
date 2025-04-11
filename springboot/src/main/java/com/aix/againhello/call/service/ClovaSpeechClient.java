@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -78,13 +78,14 @@ class AudioSegment {
 @Component
 public class ClovaSpeechClient {
 
-    Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+    @Value("${clova.speech.secret}")
+    private String clovaSpeechSecret;
 
-    String clovaSpeechSecret = dotenv.get("CLOVA_SPEECH_SECRET");
-    String clovaSpeechInvokeUrl = dotenv.get("CLOVA_SPEECH_INVOKE-URL");
-    
-    private CloseableHttpClient httpClient = HttpClients.createDefault();
-    private Gson gson = new Gson();
+    @Value("${clova.speech.invoke-url}")
+    private String clovaSpeechInvokeUrl;
+
+    private final CloseableHttpClient httpClient = HttpClients.createDefault();
+    private final Gson gson = new Gson();
 
     private Header[] getHeaders() {
         return new Header[] {

@@ -1,5 +1,4 @@
 spring:
-
   config:
     import: optional:file:.env
 
@@ -12,7 +11,7 @@ spring:
   servlet:
     multipart:
       max-file-size: 300MB
-      max-request-size: 315MB # 최대 3개의 파일(300MB 영상 + 기타 데이터)을 고려한 크기
+      max-request-size: 315MB
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
@@ -22,36 +21,34 @@ mybatis:
 
 oauth2:
   kakao:
-    client-id: ef86fd03e574909afcdf090c36f7c583
-    client-secret: F3k1AJiS65yf8nS7aVptks41A1k0iwzU
-#    redirect-uri: http://localhost:3000/login
-    redirect-uri: https://againhello.site:3000/login
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI}
     token-uri: https://kauth.kakao.com/oauth/token
     user-info-uri: https://kapi.kakao.com/v2/user/me
 
 jwt:
-  secret: #!J)I#FD!IN#EJ#)JRINDIF!#*RJ#!)!#JED
-  access-token-validity-in-seconds: 900    # 15분
-  refresh-token-validity-in-seconds: 604800 # 7일
-
+  secret: ${JWT_SECRET}
+  access-token-validity-in-seconds: 900
+  refresh-token-validity-in-seconds: 604800
 
 kakao:
-  client-id: ef86fd03e574909afcdf090c36f7c583
-  client-secret: F3k1AJiS65yf8nS7aVptks41A1k0iwzU
-#  redirect-uri: http://localhost:3000/login
-  redirect-uri: https://againhello.site:3000/login
+  client-id: ${KAKAO_CLIENT_ID}
+  client-secret: ${KAKAO_CLIENT_SECRET}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
 
 aws:
-  region: ${AWS_REGION:ap-northeast-2}
+  region: ap-northeast-2
   credentials:
-    access-key: ${AWS_ACCESS_KEY_ID:}
-    secret-key: ${AWS_SECRET_ACCESS_KEY:}
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}
   s3:
     bucket-name: ai-himedia
 
 clova:
-  SECRET: ${CLOVA_SPEECH_SECRET}
-  INVOKE_URL: ${CLOVA_SPEECH_INVOKE-URL}
+  speech:
+    secret: ${CLOVA_SPEECH_SECRET}
+    invoke-url: ${CLOVA_SPEECH_INVOKE_URL}
 
 file:
   upload:
@@ -59,7 +56,7 @@ file:
     max-count: 3
     allowed-audio-extensions: mp3,aac,ac3,ogg,flac,wav,m4a
     allowed-video-extensions: avi,mp4,mov,wmv,flv,mkv
-    max-audio-size: 5242880  # 5MB in bytes
-    max-video-size: 314572800  # 300MB in bytes
+    max-audio-size: 5242880
+    max-video-size: 314572800
   output:
     dir: ./output
