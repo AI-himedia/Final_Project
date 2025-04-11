@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/member/kakao")
+@RequestMapping("/be/member/kakao")
 public class KakaoController {
     private final KakaoAuthService kakaoAuthService;
     private final UserService userService;

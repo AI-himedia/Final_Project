@@ -85,16 +85,20 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
         accessCookie.setMaxAge(60 * 30); // 30분
-        accessCookie.setSecure(false);
-        accessCookie.setDomain("localhost");
+//        accessCookie.setSecure(false);
+        accessCookie.setSecure(true);
+//        accessCookie.setDomain("localhost");
+        accessCookie.setDomain("againhello.site"); // 배포용
         accessCookie.setComment("access");
 
         Cookie refreshCookie = new Cookie("refresh", refreshToken);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(60 * 60 * 24 * 7); // 7일
-        refreshCookie.setSecure(false);
-        refreshCookie.setDomain("localhost");
+//        refreshCookie.setSecure(false);
+        accessCookie.setSecure(true);
+//        refreshCookie.setDomain("localhost"); // 로컬 테스트용
+        refreshCookie.setDomain("againhello.site"); // 배포용
         refreshCookie.setComment("refresh");
 
         response.addCookie(accessCookie);
