@@ -80,6 +80,7 @@ springboot/src/main/java/com/aix/againhello/call/output
 springboot/src/test
 springboot/upload
 springboot/output
+/src/main/resources/properties/env.properties
 
 # backend - Python
 python/__pycache__/
