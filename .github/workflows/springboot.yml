@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            printf '%s' "${{ secrets.SPRINGBOOT_ENV }}" > /home/ubuntu/springboot.env
+            printf "%s" "${{ secrets.SPRINGBOOT_ENV }}" | base64 -d > /home/ubuntu/springboot.env
 
             docker stop springboot || true
             docker rm springboot || true
