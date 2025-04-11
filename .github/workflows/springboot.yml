@@ -17,17 +17,15 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
 
-      # Gradle Wrapper 권한 수정
       - name: Gradle Wrapper 권한 수정
         run: chmod +x ./springboot/gradlew
 
-      # Gradle 빌드
       - name: Gradle 빌드
         run: |
-          cd springboot  # springboot 디렉토리로 이동
-          ./gradlew build -x test  # 테스트를 제외한 빌드
+          cd springboot
+          ./gradlew build -x test
 
-      - name: Docker 빌드 및 푸시
+      - name: Docker 로그인
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -35,28 +33,23 @@ jobs:
 
       - name: Docker 이미지 빌드 및 푸시
         run: |
-          echo "${{ secrets.SPRINGBOOT_ENV }}" > springboot/.env
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot  # 경로 수정
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
-            - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
+      - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # .env 파일 저장 (필요 시 secrets에서 전달)
             echo "${{ secrets.SPRINGBOOT_ENV }}" > /home/ubuntu/springboot.env
 
-            # 기존 컨테이너가 있으면 중지 및 삭제
             docker stop springboot || true
             docker rm springboot || true
 
-            # 최신 이미지 pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
-            # 컨테이너 실행 (환경변수 파일 마운트)
             docker run -d --name springboot \
               --env-file /home/ubuntu/springboot.env \
               -p 8080:8080 \
