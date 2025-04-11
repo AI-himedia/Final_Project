@@ -6,8 +6,13 @@ from huggingface_hub import snapshot_download
 from pydub import AudioSegment
 from pathlib import Path
 import torch
-from cli.SparkTTS import SparkTTS
+from tts.cli.SparkTTS import SparkTTS
 from scipy.io.wavfile import write
+from dotenv import load_dotenv
+from urllib.parse import urlparse
+import boto3
+
+load_dotenv()
 
 # 경로 설정
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,10 +20,32 @@ project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
 PROCESSED_AUDIO_PATH = os.path.join(current_dir, "processed_prompt.wav")
-ORIGINAL_AUDIO_PATH = r"C:/Users/201-06/Final_Project/python/tts/sample.wav"
+ORIGINAL_AUDIO_PATH = os.path.join(current_dir, "S3download_prompt.wav")
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
 OUTPUT_AUDIO_PATH = os.path.join(OUTPUT_DIR, "output.wav")
+
+# 🔧 S3 URL 파싱
+def parse_s3_url(s3_url: str):
+    parsed = urlparse(s3_url)
+    bucket = parsed.netloc.split('.')[0]
+    key = parsed.path.lstrip('/')
+    return bucket, key
+
+# 🔧 boto3를 이용한 S3 다운로드
+def download_audio_from_s3(bucket_name: str, object_key: str, save_path: str):
+    print(f"🌐 S3 오디오 다운로드 중... s3://{bucket_name}/{object_key}")
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.getenv("AWS_REGION")
+    )
+    try:
+        s3.download_file(bucket_name, object_key, save_path)
+        print(f"✅ 오디오 다운로드 완료: {save_path}")
+    except Exception as e:
+        raise Exception(f"❌ S3 다운로드 실패: {e}")
 
 # 캐시용 전역 변수
 spark_model = None
@@ -62,7 +89,19 @@ def convert_prompt_audio(input_path, output_path):
     audio.export(output_path, format="wav")
     print(f"오디오 변환 완료: {output_path}")
 
-# TTS 합성
+
+def Ready_S3File(s3_url: str):
+    print("✅ [Ready_S3File] 시작")
+    print("📌 S3 주소:", s3_url)
+
+    try:
+        bucket, key = parse_s3_url(s3_url)
+        download_audio_from_s3(bucket, key, ORIGINAL_AUDIO_PATH)
+        convert_prompt_audio(ORIGINAL_AUDIO_PATH, PROCESSED_AUDIO_PATH)
+    except Exception as e:
+        print("함수 실행 중 오류 발생:", str(e))
+        raise
+
 # TTS 합성
 def run_tts(text: str) -> bytes:
     global spark_model, cached_global_token_ids
