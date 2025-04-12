@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0.4//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aix.againhello.S3.TTSMapper">
+    <select id="findAudioFilePathBySubscriptionCode" parameterType="int" resultType="string">
+        SELECT audio_file_paths
+        FROM raw_file
+        WHERE subscription_code = #{subscriptionCode}
+    </select>
+</mapper>

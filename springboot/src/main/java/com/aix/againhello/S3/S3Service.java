@@ -33,8 +33,10 @@ public class S3Service {
                 (!originalFilename.endsWith(".mp3") &&
                         !originalFilename.endsWith(".wav") &&
                         !originalFilename.endsWith(".m4a") &&
-                        !originalFilename.endsWith(".txt"))) {
-            throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. (지원 형식: mp3, wav, m4a, txt)");
+                        !originalFilename.endsWith(".txt") &&
+                        !originalFilename.endsWith(".jpg") &&
+                        !originalFilename.endsWith(".png"))) {
+            throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. (지원 형식: mp3, wav, m4a, txt, jpg, png)");
         }
 
         try {

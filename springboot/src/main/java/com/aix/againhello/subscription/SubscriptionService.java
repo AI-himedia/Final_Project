@@ -4,6 +4,7 @@ import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.SubscriptionDTO;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
+import com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse;
 import com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,6 +92,30 @@ public class SubscriptionService {
     }
 
     public DeceasedDataDTO getDeceasedData(int deceasedCode) {
+
+        // 1. 고인 코드 존재 여부 확인
+        if(!subscriptionMapper.existsByDeceasedCode(deceasedCode)){
+            throw new ServiceException("고인 코드가 존재하지 않습니다.");
+        }
+
         return subscriptionMapper.getDeceasedData(deceasedCode);
     }
+
+    public ExceptionCaseResponse getSubscriptedWithNoDeceasedData(int userCode) {
+
+        // 1. 사용자 존재 여부 확인
+        if (!userMapper.existsById(userCode)) {
+            throw new ServiceException("사용자를 찾을 수 없습니다.");
+        }
+
+        ExceptionCaseResponse response = subscriptionMapper.getSubscriptedWithNoDeceasedData(userCode);
+        System.out.println("----------------------------------------");
+        System.out.println(response.getSubscriptionCode());
+        System.out.println(response.getServiceCode());
+
+        return response;
+    }
+
+
+
 }

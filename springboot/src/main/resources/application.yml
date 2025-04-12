@@ -1,17 +1,14 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
   config:
     import: optional:file:.env[.properties]
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/againhello
-    username: ${POSTGRESQL_USERNAME}
-    password: ${POSTGRESQL_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  servlet:
-    multipart:
-      max-file-size: 300MB
-      max-request-size: 315MB
+#  datasource:
+#    url: jdbc:postgresql://againhello.site:5432/againhello
+#    username: ${POSTGRESQL_USERNAME}
+#    password: ${POSTGRESQL_PASSWORD}
+#    driver-class-name: org.postgresql.Driver
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
@@ -19,23 +16,10 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-oauth2:
-  kakao:
-    client-id: ${KAKAO_CLIENT_ID}
-    client-secret: ${KAKAO_CLIENT_SECRET}
-    redirect-uri: ${KAKAO_REDIRECT_URI}
-    token-uri: https://kauth.kakao.com/oauth/token
-    user-info-uri: https://kapi.kakao.com/v2/user/me
-
 jwt:
   secret: ${JWT_SECRET}
   access-token-validity-in-seconds: 900
   refresh-token-validity-in-seconds: 604800
-
-kakao:
-  client-id: ${KAKAO_CLIENT_ID}
-  client-secret: ${KAKAO_CLIENT_SECRET}
-  redirect-uri: ${KAKAO_REDIRECT_URI}
 
 aws:
   region: ap-northeast-2
@@ -56,6 +40,8 @@ file:
     max-count: 3
     allowed-audio-extensions: mp3,aac,ac3,ogg,flac,wav,m4a
     allowed-video-extensions: avi,mp4,mov,wmv,flv,mkv
+    allowed-text-extensions: txt
+    allowed-image-extensions: jpg,png
     max-audio-size: 5242880
     max-video-size: 314572800
   output:

@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://52.79.251.208:5432/againhello
+    username: ${POSTGRESQL_USERNAME}
+    password: ${POSTGRESQL_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+app:
+  props:
+    social:
+      kakao:
+        client-id: ${KAKAO_CLIENT_ID}
+        client-secret: ${KAKAO_CLIENT_SECRET}
+        redirect-uri: https://againhello.site/login
+        token-uri: https://kauth.kakao.com/oauth/token
+        user-info-uri: https://kapi.kakao.com/v2/user/me
+        user-info-name-attribute-key: id
+        client-name: Kakao
