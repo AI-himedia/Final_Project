@@ -39,6 +39,7 @@ export default function LoginPage() {
 
   const handleKakaoLogin = () => {
     const clientId = process.env.REACT_APP_KAKAO_REST_API_KEY;
+    console.log('clientId:', clientId);
     // const redirectUri = encodeURIComponent('http://localhost:3000/login');
     const redirectUri = encodeURIComponent('https://againhello.site/login');
     const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
