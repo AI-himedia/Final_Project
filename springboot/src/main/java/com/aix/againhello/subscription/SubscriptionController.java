@@ -3,6 +3,7 @@ package com.aix.againhello.subscription;
 
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.SubscriptionDTO;
+import com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse;
 import com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,21 @@ public class SubscriptionController {
     private SubscriptionService subscriptionService;
 
     /**
-     * 현재 로그인한 사용자의 구독 정보 조회
+     * 유저가 결제는 했지만 고인 정보 입력은 안한 경우 체크
+     *
+     * @param userCode 사용자 코드
+     * @return 해당 케이스 구독 정보
+     * subscriptionCode 구독 코드
+     * serviceCode 서비스 코드 sms: 1/ call: 2
+     */
+    @GetMapping("/exception")
+    public ResponseEntity<?> getSubscriptedWithNoDeceasedData(@RequestParam("userCode") int userCode) {
+
+        return ResponseEntity.ok(subscriptionService.getSubscriptedWithNoDeceasedData(userCode));
+    }
+
+    /**
+     * 유저의 구독 정보 조회
      *
      * @param userCode 사용자 코드
      * @return 구독 정보 리스트
