@@ -1,4 +1,4 @@
-package com.aix.againhello.sms.responseWrapper;
+package com.aix.againhello.sms.wrapper;
 
 public class ChatRequestDTO {
     private int subscriptionCode;

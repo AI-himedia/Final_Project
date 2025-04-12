@@ -2,6 +2,7 @@ package com.aix.againhello.subscription;
 
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.SubscriptionDTO;
+import com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse;
 import com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,4 +20,10 @@ public interface SubscriptionMapper {
     Integer insertSubscription(SubscriptionDTO subscriptionDTO);
 
     DeceasedDataDTO getDeceasedData(int deceasedCode);
+
+    boolean existsByDeceasedCode(int deceasedCode);
+
+    ExceptionCaseResponse getSubscriptedWithNoDeceasedData(int userCode);
+
+    boolean existsBySubscriptionCode(int subscriptionCode);
 }

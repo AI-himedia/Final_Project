@@ -40,6 +40,8 @@ file:
     max-count: 3
     allowed-audio-extensions: mp3,aac,ac3,ogg,flac,wav,m4a
     allowed-video-extensions: avi,mp4,mov,wmv,flv,mkv
+    allowed-text-extensions: txt
+    allowed-image-extensions: jpg,png
     max-audio-size: 5242880
     max-video-size: 314572800
   output:
