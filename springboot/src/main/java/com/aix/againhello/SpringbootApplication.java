@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "com.aix.againhello.oauth.kakao.mapper",
         "com.aix.againhello.sms",
         "com.aix.againhello.call",
-        "com.aix.againhello.subscription"
+        "com.aix.againhello.subscription",
+        "com.aix.againhello.S3"
 })
 public class SpringbootApplication {
 
