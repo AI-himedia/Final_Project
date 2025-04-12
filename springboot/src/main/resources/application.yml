@@ -4,7 +4,7 @@ spring:
 
   datasource:
 #    url: jdbc:postgresql://localhost:5432/againhello
-    url: jdbc:postgresql://againhello.site:5432/againhello
+    url: jdbc:postgresql://52.79.251.208:5432/againhello
     username: ${POSTGRESQL_USERNAME}
     password: ${POSTGRESQL_PASSWORD}
     driver-class-name: org.postgresql.Driver
