@@ -32,7 +32,7 @@ export default function LoginPage() {
           navigate('/login-error', { replace: true });
         })
         .finally(() => {
-          setLoading(false); // 로딩 종료
+          setLoading(false);
         });
     }
   }, [location.search, navigate]);
