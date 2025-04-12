@@ -35,6 +35,8 @@ boto3 = "*"
 scipy = "*"
 fastapi = "*"
 websocket-server = "*"
+python-multipart = "*"
+websockets = "*"
 
 [dev-packages]
 
