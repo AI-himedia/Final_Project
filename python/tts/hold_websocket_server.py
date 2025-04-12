@@ -1,0 +1,167 @@
+import asyncio
+import base64
+import json
+import uuid
+from websockets.legacy.server import serve, WebSocketServerProtocol
+from pydantic import BaseModel
+from stt_google_api import run_streaming_stt
+from tts_test import run_llm, run_tts
+from api.response_generator import generate_response
+
+
+# LLM 에게 전달할 데이터 형식
+class ChatRequest(BaseModel):
+    subscriptionCode: int
+    userInput: str
+
+MIN_AUDIO_CHUNKS = 1
+
+async def handler(websocket: WebSocketServerProtocol):
+    print("클라이언트 연결됨")
+
+    try:
+        while True:
+            # 클라이언트에게 STT 준비 완료 신호 보내기
+            await websocket.send(json.dumps({"event": "ready"}))
+
+            session_id = str(uuid.uuid4())
+            print(f"[{session_id}] STT 세션 시작")
+
+            audio_queue = asyncio.Queue()
+            stt_done = asyncio.Event()
+            audio_received = asyncio.Event()
+
+            seen_final_transcripts = set()
+            received_chunks = 0
+            user_requested_disconnect = False
+
+            # 클라이언트가 ready 신호를 보내야만 시작
+            initial_ready = False
+
+            async def receive_audio():
+                nonlocal received_chunks, user_requested_disconnect, initial_ready
+                try:
+                    async for message in websocket:
+                        if isinstance(message, bytes):
+                            if not initial_ready:
+                                continue
+                            received_chunks += 1
+                            await audio_queue.put(message)
+                            audio_received.set() # 오디오 수신됨
+                        elif isinstance(message, str):
+                            data = json.loads(message)
+                            event_type = data.get("event")
+                            if event_type == "ready":
+                                print(f"[{session_id}] 클라이언트로부터 STT 준비 신호 수신")
+                                initial_ready = True
+                            elif event_type == "end":
+                                print("클라이언트 종료 요청 수신")
+                                if not audio_received.is_set():
+                                    print("오디오 없이 종료 요청 수신됨")
+                                user_requested_disconnect = True
+                                await audio_queue.put(None)
+                                break
+                except Exception as e:
+                    print("WebSocket 수신 오류:", e)
+                    await audio_queue.put(None)
+                    audio_received.set()  # 에러 발생 시에도 unblock
+                    user_requested_disconnect = True
+
+            async def process_call_result():
+                try:
+                    print("process_call_result 시작")
+                    responses = await run_streaming_stt(audio_queue)
+                    for response in responses:
+                        print(f"[{session_id}] STT 응답 수신: {response}")
+                        
+                        for result in response.results:
+                            if result.is_final:
+                                transcript = result.alternatives[0].transcript.strip()
+                                if transcript and transcript not in seen_final_transcripts:
+                                    seen_final_transcripts.add(transcript)
+                                    print(f"[{session_id}] 최종 STT: {transcript}")
+                        
+                        # if not response.results:
+                        #     continue
+                        # for result in response.results:
+                        #     if not result.alternatives:
+                        #         continue
+
+                        #     transcript = result.alternatives[0].transcript.strip()
+
+                        #     if result.is_final and transcript and transcript not in seen_final_transcripts:
+                        #         seen_final_transcripts.add(transcript)
+                        #         found_final = True
+                        #         print(f"[{session_id}] 최종 STT: {transcript}")
+                                
+                                # LLM → TTS
+                                try:
+                                    chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
+                                    response_llm = generate_response(chat_input)
+                                    response_message = response_llm["message"]
+                                    print(f"[{session_id}] LLM 응답: {response_message}")
+
+                                    tts_audio = run_tts(response_message)
+                                    await websocket.send(json.dumps({
+                                        "type": "tts",
+                                        "data": base64.b64encode(tts_audio).decode("utf-8")
+                                    }))
+                                    print(f"[{session_id}] TTS 전송 완료")
+
+                                except Exception as e:
+                                    print(f"[{session_id}] TTS 처리 오류:", e)
+
+                                return
+                    print(f"[{session_id}] STT 결과 없음 - 강제 종료")
+                    stt_done.set()
+
+                except Exception as e:
+                    print(f"[{session_id}] STT 처리 오류:", e)
+                    stt_done.set()
+
+            # 오디오 먼저 받기
+            receive_task = asyncio.create_task(receive_audio())
+
+            # 오디오 수신 대기
+            print(f"[{session_id}] 오디오 수신 대기 중")
+            await audio_received.wait()
+            await asyncio.sleep(0.5)
+
+            if user_requested_disconnect:
+                print(f"[{session_id}] 클라이언트 종료 요청 수신. STT 종료")
+                await audio_queue.put(None)
+                await receive_task
+                break
+
+            
+            if received_chunks < MIN_AUDIO_CHUNKS:
+                print(f"[{session_id}] 오디오 수신량 부족 ({received_chunks}개). STT 호출 종료")
+                await audio_queue.put(None)  # 종료 신호 정리
+                await receive_task  # 수신 task 정리
+                continue 
+
+            # STT task 시작
+            print(f"[{session_id}] 오디오 수신됨, STT 시작")
+            process_task = asyncio.create_task(process_call_result())
+
+            # STT 처리 
+            await asyncio.gather(receive_task, process_task)
+            await stt_done.wait()
+
+            print(f"[세션 ID: {session_id}] STT 세션 종료. 다음 발화 대기 중")
+            
+            if websocket.closed or user_requested_disconnect:
+                print(f"[{session_id}] 클라이언트 요청으로 루프 종료")
+                break
+            
+    except Exception as e:
+        print("[서버 오류] handler 루프 에러:", e)
+
+async def main():
+    print("WebSocket 서버 실행 중 (포트 8765)")
+    async with serve(handler, "0.0.0.0", 8765):
+        await asyncio.Future()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

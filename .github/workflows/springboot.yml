@@ -43,16 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cat <<EOF > /home/ubuntu/springboot.env
-            ${{ secrets.SPRINGBOOT_ENV }}
-            EOF
+            printf "%s" "${{ secrets.SPRINGBOOT_ENV }}" | base64 -d > /home/ubuntu/springboot.env
 
-              docker stop springboot || true
-              docker rm springboot || true
+            docker stop springboot || true
+            docker rm springboot || true
 
-              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
-              docker run -d --name springboot \
-                --env-file /home/ubuntu/springboot.env \
-                -p 8080:8080 \
-                ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
+            docker run -d --name springboot \
+              --env-file /home/ubuntu/springboot.env \
+              -p 8080:8080 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}

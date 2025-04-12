@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 선택된 화자 목록 DTO
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
