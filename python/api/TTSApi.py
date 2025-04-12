@@ -12,12 +12,18 @@ class S3Request(BaseModel):
 
 @TTSReady_router.post("/be/synthesize")
 def synthesize(request: S3Request):
-    print("✅ 받은 요청:", request)
     try:
-        Ready_S3File(request.s3_url)
-        return {"status": "success", "message": "TTS done"}
+        processed_audio = Ready_S3File(request.s3_url)
+        return {
+            "status": "success",
+            "message": "오디오 변환 완료",
+            "audio_length": len(processed_audio.getvalue())  # 선택 사항: 변환된 파일의 바이트 길이
+        }
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {
+            "status": "error",
+            "message": f"변환 중 오류 발생: {str(e)}"
+        }
 
 if __name__ == "__main__":
     uvicorn.run("TTSApi:app", host="0.0.0.0", port=8000)
