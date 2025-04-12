@@ -36,6 +36,8 @@ scipy = "*"
 fastapi = "*"
 websocket-server = "*"
 python-multipart = "*"
+websockets = "*"
+
 
 [dev-packages]
 
