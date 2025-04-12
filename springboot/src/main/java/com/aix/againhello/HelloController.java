@@ -13,6 +13,7 @@ public class HelloController {
     // GET /be/test 요청 처리
     @GetMapping("/test")
     public String hello() {
+        System.out.println("테스트");
         return "hello";
     }
 
