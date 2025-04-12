@@ -17,12 +17,12 @@ app:
   props:
     social:
       kakao:
-#        client-id: ${KAKAO_CLIENT_ID}
-        client-id: ece32edbba77663269c9d158d5b5c19e
-#        client-secret: ${KAKAO_CLIENT_SECRET}
-        client-secret: X2hfJvo90ByffwKDhbpdwl8m2E9zGk2M
-#        redirect-uri: ${KAKAO_REDIRECT_URI}
-        redirect-uri: http://localhost:3000/login
+        client-id: ${KAKAO_CLIENT_ID}
+#        client-id: ece32edbba77663269c9d158d5b5c19e
+        client-secret: ${KAKAO_CLIENT_SECRET}
+#        client-secret: X2hfJvo90ByffwKDhbpdwl8m2E9zGk2M
+        redirect-uri: ${KAKAO_REDIRECT_URI}
+#        redirect-uri: http://localhost:3000/login
         authorization-uri: https://kauth.kakao.com/oauth/authorize
         token-uri: https://kauth.kakao.com/oauth/token
         user-info-uri: https://kapi.kakao.com/v2/user/me
