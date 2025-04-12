@@ -7,26 +7,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/be")
 public class HelloController {
 
-    @Value("${spring.profiles.active:default}")
-    private String profile;
+    @Value("${app.props.social.kakao.client-id}")
+    private String clientId;
 
-    @Value("${spring.datasource.url:NOT_SET}")
-    private String datasourceUrl;
+    @Value("${app.props.social.kakao.client-secret}")
+    private String clientSecret;
 
-    @Value("${custom.env.example:undefined}")
-    private String customEnv;
+    @Value("${app.props.social.kakao.redirect-uri}")
+    private String redirectUri;
 
-    // GET /be/test 요청 처리
     @GetMapping("/test")
-    public String hello() {
-        System.out.println("테스트 요청 수신");
-        System.out.println("[LOG] Profile: " + profile);
-        System.out.println("[LOG] Datasource URL: " + datasourceUrl);
-        System.out.println("[LOG] Custom ENV: " + customEnv);
-        return "hello";
+    public Map<String, String> hello() {
+        return Map.of(
+                "message", "hello",
+                "profile", clientId,
+                "datasourceUrl", clientSecret,
+                "customEnv", redirectUri
+        );
     }
 }
