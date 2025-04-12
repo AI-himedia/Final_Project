@@ -1,5 +1,5 @@
 // oauth.kakao.JwtAuthenticationFilter
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

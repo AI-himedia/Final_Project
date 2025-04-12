@@ -1,5 +1,5 @@
 // oauth.kakao.User
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.dto;
 
 import lombok.*;
 

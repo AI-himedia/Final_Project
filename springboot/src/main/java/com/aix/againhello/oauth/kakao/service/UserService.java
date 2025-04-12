@@ -1,5 +1,7 @@
 // oauth.kakao.UserService
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.service;
+
+import com.aix.againhello.oauth.kakao.dto.User;
 
 public interface UserService {
     boolean existsByEmail(String email);

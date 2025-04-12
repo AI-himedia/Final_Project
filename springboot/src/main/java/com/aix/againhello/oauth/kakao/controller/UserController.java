@@ -1,6 +1,9 @@
 // oauth.kakao.UserController
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.controller;
 
+import com.aix.againhello.oauth.kakao.dto.User;
+import com.aix.againhello.oauth.kakao.jwt.JwtUtil;
+import com.aix.againhello.oauth.kakao.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 

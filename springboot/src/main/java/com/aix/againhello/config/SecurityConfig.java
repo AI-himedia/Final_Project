@@ -1,6 +1,6 @@
 package com.aix.againhello.config;
 
-import com.aix.againhello.oauth.kakao.JwtAuthenticationFilter;
+import com.aix.againhello.oauth.kakao.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           CorsConfigurationSource corsConfigurationSource) {
-        System.out.println("✅ SecurityConfig 생성됨");
+        System.out.println("[log] SecurityConfig 생성됨");
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
     }
@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/be/**",
+                                "/be/member/kakao/token",
+                                "/be/member/kakao/signup",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
@@ -44,4 +45,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

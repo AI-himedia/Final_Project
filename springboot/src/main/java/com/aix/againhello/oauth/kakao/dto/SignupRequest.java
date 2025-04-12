@@ -1,5 +1,5 @@
 // oauth.kakao.SignupRequest
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class SignupRequest {
     private String email;
-    private String gender;    // "M" or "F"
+    private String gender;
     private String fullName;
-    private String number;    // 전화번호
+    private String number;
 }
