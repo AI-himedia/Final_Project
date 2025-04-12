@@ -60,6 +60,7 @@ const CallService = () => {
     };
   };
 
+  // 스트리밍 시작
   const startStreaming = async () => {
     if (!readyToStream.current) return;
 
@@ -124,6 +125,7 @@ const CallService = () => {
     console.log('STT 세션 시작');
   };
 
+  // 스트리밍 종료
   const stopStreaming = () => {
     if (workletNodeRef.current) workletNodeRef.current.disconnect();
     if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
@@ -153,6 +155,7 @@ const CallService = () => {
       }
     };
 
+  // 수동재생 버튼
   const handleManualPlay = async () => {
     try {
       await audioRef.current.play();

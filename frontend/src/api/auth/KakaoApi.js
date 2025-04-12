@@ -8,7 +8,6 @@ export const kakaoLoginRedirect = async (code) => {
   }
 
   const response = await axios.get(
-    // `${API_SERVER_HOST}/api/member/kakao/token?code=${code}`,
     `${API_SERVER_HOST}/be/member/kakao/token?code=${code}`,
     {
       withCredentials: true,

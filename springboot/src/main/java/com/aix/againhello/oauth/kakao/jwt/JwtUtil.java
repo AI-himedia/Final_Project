@@ -1,4 +1,4 @@
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

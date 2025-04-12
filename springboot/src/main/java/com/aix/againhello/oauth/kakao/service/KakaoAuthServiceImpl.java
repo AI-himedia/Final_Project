@@ -1,6 +1,8 @@
 // oauth.kakao.KakaoAuthServicelmpl
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.service;
 
+import com.aix.againhello.oauth.kakao.jwt.JwtUtil;
+import com.aix.againhello.oauth.kakao.dto.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +22,13 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     private final JwtUtil jwtUtil;
     private final UserService userService;
 
-    @Value("${kakao.client-id}")
+    @Value("${app.props.social.kakao.client-id}")
     private String clientId;
 
-    @Value("${kakao.client-secret}")
+    @Value("${app.props.social.kakao.client-secret}")
     private String clientSecret;
 
-    @Value("${kakao.redirect-uri}")
+    @Value("${app.props.social.kakao.redirect-uri}")
     private String redirectUri;
 
     private static final Logger log = LoggerFactory.getLogger(KakaoAuthServiceImpl.class);
@@ -41,8 +43,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         String kakaoTokenUrl = "https://kauth.kakao.com/oauth/token";
         String kakaoUserUrl = "https://kapi.kakao.com/v2/user/me";
 
-        System.out.println("✅ 카카오 로그인 시작");
-        System.out.println("받은 인가 코드: " + code);
+        log.info("✅ 카카오 로그인 시작. 받은 인가 코드: {}", code);
 
         // 1. 토큰 요청
         HttpHeaders headers = new HttpHeaders();
@@ -55,12 +56,23 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         params.add("code", code);
         params.add("client_secret", clientSecret);
 
+        log.info("Kakao Token Request Headers: {}", headers); // 요청 헤더 로깅
+        log.info("Kakao Token Request Parameters: {}", params); // 요청 파라미터 로깅
+
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(kakaoTokenUrl, tokenRequest, Map.class);
 
+        log.info("Kakao Token Response Headers: {}", tokenResponse.getHeaders()); // 응답 헤더 로깅
+        log.info("Kakao Token Response Body: {}", tokenResponse.getBody()); // 응답 본문 로깅
+
+        if (!tokenResponse.getStatusCode().is2xxSuccessful()) {
+            log.error("카카오 토큰 요청 실패. 응답 코드: {}, 응답 본문: {}", tokenResponse.getStatusCode(), tokenResponse.getBody());
+            throw new RuntimeException("카카오 토큰 요청 실패");
+        }
+
         String accessToken = (String) tokenResponse.getBody().get("access_token");
-        System.out.println("✅ 카카오 access token: " + accessToken);
+        log.info("✅ 카카오 access token: {}", accessToken);
 
         // 2. 사용자 정보 요청
         HttpHeaders userHeaders = new HttpHeaders();
@@ -68,10 +80,17 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         HttpEntity<Void> userRequest = new HttpEntity<>(userHeaders);
         ResponseEntity<Map> userResponse = restTemplate.exchange(kakaoUserUrl, HttpMethod.GET, userRequest, Map.class);
 
+        log.info("Kakao User Response: {}", userResponse); // 사용자 정보 응답 로깅
+
+        if (!userResponse.getStatusCode().is2xxSuccessful()) {
+            log.error("카카오 사용자 정보 요청 실패. 응답 코드: {}, 응답 본문: {}", userResponse.getStatusCode(), userResponse.getBody());
+            throw new RuntimeException("카카오 사용자 정보 요청 실패");
+        }
+
         Map<String, Object> kakaoAccount = (Map<String, Object>) userResponse.getBody().get("kakao_account");
         String email = (String) kakaoAccount.get("email");
 
-        System.out.println("✅ 카카오 유저 이메일: " + email);
+        log.info("✅ 카카오 유저 이메일: {}", email);
 
         return User.builder()
                 .email(email)

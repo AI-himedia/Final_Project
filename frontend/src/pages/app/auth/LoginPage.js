@@ -1,4 +1,4 @@
-// src/pages/shared/auth/LoginPage.jsx
+// src/pages/shared/auth/LoginPage.js
 import styles from './LoginPage.module.css';
 import { kakaoLoginRedirect } from '../../../api/auth/KakaoApi';
 import { useEffect, useState } from 'react';
@@ -32,15 +32,15 @@ export default function LoginPage() {
           navigate('/login-error', { replace: true });
         })
         .finally(() => {
-          setLoading(false); // 로딩 종료
+          setLoading(false);
         });
     }
   }, [location.search, navigate]);
 
   const handleKakaoLogin = () => {
     const clientId = process.env.REACT_APP_KAKAO_REST_API_KEY;
-    // const redirectUri = encodeURIComponent('http://localhost:3000/login');
-    const redirectUri = encodeURIComponent('https://againhello.site/login');
+    const redirectUri = encodeURIComponent('http://localhost:3000/login');
+    // const redirectUri = encodeURIComponent('https://againhello.site/login');
     const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
     window.location.href = kakaoUrl;
   };

@@ -1,7 +1,7 @@
 // oauth.kakao.mapper.UserMapper
 package com.aix.againhello.oauth.kakao.mapper;
 
-import com.aix.againhello.oauth.kakao.User;
+import com.aix.againhello.oauth.kakao.dto.User;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

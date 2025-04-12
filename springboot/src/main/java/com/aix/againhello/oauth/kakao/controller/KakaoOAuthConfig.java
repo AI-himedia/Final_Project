@@ -1,5 +1,4 @@
-// config.KakaoOAuthConfig
-package com.aix.againhello.config;
+package com.aix.againhello.oauth.kakao.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -7,19 +6,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KakaoOAuthConfig {
 
-    @Value("${oauth2.kakao.client-id}")
+    @Value("${app.props.social.kakao.client-id}")
     private String clientId;
 
-    @Value("${oauth2.kakao.client-secret}")
+    @Value("${app.props.social.kakao.client-secret}")
     private String clientSecret;
 
-    @Value("${oauth2.kakao.redirect-uri}")
+    @Value("${app.props.social.kakao.redirect-uri}")
     private String redirectUri;
 
-    @Value("${oauth2.kakao.token-uri}")
+    @Value("${app.props.social.kakao.token-uri}")
     private String tokenUri;
 
-    @Value("${oauth2.kakao.user-info-uri}")
+    @Value("${app.props.social.kakao.user-info-uri}")
     private String userInfoUri;
 
     // Getters
