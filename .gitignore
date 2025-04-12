@@ -83,7 +83,6 @@ springboot/output
 /src/main/resources/properties/env.properties
 
 # backend - Python
-python/__pycache__/
 python/.venv/
 python/.env
 python/*.ipynb_checkpoints/
@@ -91,6 +90,7 @@ python/.pytest_cache/
 python/.mypy_cache/
 python/.pytorch_model/
 python/.coverage
+**/__pycache__/
 
 # Google Cloud 인증키
 hello-again-ai-project.json
