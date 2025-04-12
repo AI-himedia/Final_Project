@@ -2,50 +2,54 @@ package com.aix.againhello.call.service;
 
 import com.aix.againhello.call.dto.AudioProcessResponseDTO;
 import com.aix.againhello.util.ServerUrlConstants;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class FastApiAudioService {
 
-    public AudioProcessResponseDTO sendAudioFileToPython(File audioFile, int subscriptionCode) {
-        // FastAPI 엔드포인트
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public AudioProcessResponseDTO sendAudioFileToPython(File audioFile, int subscriptionCode) throws IOException {
+        // FastAPI 엔드포인트 - 기존 방식으로 URL 생성
         String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "process-audio";
 
-        RestTemplate restTemplate = new RestTemplate();
+        // 파일명
+        String filename = "subCode_" + subscriptionCode + "_combined_audio.wav";
 
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        factory.setConnectTimeout(5000);  // 5초
-        factory.setReadTimeout(30000);    // 30초
-        restTemplate.setRequestFactory(factory);
+        // HttpClient4를 사용
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(pythonApiUrl);
 
-        // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        // MultipartEntityBuilder를 사용하여 파일과 구독 코드 전송
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .addBinaryBody("file", audioFile, ContentType.DEFAULT_BINARY, filename)
+                .addTextBody("subscription_code", String.valueOf(subscriptionCode), ContentType.TEXT_PLAIN)
+                .build();
 
-        // 멀티파트 폼 데이터 생성
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new FileSystemResource(audioFile));
-        body.add("subscription_code", subscriptionCode);
+        httpPost.setEntity(entity);
 
-        // HTTP 요청 엔티티 생성
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-        // API 호출
-        ResponseEntity<AudioProcessResponseDTO> response = restTemplate.exchange(
-                pythonApiUrl,
-                HttpMethod.POST,
-                requestEntity,
-                AudioProcessResponseDTO.class
-        );
-
-        return response.getBody();
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+            HttpEntity responseEntity = response.getEntity();
+            if (responseEntity != null) {
+                String jsonResponse = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
+                return objectMapper.readValue(jsonResponse, AudioProcessResponseDTO.class);
+            } else {
+                throw new IOException("No response from FastAPI server");
+            }
+        } finally {
+            httpClient.close();
+        }
     }
 }

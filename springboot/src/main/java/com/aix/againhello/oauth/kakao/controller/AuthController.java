@@ -1,6 +1,9 @@
 // oauth.kakao.AuthController
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.controller;
 
+import com.aix.againhello.oauth.kakao.jwt.JwtUtil;
+import com.aix.againhello.oauth.kakao.dto.User;
+import com.aix.againhello.oauth.kakao.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +29,7 @@ public class AuthController {
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = getTokenFromCookie(request, "refresh");
-        System.out.println("🔥 받은 refreshToken = " + refreshToken);
+        System.out.println("refreshToken = " + refreshToken);
         if (refreshToken == null || !jwtUtil.isValidToken(refreshToken)) {
             return ResponseEntity.status(401).body("유효하지 않은 refresh token");
         }

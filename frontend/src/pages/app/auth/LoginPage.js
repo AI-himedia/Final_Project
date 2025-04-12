@@ -1,4 +1,4 @@
-// src/pages/shared/auth/LoginPage.jsx
+// src/pages/shared/auth/LoginPage.js
 import styles from './LoginPage.module.css';
 import { kakaoLoginRedirect } from '../../../api/auth/KakaoApi';
 import { useEffect, useState } from 'react';

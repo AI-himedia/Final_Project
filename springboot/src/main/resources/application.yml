@@ -13,29 +13,34 @@ spring:
       max-file-size: 300MB
       max-request-size: 315MB
 
+app:
+  props:
+    social:
+      kakao:
+        client-id: ${KAKAO_CLIENT_ID}
+#        client-id: ece32edbba77663269c9d158d5b5c19e
+        client-secret: ${KAKAO_CLIENT_SECRET}
+#        client-secret: X2hfJvo90ByffwKDhbpdwl8m2E9zGk2M
+        redirect-uri: ${KAKAO_REDIRECT_URI}
+#        redirect-uri: http://localhost:3000/login
+        token-uri: https://kauth.kakao.com/oauth/token
+        user-info-uri: https://kapi.kakao.com/v2/user/me
+        user-info-name-attribute-key: id
+        client-name: Kakao
+
+#    token-uri: https://kauth.kakao.com/oauth/token
+#    user-info-uri: https://kapi.kakao.com/v2/user/me
+
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.aix.againhello.**
   configuration:
     map-underscore-to-camel-case: true
 
-oauth2:
-  kakao:
-    client-id: ${KAKAO_CLIENT_ID}
-    client-secret: ${KAKAO_CLIENT_SECRET}
-    redirect-uri: ${KAKAO_REDIRECT_URI}
-    token-uri: https://kauth.kakao.com/oauth/token
-    user-info-uri: https://kapi.kakao.com/v2/user/me
-
 jwt:
   secret: ${JWT_SECRET}
   access-token-validity-in-seconds: 900
   refresh-token-validity-in-seconds: 604800
-
-kakao:
-  client-id: ${KAKAO_CLIENT_ID}
-  client-secret: ${KAKAO_CLIENT_SECRET}
-  redirect-uri: ${KAKAO_REDIRECT_URI}
 
 aws:
   region: ap-northeast-2

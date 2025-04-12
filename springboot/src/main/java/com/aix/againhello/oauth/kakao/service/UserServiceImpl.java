@@ -1,6 +1,7 @@
 // oauth.kakao.UserServicelmpl
-package com.aix.againhello.oauth.kakao;
+package com.aix.againhello.oauth.kakao.service;
 
+import com.aix.againhello.oauth.kakao.dto.User;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 

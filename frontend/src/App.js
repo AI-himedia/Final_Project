@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { routeMeta } from './routes/RouteMeta';
 import { AppRoutes } from './routes/AppRoutes';
 import AppLayout from './layout/Main/MainLayout';
+import EnvLogger from './components/Logger/EnvLogger';
 
 export default function App() {
   const location = useLocation();
@@ -26,6 +27,7 @@ export default function App() {
     <div className={`App ${meta.showFooter ? 'hasFooter' : ''}`}>
       <AppLayout meta={meta}>
         <AppRoutes />
+        <EnvLogger />
       </AppLayout>
     </div>
   );
