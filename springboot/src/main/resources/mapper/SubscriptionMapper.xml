@@ -80,6 +80,13 @@
         AND sub.deceased_code IS NULL
     </select>
 
+    <!-- 구독 코드 조회 -->
+    <select id="existsBySubscriptionCode" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM subscription
+        WHERE subscription_code = #{subscriptionCode}
+    </select>
+
 
 
 </mapper>

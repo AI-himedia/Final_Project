@@ -24,4 +24,6 @@ public interface SubscriptionMapper {
     boolean existsByDeceasedCode(int deceasedCode);
 
     ExceptionCaseResponse getSubscriptedWithNoDeceasedData(int userCode);
+
+    boolean existsBySubscriptionCode(int subscriptionCode);
 }
