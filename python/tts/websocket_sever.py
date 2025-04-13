@@ -70,7 +70,6 @@ async def handler(websocket: WebSocketServerProtocol):
                     user_requested_disconnect = True
 
             async def process_call_result():
-                try:
                     print("전화 서비스 시작")
                     responses = await run_streaming_stt(audio_queue)
 
@@ -87,6 +86,7 @@ async def handler(websocket: WebSocketServerProtocol):
                                     print(f"[{session_id}] 최종 STT: {transcript}")
                                     stt_end = time.time()
                                     print(f"STT 처리 시간: {int((stt_end - stt_start) * 1000)}ms")
+
                                 # LLM → TTS
                                 try:
                                     # LLM
@@ -104,15 +104,17 @@ async def handler(websocket: WebSocketServerProtocol):
                                         "type": "tts",
                                         "data": base64.b64encode(tts_audio).decode("utf-8")
                                     }))
-                                    ts_end = time.time()
+                                    tts_end = time.time()
                                     print(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
                                     print(f"[{session_id}] TTS 전송 완료")
 
                                 except Exception as e:
                                     print(f"[{session_id}] TTS 처리 오류:", e)
+
                                 return
                     print(f"[{session_id}] STT 결과 없음 - 강제 종료")
                     stt_done.set()
+
                 except Exception as e:
                     print(f"[{session_id}] STT 처리 오류:", e)
                     stt_done.set()
@@ -151,10 +153,9 @@ async def handler(websocket: WebSocketServerProtocol):
             if websocket.closed or user_requested_disconnect:
                 print(f"[{session_id}] 클라이언트 요청으로 루프 종료")
                 break
-            
+    
         end_total = time.time()
         print(f"[{session_id}] 전체 처리 시간: {int((end_total - start_total) * 1000)}ms")
-
     except Exception as e:
         print("[서버 오류] handler 루프 에러:", e)
 

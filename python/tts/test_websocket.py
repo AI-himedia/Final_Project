@@ -34,7 +34,10 @@ async def handle_client(websocket: WebSocketServerProtocol):
                     continue
                 audio_chunks += 1
                 audio_queue.append(message)
+<<<<<<< HEAD
                 print(f"[{session_id}] audio_queue 크기: {len(audio_queue)}")
+=======
+>>>>>>> 8022141 ([수정] STT, Websocket 코드 및 파일 정리)
                 if len(audio_queue) == 0:
                     print(f"[{session_id}] STT 요청 전에 오디오가 없음 (빈 큐)")
 
@@ -94,6 +97,14 @@ async def handle_client(websocket: WebSocketServerProtocol):
                                     end = time.time()
                                     print(f"[{session_id}] 총 처리 시간: {int((end - start) * 1000)}ms")
                                     return
+<<<<<<< HEAD
+=======
+                                    
+                            elif result.alternatives:
+                                interim = result.alternatives[0].transcript.strip()
+                                if interim:
+                                    print(f"[{session_id}] 중간 STT: {interim}")
+>>>>>>> 8022141 ([수정] STT, Websocket 코드 및 파일 정리)
                     print(f"[{session_id}] STT 결과 없음")
                     
     except Exception as e:
