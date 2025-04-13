@@ -146,7 +146,7 @@ public class SmsService {
         );
 
         // 4. python 전달
-        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "service/start";
+        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "sms/service/start";
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

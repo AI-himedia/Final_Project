@@ -1,0 +1,33 @@
+from urllib.parse import urlparse
+from typing import List
+import boto3
+
+
+# S3 URL 파싱
+# 내부에서 URL 파싱해서 bucket, key 분리 
+def parse_s3_url(s3_url: str):
+    parsed = urlparse(s3_url)
+    # 버켓이름.s3.amazonaws.com → 버켓이름
+    bucket = parsed.netloc.split('.')[0]  
+    # /text/chat1.txt → text/chat1.txt
+    key = parsed.path.lstrip('/')         
+    return bucket, key
+
+
+# 내부적으로 .env, 시스템 환경변수, AWS config, IAM 역할을 자동으로 찾아서 인증함
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION 가 들어가 있어야함
+# EC2/Lambda 환경이면 IAM Role 권한만 있어도 자동으로 인증
+s3 = boto3.client("s3")
+
+
+# boto3.get_object()로 텍스트 가져옴
+def get_text_from_s3_url(http_url: str) -> str:
+    bucket, key = parse_s3_url(http_url)
+    response = s3.get_object(Bucket=bucket, Key=key)
+    return response["Body"].read().decode("utf-8")
+
+# 전체 리스트 처리(텍스트 이어 붙이기)
+def load_combined_text(chat_urls: List[str]) -> str:
+    texts = [get_text_from_s3_url(url) for url in chat_urls]
+    return "\n".join(texts)
+
