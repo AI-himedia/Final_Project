@@ -48,11 +48,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={styles.body}>
-      <div className={styles.Login_Text_Wrapper}>
-        <h1 className={styles.Login_Text_Title}>
-          <strong>다시, 안녕</strong>
-        </h1>
+    <div className={styles.Container}>
+      <div className={styles.Title}>
+        <h1 className={styles.Top_Title}>다시, 안녕</h1>
+        <h4 className={styles.Sub_Title}>
+          우리가 다시 대화할 수 있는 작은 기적
+        </h4>
       </div>
 
       <div className={styles.Social_Login}>
