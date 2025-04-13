@@ -11,7 +11,7 @@
 }
 
 @media (max-width: 480px) {
-  .Login_Container {
+  .body {
     position: fixed;
     height: 100vh;
     width: 100%;
@@ -28,7 +28,8 @@
     align-items: center;
   }
 
-  .Login_Container::before {
+  /* 배경 흐리게 */
+  .body::before {
     content: '';
     position: absolute;
     inset: 0;
