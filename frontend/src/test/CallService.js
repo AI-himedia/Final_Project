@@ -71,7 +71,6 @@ const CallService = () => {
           sampleRate: 16000,
         },
       });
-      
     }
 
     if (
