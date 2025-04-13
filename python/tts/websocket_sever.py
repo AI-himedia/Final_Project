@@ -18,6 +18,7 @@ class ChatRequest(BaseModel):
 MIN_AUDIO_CHUNKS = 1
 
 async def handler(websocket: WebSocketServerProtocol):
+    start_total = time.time()
     print("클라이언트 연결됨")
 
     try:
@@ -70,23 +71,22 @@ async def handler(websocket: WebSocketServerProtocol):
 
             async def process_call_result():
                 try:
-                    print("STT 시작")
-                    stt_start = time.time()
+                    print("전화 서비스 시작")
                     responses = await run_streaming_stt(audio_queue)
-                    stt_end = time.time()
-                    print(f"STT 처리 시간: {int((stt_end - stt_start) * 1000)}ms")
 
                     # STT 결과
                     for response in responses:
-                        print(f"[{session_id}] STT 응답 수신: {response}")
+                        # print(f"[{session_id}] STT 응답 수신: {response}")
                         
                         for result in response.results:
                             if result.is_final:
+                                stt_start = time.time()
                                 transcript = result.alternatives[0].transcript.strip()
                                 if transcript and transcript not in seen_final_transcripts:
                                     seen_final_transcripts.add(transcript)
                                     print(f"[{session_id}] 최종 STT: {transcript}")
-                                
+                                    stt_end = time.time()
+                                    print(f"STT 처리 시간: {int((stt_end - stt_start) * 1000)}ms")
                                 # LLM → TTS
                                 try:
                                     # LLM
@@ -152,6 +152,9 @@ async def handler(websocket: WebSocketServerProtocol):
                 print(f"[{session_id}] 클라이언트 요청으로 루프 종료")
                 break
             
+        end_total = time.time()
+        print(f"[{session_id}] 전체 처리 시간: {int((end_total - start_total) * 1000)}ms")
+
     except Exception as e:
         print("[서버 오류] handler 루프 에러:", e)
 
