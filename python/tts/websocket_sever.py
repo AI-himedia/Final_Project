@@ -10,11 +10,6 @@ from tts_test import run_tts
 from api.response_generator import generate_response, ChatRequest
 
 
-# LLM 에게 전달할 데이터 형식
-class ChatRequest(BaseModel):
-    subscriptionCode: int
-    userInput: str
-
 MIN_AUDIO_CHUNKS = 1
 
 async def handler(websocket: WebSocketServerProtocol):
@@ -22,6 +17,7 @@ async def handler(websocket: WebSocketServerProtocol):
     print("클라이언트 연결됨")
 
     try:
+        start_total = time.time()
         while True:
             # 클라이언트에게 STT 준비 완료 신호 보내기
             await websocket.send(json.dumps({"event": "ready"}))
@@ -76,7 +72,6 @@ async def handler(websocket: WebSocketServerProtocol):
 
                     # STT 결과
                     for response in responses:
-                        # print(f"[{session_id}] STT 응답 수신: {response}")
                         
                         for result in response.results:
                             if result.is_final:
@@ -113,7 +108,7 @@ async def handler(websocket: WebSocketServerProtocol):
                                     print(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
                                     print(f"[{session_id}] TTS 전송 완료")
                                 except Exception as e:
-                                    print(f"[{session_id}] TTS 처리 오류:", e)
+                                    print(f"[{session_id}] LLM/TTS 처리 오류:", e)
                                 return
                     print(f"[{session_id}] STT 결과 없음 - 강제 종료")
                     stt_done.set()
