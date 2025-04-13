@@ -2,10 +2,14 @@
     "_meta": {
         "hash": {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "sha256": "bd951b57f0909c5e13f02195febf8d25da21ab5e93d29830f9d89f1e66fbe911"
 =======
             "sha256": "78b77d7e05acf8bfa23684dac9804ee7c33f81661d5403f0911a0ca56a5ac5f5"
 >>>>>>> 8022141 ([수정] STT, Websocket 코드 및 파일 정리)
+=======
+            "sha256": "bd951b57f0909c5e13f02195febf8d25da21ab5e93d29830f9d89f1e66fbe911"
+>>>>>>> 178f0856295a616c4e793e07c048830f5ff488e4
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1685,6 +1689,9 @@
         "pillow": {
             "hashes": [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 178f0856295a616c4e793e07c048830f5ff488e4
                 "sha256:015c6e863faa4779251436db398ae75051469f7c903b043a48f078e437656f83",
                 "sha256:0a2f91f8a8b367e7a57c6e91cd25af510168091fb89ec5146003e424e1558a96",
                 "sha256:11633d58b6ee5733bde153a8dafd25e505ea3d32e261accd388827ee987baf65",
@@ -1759,6 +1766,7 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==11.1.0"
+<<<<<<< HEAD
 =======
                 "sha256:014ca0050c85003620526b0ac1ac53f56fc93af128f7546623cc8e31875ab928",
                 "sha256:036e53f4170e270ddb8797d4c590e6dd14d28e15c7da375c18978045f7e6c37b",
@@ -1845,6 +1853,8 @@
             "markers": "python_version >= '3.9'",
             "version": "==11.2.1"
 >>>>>>> 8022141 ([수정] STT, Websocket 코드 및 파일 정리)
+=======
+>>>>>>> 178f0856295a616c4e793e07c048830f5ff488e4
         },
         "propcache": {
             "hashes": [
@@ -2528,6 +2538,7 @@
             "version": "==1.15.2"
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         "setuptools": {
             "hashes": [
@@ -2538,6 +2549,8 @@
             "version": "==78.1.0"
         },
 >>>>>>> 8022141 ([수정] STT, Websocket 코드 및 파일 정리)
+=======
+>>>>>>> 178f0856295a616c4e793e07c048830f5ff488e4
         "six": {
             "hashes": [
                 "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274",
