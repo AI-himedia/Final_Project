@@ -33,12 +33,10 @@ def stt_streaming_generator(audio_chunks):
         if chunk is None:
             print("STT 종료: None 수신")
             if buffer:
-                print(f"[STT Generator] 마지막 버퍼 전송: {len(buffer)} bytes")
                 yield speech.StreamingRecognizeRequest(audio_content=buffer)
             break
 
         buffer += chunk
-        print(f"[STT Generator] #{idx} 수신 chunk: {len(chunk)} bytes → 누적: {len(buffer)} bytes")
 
         if len(buffer) >= min_chunk_size:
             yield speech.StreamingRecognizeRequest(audio_content=buffer)
@@ -68,7 +66,6 @@ async def run_streaming_stt(audio_queue: asyncio.Queue):
 
     # 동기 함수 백그라운드에서 실행
     print("[run_streaming_stt] Google STT 호출 시작")
-    # 동기 함수 백그라운드에서 실행
     responses = await loop.run_in_executor(None, _call_google_stt)
 
     if responses is None:
