@@ -20,12 +20,7 @@ class PCMProcessor extends AudioWorkletProcessor {
       // 2. Float32 → Int16 PCM 변환
       const int16Buffer = new Int16Array(channelData.length);
       for (let i = 0; i < channelData.length; i++) {
-<<<<<<< HEAD
         int16Buffer[i] = Math.max(-1, Math.min(1, channelData[i])) * 32767;
-=======
-        int16Buffer[i] = Math.round(Math.max(-1, Math.min(1, channelData[i])) * 0x7FFF);
-
->>>>>>> 73fab66d3b2895d9bcf592e7ee1004f51188ad45
       }
 
       // 3. 서버로 전송

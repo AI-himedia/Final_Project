@@ -66,10 +66,7 @@ const CallService = () => {
 
     if (!streamRef.current) {
       streamRef.current = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          sampleRate: 16000,
-        },
+        audio: true,
       });
     }
 
@@ -77,7 +74,7 @@ const CallService = () => {
       !audioContextRef.current ||
       audioContextRef.current.state === 'closed'
     ) {
-      audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+      audioContextRef.current = new AudioContext();
       await audioContextRef.current.audioWorklet.addModule(
         '/worklet-processor.js'
       );
