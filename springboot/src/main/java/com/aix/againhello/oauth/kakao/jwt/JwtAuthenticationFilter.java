@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -13,6 +15,8 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtUtil jwtUtil;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
@@ -39,17 +43,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String email = jwtUtil.extractEmail(accessToken);
             request.setAttribute("email", email);
         } catch (Exception e) {
+            logger.warn("Access token invalid, trying refresh token");
             try {
                 String email = jwtUtil.extractEmail(refreshToken);
                 String newAccessToken = jwtUtil.createAccessToken(email);
-                Cookie newAccessCookie = new Cookie("access", newAccessToken);
-                newAccessCookie.setHttpOnly(true);
-                newAccessCookie.setPath("/");
-                response.addCookie(newAccessCookie);
-            } catch (Exception ignored) {
+                jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+                request.setAttribute("email", email);
+            } catch (Exception ex) {
+                logger.error("Refresh token invalid: {}", ex.getMessage());
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
