@@ -70,7 +70,6 @@ async def handle_client(websocket: WebSocketServerProtocol):
                                 if transcript and transcript not in seen_final_transcripts:
                                     seen_final_transcripts.add(transcript)
                                     print(f"[{session_id}] 최종 STT: {transcript}")
-                                    
                                     llm_start = time.time()
                                     chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
                                     response_llm = generate_response(chat_input)
