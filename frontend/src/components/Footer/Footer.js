@@ -21,7 +21,7 @@ export default function Footer() {
         className={`Footer_Item ${location.pathname === '/' ? 'active' : ''}`}
       >
         <GoHomeFill />
-        <span>홈</span>
+        {/* <span>홈</span> */}
       </Link>
       <Link
         to="/call"
@@ -30,7 +30,7 @@ export default function Footer() {
         }`}
       >
         <PiPhoneCallLight />
-        <span>통화</span>
+        {/* <span>통화</span> */}
       </Link>
       <Link
         to="/chat"
@@ -39,7 +39,7 @@ export default function Footer() {
         }`}
       >
         <IoChatbubblesOutline />
-        <span>채팅</span>
+        {/* <span>채팅</span> */}
       </Link>
       <Link
         to="/service"
@@ -48,7 +48,7 @@ export default function Footer() {
         }`}
       >
         <RxFilePlus />
-        <span>서비스 신청</span>
+        {/* <span>서비스 신청</span> */}
       </Link>
       <Link
         to="/sms"
@@ -57,7 +57,7 @@ export default function Footer() {
         }`}
       >
         <GoPerson />
-        <span>테스트</span>
+        {/* <span>테스트</span> */}
       </Link>
     </footer>
   );

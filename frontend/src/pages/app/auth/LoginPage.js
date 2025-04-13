@@ -39,14 +39,16 @@ export default function LoginPage() {
 
   const handleKakaoLogin = () => {
     const clientId = process.env.REACT_APP_KAKAO_REST_API_KEY;
-    const redirectUri = encodeURIComponent('http://localhost:3000/login');
-    // const redirectUri = encodeURIComponent('https://againhello.site/login');
+    // 프론트엔드 페이지가 아닌, 백엔드의 콜백 엔드포인트를 redirect_uri로 지정합니다.
+    const redirectUri = encodeURIComponent(
+      'http://localhost:8080/be/member/kakao/callback'
+    );
     const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
     window.location.href = kakaoUrl;
   };
 
   return (
-    <div className={styles.Login_Container}>
+    <div className={styles.body}>
       <div className={styles.Login_Text_Wrapper}>
         <h1 className={styles.Login_Text_Title}>
           <strong>다시, 안녕</strong>

@@ -1,4 +1,4 @@
-package com.aix.againhello.oauth.kakao.controller;
+package com.aix.againhello.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
