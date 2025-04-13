@@ -1,43 +1,63 @@
 import os
 import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "cli"))
 import subprocess
-import base64
 from huggingface_hub import snapshot_download
 from pydub import AudioSegment
+from pathlib import Path
+import torch
+from cli.SparkTTS import SparkTTS
+from scipy.io.wavfile import write
+from dotenv import load_dotenv
+from urllib.parse import urlparse
+import boto3
+from io import BytesIO
+
+load_dotenv()
+
 
 # 경로 설정
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
-PROCESSED_AUDIO_PATH = os.path.join(current_dir, "processed_prompt.wav")
-ORIGINAL_AUDIO_PATH = r"C:\Users\201-06\Desktop\sample.wav"  # 실제 경로
+
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
-OUTPUT_AUDIO_PATH = os.path.join(OUTPUT_DIR, "output.wav")
 
 
-# LLM 더미 응답 생성
-def run_llm(text: str) -> str:
-    dummy_responses = {
-        "안녕": "안녕하세요! 무엇을 도와드릴까요?",
-        "시간": "지금은 오후 3시입니다.",
-        "테스트": "이것은 테스트 음성입니다.",
-    }
-    for key, value in dummy_responses.items():
-        if key in text:
-            return value
-    return f"{text}에 대한 답변이 없습니다."
+# 🔧 S3 URL 파싱
+def parse_s3_url(s3_url: str):
+    parsed = urlparse(s3_url)
+    bucket = parsed.netloc.split('.')[0]
+    key = parsed.path.lstrip('/')
+    return bucket, key
 
+# 🔧 boto3를 이용한 S3 다운로드
+def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> BytesIO:
+    print(f"S3 오디오 메모리로 다운로드 중... s3://{bucket_name}/{object_key}")
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.getenv("AWS_REGION")
+    )
+    buffer = BytesIO()
+    try:
+        s3.download_fileobj(bucket_name, object_key, buffer)
+        buffer.seek(0)
+        print("메모리 다운로드 완료")
+        return buffer
+    except Exception as e:
+        raise Exception(f"S3 다운로드 실패: {e}")
+
+# 캐시용 전역 변수
+spark_model = None
+
+cached_global_token_ids = None
 
 # 모델 및 프롬프트 준비
 def ensure_environment_ready():
-    if not os.path.exists(PROCESSED_AUDIO_PATH):
-        print("변환된 프롬프트 없음. 원본을 변환합니다.")
-        convert_prompt_audio(ORIGINAL_AUDIO_PATH, PROCESSED_AUDIO_PATH)
-    else:
-        print("프롬프트 존재 확인")
-
     if not os.path.exists(MODEL_SAVE_DIR):
         print("Spark-TTS 모델 다운로드 시작")
         snapshot_download(
@@ -49,39 +69,63 @@ def ensure_environment_ready():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-
 # 오디오 변환
-def convert_prompt_audio(input_path, output_path):
-    audio = AudioSegment.from_file(input_path)
+def convert_prompt_audio_memory(input_buffer: BytesIO) -> BytesIO:
+    audio = AudioSegment.from_file(input_buffer)
     audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
-    audio.export(output_path, format="wav")
-    print(f"오디오 변환 완료: {output_path}")
- 
 
-# TTS 합성 및 바이트 반환
-def run_tts(text: str) -> bytes:
-    ensure_environment_ready()
+    output_buffer = BytesIO()
+    audio.export(output_buffer, format="wav")
+    output_buffer.seek(0)
+    print("오디오 변환 완료 (메모리)")
+    return output_buffer
 
-    command = [
-        sys.executable,
-        "-m", "cli.inference",
-        "--text", text,
-        "--device", "0",
-        "--save_dir", OUTPUT_DIR,
-        "--model_dir", MODEL_SAVE_DIR,
-        "--prompt_speech_path", PROCESSED_AUDIO_PATH
-    ]
+
+def Ready_S3File(s3_url: str) -> BytesIO:
+    print("[Ready_S3File] 시작")
+    print("S3 주소:", s3_url)
 
     try:
-        subprocess.run(command, check=True)
-        print(f"TTS 생성 완료: {OUTPUT_AUDIO_PATH}")
-    except subprocess.CalledProcessError as e:
-        print(f"TTS 생성 실패: {e}")
-        return b""
+        bucket, key = parse_s3_url(s3_url)
+        original_buffer = download_audio_from_s3_to_memory(bucket, key)
+        processed_buffer = convert_prompt_audio_memory(original_buffer)
+        return processed_buffer
+    except Exception as e:
+        print("함수 실행 중 오류 발생:", str(e))
+        raise
 
-    if not os.path.exists(OUTPUT_AUDIO_PATH):
-        print("output.wav 파일 없음")
-        return b""
 
-    with open(OUTPUT_AUDIO_PATH, "rb") as f:
-        return f.read()
+# TTS 합성
+def run_tts(text: str, s3_url: str) -> bytes:
+    global spark_model, cached_global_token_ids
+
+    processed_audio_buffer = Ready_S3File(s3_url)
+
+    if spark_model is None:
+        print("Spark-TTS 모델 초기화")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+
+    if cached_global_token_ids is None:
+        print("Voice cloning 최초 임베딩 생성 중")
+        # 필요 시 임시 파일로 저장하거나, SparkTTS에서 buffer 지원하는지 확인 필요
+        with open("temp_prompt.wav", "wb") as f:
+            f.write(processed_audio_buffer.read())
+        processed_audio_buffer.seek(0)
+        _, cached_global_token_ids = spark_model.process_prompt(
+            text="임베딩 생성용 텍스트",
+            prompt_speech_path=Path("temp_prompt.wav")  # 또는 SparkTTS가 buffer 직접 지원한다면 대체
+        )
+        print("Global token 캐싱 완료")
+
+    print("TTS 음성 생성 중")
+    wav_np = spark_model.inference(
+        text=text,
+        global_token_ids=cached_global_token_ids
+    )
+
+    output_buffer = BytesIO()
+    write(output_buffer, 16000, wav_np)
+    output_buffer.seek(0)
+    print("TTS 생성 완료 (메모리 버퍼 반환)")
+    return output_buffer.read()
