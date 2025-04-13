@@ -1,10 +1,10 @@
 package com.aix.againhello.sms;
 
+import com.aix.againhello.S3.S3Service;
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.sms.apiWrapper.ChatRequestDTO;
-import com.aix.againhello.sms.apiWrapper.RecentContentsDTO;
-import com.aix.againhello.sms.apiWrapper.SmsInitResponse;
-import com.aix.againhello.sms.apiWrapper.SubscriptionSummaryDTO;
+import com.aix.againhello.common.exception.ServiceException;
+import com.aix.againhello.sms.wrapper.*;
+import com.aix.againhello.subscription.SubscriptionMapper;
 import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -13,17 +13,24 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class SmsService {
 
     @Autowired
     private SmsMapper smsMapper;
+
+    @Autowired
+    private SubscriptionMapper subscriptionMapper;
+
+    @Autowired
+    private FileValidationService fileValidationService;
+
+    @Autowired
+    private S3Service s3Service;
 
 //    // DB 저장
 //    public void saveQuestion(String question) {
@@ -55,8 +62,8 @@ public class SmsService {
         System.out.println("python : " + response.getBody());
 
         // DB 저장 테스트
-        deceasedData.setGender('M');
-        deceasedData.setAge(30);
+        //deceasedData.setGender('M');
+        //deceasedData.setAge(30);
         deceasedData.setPersonality("활달하다");
         deceasedData.setDeceasedNickname("아부지");
         deceasedData.setSpeakingTone(true);
@@ -95,7 +102,7 @@ public class SmsService {
         return rawList;
     }
 
-    public String sendUserInputToPython(ChatRequestDTO requestDto) {
+    public SmsResponse sendUserInputToPython(ChatRequestDTO requestDto) {
         // FastAPI 엔드포인트
         String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "responses";
 
@@ -104,12 +111,60 @@ public class SmsService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<ChatRequestDTO> request = new HttpEntity<>(requestDto, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
+        ResponseEntity<SmsResponse> response = restTemplate.postForEntity(
                 pythonApiUrl,
                 request,
-                String.class
+                SmsResponse.class
         );
 
         return response.getBody();
+    }
+
+
+    public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, List<MultipartFile> chatFile) {
+
+        // 1. subscriptionCode 존재여부 확인
+        if (!subscriptionMapper.existsBySubscriptionCode(subscriptionCode)) {
+            throw new ServiceException("구독(결제) 정보가 없습니다.");
+        }
+
+        // 2. file 검증
+        fileValidationService.validateFiles(chatFile);
+
+        // 3. file S3에 저장
+        List<String> uploadedUrls = new ArrayList<>();
+        for (MultipartFile file : chatFile) {
+            String url = s3Service.uploadFile(file);
+            uploadedUrls.add(url);
+        }
+
+        // Python 요청용 DTO 구성
+        ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
+                subscriptionCode,
+                deceasedDataDTO,
+                uploadedUrls
+        );
+
+        // 4. python 전달
+        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "service/start";
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ServiceStartRequestDTO> request = new HttpEntity<>(requestDto, headers);
+
+        ResponseEntity<SmsResponse> response = restTemplate.postForEntity(
+                pythonApiUrl,
+                request,
+                SmsResponse.class
+        );
+
+        // 응답이 200~299 범위에 있는지 확인
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody(); // 정상 처리
+        } else {
+            throw new ServiceException("Python 서버로부터 실패 응답을 받았습니다. 상태코드: " + response.getStatusCode());
+        }
+
     }
 }

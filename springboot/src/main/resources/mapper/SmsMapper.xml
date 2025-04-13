@@ -20,7 +20,7 @@
     </insert>
 
     <!--  문자 서비스 신청여부, 고인 데이터, 최근 문자 조회  -->
-    <select id="findSubscriptionSummaryByUserCode" resultType="com.aix.againhello.sms.apiWrapper.SubscriptionSummaryDTO">
+    <select id="findSubscriptionSummaryByUserCode" resultType="com.aix.againhello.sms.wrapper.SubscriptionSummaryDTO">
         SELECT
             sub.subscription_code AS subscriptionCode,
             d.deceased_name AS name,
@@ -42,7 +42,7 @@
 
     <!--  최근 문자 5개 조회 -->
     <select id="findRecentContentsBySubscriptionCode"
-            resultType="com.aix.againhello.sms.apiWrapper.RecentContentsDTO">
+            resultType="com.aix.againhello.sms.wrapper.RecentContentsDTO">
         SELECT role, content, message_time AS messageTime
         FROM contents
         WHERE subscription_code = #{subscriptionCode}

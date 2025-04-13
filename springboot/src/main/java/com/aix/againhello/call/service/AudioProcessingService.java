@@ -1,0 +1,368 @@
+package com.aix.againhello.call.service;
+
+import com.aix.againhello.S3.S3Service;
+import com.aix.againhello.call.dto.*;
+import com.aix.againhello.call.mapper.CallMapper;
+import com.aix.againhello.call.utils.CustomMultipartFile;
+import com.aix.againhello.common.RawFileDTO;
+import lombok.extern.slf4j.Slf4j; // SLF4J 로깅 추가
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+
+@Service
+@Slf4j // Lombok SLF4J 로거 추가
+public class AudioProcessingService {
+
+    @Autowired
+    private ClovaSpeechClient clovaSpeechClient;
+
+    @Autowired
+    private S3Service s3Service;
+
+    @Autowired
+    private FastApiAudioService fastApiAudioService; // FastAPI 호출 서비스
+
+    @Autowired
+    private CallMapper callMapper;
+
+    @Value("${file.upload.dir}")
+    private String uploadDir;
+
+    @Value("${file.output.dir}")
+    private String outputDir;
+
+    /**
+     * 화자 분리 처리 (Clova Speech API 사용)
+     */
+    public PreviewResponseDTO separateSpeakers() throws Exception {
+        log.info("화자 분리 처리 시작...");
+        File folder = new File(uploadDir);
+        Path baseOutputDir = Paths.get(outputDir);
+        Files.createDirectories(baseOutputDir);
+
+        File[] mediaFiles = folder.listFiles(file ->
+                file.isFile() && ClovaSpeechClient.isSupportedMediaFile(file)
+        );
+
+        if (mediaFiles == null || mediaFiles.length == 0) {
+            log.warn("처리할 미디어 파일을 찾을 수 없거나 지원되지 않는 형식입니다. Upload 디렉토리: {}", uploadDir);
+            throw new IOException("파일을 찾을 수 없거나 지원되지 않는 형식입니다.");
+        }
+
+        ClovaSpeechClient.NestRequestEntity requestEntity = new ClovaSpeechClient.NestRequestEntity();
+        ClovaSpeechClient.Diarization diarization = new ClovaSpeechClient.Diarization();
+        diarization.setEnable(Boolean.TRUE);
+        requestEntity.setDiarization(diarization);
+
+        for (File mediaFile : mediaFiles) {
+            log.info("Clova Speech 처리 중: {}", mediaFile.getName());
+            try {
+                String result = clovaSpeechClient.upload(mediaFile, requestEntity);
+                clovaSpeechClient.extractSpeakerSegmentsIndividually(result, mediaFile, baseOutputDir);
+                log.info("{} 처리 완료!", mediaFile.getName());
+            } catch (Exception e) {
+                log.error("{} 처리 중 Clova Speech API 오류 발생", mediaFile.getName(), e);
+                // 개별 파일 실패 시 계속 진행할지, 전체를 중단할지 정책 결정 필요
+                // 여기서는 일단 로그만 남기고 다음 파일 처리 시도
+            }
+        }
+
+        PreviewResponseDTO response = new PreviewResponseDTO();
+        response.setStatus("success");
+        response.setMessage("모든 파일의 화자 분리가 완료되었습니다.");
+
+        // 화자별 파일 정보 생성 및 추가
+        try {
+            response.setSpeakersByFile(getSpeakersByOriginalFile(baseOutputDir));
+        } catch (IOException e) {
+            log.error("화자별 파일 목록 생성 중 오류 발생", e);
+            // 이 경우 응답은 성공으로 나가지만, 화자 목록은 비어있을 수 있음
+            response.setMessage("화자 분리는 완료되었으나, 파일 목록 생성 중 오류가 발생했습니다.");
+            response.setStatus("partial_success"); // 상태 변경 고려
+        }
+
+        response.setOutputDir(baseOutputDir.resolve("long").toString()); // 필요 시 경로 정보 제공
+
+        log.info("화자 분리 처리 완료.");
+        return response;
+    }
+
+    /**
+     * 오디오 파일 리소스 가져오기 (다운로드 등)
+     */
+    public ResourceResponseDTO getAudioResource(String filename) throws IOException {
+        Path filePath = Paths.get(outputDir).resolve("long").resolve(filename);
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            log.error("오디오 리소스를 찾을 수 없거나 읽을 수 없습니다: {}", filePath);
+            throw new IOException("파일을 찾을 수 없습니다: " + filename);
+        }
+
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) {
+            contentType = "application/octet-stream"; // 기본 타입
+        }
+
+        ResourceResponseDTO responseDTO = new ResourceResponseDTO();
+        responseDTO.setResource(resource);
+        responseDTO.setContentType(contentType);
+        responseDTO.setFilename(resource.getFilename()); // 보안상 파일명 노출 주의
+
+        log.info("오디오 리소스 반환: {}", filename);
+        return responseDTO;
+    }
+
+    /**
+     * 원본 오디오 파일별 화자 목록 조회 (내부 헬퍼)
+     */
+    private Map<String, List<SpeakerFileDTO>> getSpeakersByOriginalFile(Path baseOutputDir) throws IOException {
+        Path longOutputDir = baseOutputDir.resolve("long");
+        File[] longFiles = longOutputDir.toFile().listFiles();
+
+        if (longFiles == null) {
+            log.warn("long 디렉토리를 읽을 수 없거나 존재하지 않습니다: {}", longOutputDir);
+            return Collections.emptyMap();
+        }
+        if (longFiles.length == 0) {
+            log.info("long 디렉토리에 분리된 화자 파일이 없습니다: {}", longOutputDir);
+            return Collections.emptyMap();
+        }
+
+        Map<String, List<SpeakerFileDTO>> speakersByFile = new HashMap<>();
+        for (File file : longFiles) {
+            String filename = file.getName();
+            // 파일명 구조: {originalFilename}_speaker_{speakerId}_{uuid}_longest.wav (예상)
+            String[] parts = filename.split("_speaker_");
+            if (parts.length != 2) {
+                log.warn("예상치 못한 파일명 형식 발견, 건너<0xEB><0x9B><0x84>: {}", filename);
+                continue; // 예상 형식 아니면 건너뜀
+            }
+
+            String originalFile = parts[0]; // 원본 파일명 (UUID 등 포함될 수 있음)
+            String speakerInfoPart = parts[1];
+
+            String[] speakerParts = speakerInfoPart.split("_");
+            if (speakerParts.length < 1) {
+                log.warn("화자 ID를 추출할 수 없는 파일명 형식: {}", filename);
+                continue;
+            }
+            String speakerId = speakerParts[0];
+            String displayName = "화자 " + speakerId; // 사용자에게 보여줄 이름
+
+            SpeakerFileDTO speakerFile = new SpeakerFileDTO();
+            speakerFile.setOriginalFilename(originalFile); // 내부 식별용 원본 파일명
+            speakerFile.setSpeakerId(speakerId);
+            speakerFile.setDisplayName(displayName);
+            speakerFile.setFilename(filename); // 실제 저장된 파일명
+            speakerFile.setFilePath("/be/call/audio/" + filename); // API 경로
+
+            speakersByFile.computeIfAbsent(originalFile, k -> new ArrayList<>()).add(speakerFile);
+        }
+        log.info("원본 파일별 화자 목록 생성 완료. 원본 파일 수: {}", speakersByFile.size());
+        return speakersByFile;
+    }
+
+    /**
+     * 사용자가 선택한 화자들의 오디오를 병합하고 저장/처리
+     */
+    public SaveResponseDTO saveSelectedSpeakers(SelectedSpeakersDTO request) throws IOException, InterruptedException, UnsupportedAudioFileException {
+        int subscriptionCode = request.getSubscriptionCode();
+        log.info("선택된 화자 저장 시작. 구독 코드: {}", subscriptionCode);
+        if (subscriptionCode <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 구독 코드입니다.");
+        }
+
+        List<File> selectedFiles = new ArrayList<>();
+        Set<String> uniqueSelections = new HashSet<>(); // 중복 선택 방지 (선택사항)
+
+        for (SelectedSpeakerDTO selection : request.getSelections()) {
+            String originalFilename = selection.getOriginalFilename();
+            String selectedSpeakerId = selection.getSelectedSpeakerId();
+            String selectionKey = originalFilename + "_" + selectedSpeakerId;
+
+            if (!uniqueSelections.add(selectionKey)) {
+                log.warn("중복된 화자 선택 감지: {}", selectionKey);
+                continue; // 중복 시 건너뛰기
+            }
+
+            Path longOutputDir = Paths.get(outputDir).resolve("long");
+            // 정확한 파일명 매칭 시도 (UUID 등 고려)
+            // 예: findFirst 사용
+            Optional<File> foundFile = Files.walk(longOutputDir)
+                    .filter(path -> path.getFileName().toString().startsWith(originalFilename + "_speaker_" + selectedSpeakerId))
+                    .map(Path::toFile)
+                    .findFirst();
+
+            if (foundFile.isPresent()) {
+                selectedFiles.add(foundFile.get());
+                log.debug("선택된 파일 추가: {}", foundFile.get().getName());
+            } else {
+                log.warn("선택된 화자 파일을 찾을 수 없습니다: original={}, speakerId={}", originalFilename, selectedSpeakerId);
+                // 여기서 오류를 던질지, 아니면 무시하고 진행할지 결정 필요
+                // throw new IOException("선택된 화자 파일을 찾을 수 없습니다: " + selectionKey);
+            }
+        }
+
+        if (selectedFiles.isEmpty()) {
+            log.error("병합할 유효한 화자 파일이 선택되지 않았습니다.");
+            throw new IllegalArgumentException("병합할 유효한 화자 파일이 없습니다.");
+        }
+
+        if (selectedFiles.size() > 3) { // 최대 3개 제한 확인
+            log.warn("선택된 화자 파일 개수 초과: {}", selectedFiles.size());
+            throw new IllegalArgumentException("최대 3개의 화자 파일만 선택할 수 있습니다.");
+        }
+
+        log.info("선택된 화자 파일 {}개를 병합합니다.", selectedFiles.size());
+        File combinedFile = clovaSpeechClient.combineAudioFiles(selectedFiles);
+        log.info("오디오 파일 병합 완료: {}", combinedFile.getName());
+
+        // combined 폴더 생성 및 파일 저장 (임시 저장)
+        Path combinedOutputDir = Paths.get(outputDir).resolve("combined");
+        Files.createDirectories(combinedOutputDir);
+        String combinedFilename = "combined_audio_" + UUID.randomUUID().toString().substring(0, 8) + ".wav"; // 고유 이름 부여
+        Path combinedFilePath = combinedOutputDir.resolve(combinedFilename);
+        Files.copy(combinedFile.toPath(), combinedFilePath); // 임시 병합 파일 복사
+        log.info("병합된 파일을 임시 저장: {}", combinedFilePath);
+
+        String s3Url = null;
+        try {
+            // S3 업로드 및 FastAPI 호출
+            s3Url = uploadFileToS3(combinedFilePath.toFile(), subscriptionCode);
+            log.info("S3 업로드 및 FastAPI 호출 완료. S3 URL: {}", s3Url);
+
+            // S3 업로드 및 FastAPI 호출 성공 후 로컬 디렉토리 및 파일 삭제
+            deleteDirectoryRecursively(Paths.get(outputDir)); // 출력 디렉토리 전체 삭제
+            deleteDirectoryRecursively(Paths.get(uploadDir));  // 입력 디렉토리 전체 삭제
+            log.info("처리 완료 후 로컬 출력 및 입력 디렉토리가 삭제되었습니다.");
+
+            // 응답 생성
+            SaveResponseDTO response = new SaveResponseDTO();
+            response.setStatus("success");
+            response.setMessage("선택된 화자 파일이 성공적으로 저장 및 처리되었습니다.");
+            response.setUploadedFile(s3Url);
+            return response;
+
+        } catch (Exception e) { // uploadFileToS3 등에서 발생한 예외 처리
+            log.error("선택된 화자 저장/처리 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
+            // 실패 시 생성된 파일 일부라도 정리할 필요가 있을 수 있음 (선택적)
+            // deleteDirectoryRecursively(Paths.get(outputDir));
+            // deleteDirectoryRecursively(Paths.get(uploadDir));
+            // 사용자에게 실패를 알리는 응답 반환 또는 예외 다시 던지기
+            throw new RuntimeException("선택된 화자 파일 처리 중 오류 발생: " + e.getMessage(), e);
+        } finally {
+            // 임시로 생성된 combinedFile 원본 삭제 (combineAudioFiles가 임시 파일을 생성했다면)
+            if (combinedFile != null && combinedFile.exists()) {
+                if (combinedFile.delete()) {
+                    log.debug("임시 병합 파일 삭제 완료: {}", combinedFile.getName());
+                } else {
+                    log.warn("임시 병합 파일 삭제 실패: {}", combinedFile.getName());
+                }
+            }
+        }
+    }
+
+    /**
+     * 최종 병합 파일을 S3 업로드, DB 저장 및 FastAPI로 파일 직접 전송
+     * @throws IOException 파일 처리 오류 시
+     * @throws RuntimeException FastAPI 호출 실패 등 내부 처리 오류 시
+     */
+    private String uploadFileToS3(File file, int subscriptionCode) throws IOException {
+        log.debug("S3 업로드 및 FastAPI 전송 시작. 파일: {}, 구독 코드: {}", file.getName(), subscriptionCode);
+        // MultipartFile로 변환
+        MultipartFile multipartFile = convertFileToMultipart(file);
+
+        // 최종 파일명 정의 (S3 저장용)
+        String finalS3Filename = "subCode_" + subscriptionCode + "_combined_audio.wav";
+
+        // S3에 업로드
+        String fileUrl = s3Service.uploadFile(new CustomMultipartFile(multipartFile, finalS3Filename));
+        log.info("S3 업로드 완료. 파일 URL: {}", fileUrl);
+
+        // DB에 파일 정보 저장
+        try {
+            RawFileDTO rawFile = new RawFileDTO();
+            rawFile.setSubscriptionCode(subscriptionCode);
+            rawFile.setAudioFilePaths(fileUrl); // S3 URL 저장
+            callMapper.insertRawFile(rawFile);
+            log.info("DB에 파일 정보 저장 완료. 구독 코드: {}", subscriptionCode);
+        } catch (Exception e) {
+            log.error("DB 저장 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
+            // DB 저장 실패 시 처리를 어떻게 할 것인가? S3 파일 롤백? 예외 던지기?
+            // 여기서는 일단 예외를 던져서 상위 호출자에게 알림
+            throw new RuntimeException("DB 저장 실패: " + e.getMessage(), e);
+        }
+
+        // FastAPI로 파일 직접 전송 (여기서 ClassNotFoundException 등 발생 가능성 있음)
+        try {
+            log.debug("FastAPI로 파일 전송 시도...");
+            // FastApiAudioService의 sendAudioFileToPython 메소드가 File 객체를 받는지 확인 필요
+            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendAudioFileToPython(file, subscriptionCode);
+            log.info("FastAPI 응답 수신: {}", pythonResponse); // 응답 객체 로깅
+
+            if ("success".equals(pythonResponse.getStatus())) {
+                log.info("FastAPI 처리 성공.");
+                // 필요 시 pythonResponse의 다른 데이터 활용
+            } else {
+                log.warn("FastAPI 처리 실패 응답: status={}, message={}", pythonResponse.getStatus(), pythonResponse.getMessage());
+                // Python API가 실패를 반환한 경우, Spring에서도 예외를 던질지 결정
+                throw new RuntimeException("Python API 처리 실패: " + pythonResponse.getMessage());
+            }
+        } catch (Exception e) { // 네트워크 오류, ClassNotFoundException, 설정 오류 등 FastAPI 호출 자체의 문제
+            log.error("FastAPI 호출 중 심각한 오류 발생. 구독 코드: {}", subscriptionCode, e); // <-- 중요: 예외 객체 'e' 포함 로깅!
+            // 여기서 예외를 다시 던져서 상위 메소드(saveSelectedSpeakers)에 실패를 명확히 알려야 함
+            throw new RuntimeException("FastAPI 서비스 호출 실패: " + e.getMessage(), e); // <-- 중요: 예외 다시 던지기!
+        }
+
+        log.debug("S3 업로드 및 FastAPI 전송 완료.");
+        return fileUrl; // 모든 과정 성공 시 S3 URL 반환
+    }
+
+    /**
+     * File 객체를 MultipartFile 객체로 변환하는 헬퍼 메서드
+     */
+    private MultipartFile convertFileToMultipart(File file) throws IOException {
+        byte[] content = Files.readAllBytes(file.toPath());
+        // CustomMultipartFile은 content type 등을 더 정확히 설정할 수 있도록 구현되었을 것으로 가정
+        return new CustomMultipartFile(content, file.getName());
+    }
+
+    /**
+     * 지정된 디렉토리와 그 하위의 모든 폴더 및 파일을 재귀적으로 삭제하는 메서드
+     */
+    private void deleteDirectoryRecursively(Path directory) throws IOException {
+        if (Files.exists(directory)) {
+            log.warn("디렉토리 삭제 시도: {}", directory); // 삭제 전 로그
+            try {
+                Files.walk(directory)
+                        .sorted(Comparator.reverseOrder()) // 하위 경로(파일)부터 삭제해야 함
+                        .map(Path::toFile)
+                        .forEach(f -> {
+                            if (!f.delete()) {
+                                // 파일 삭제 실패 시 경고 로그 (디버깅에 도움)
+                                log.warn("파일 삭제 실패: {}", f.getAbsolutePath());
+                            }
+                        });
+                log.info("디렉토리 삭제 완료: {}", directory);
+            } catch (IOException e) {
+                log.error("디렉토리 삭제 중 오류 발생: {}", directory, e);
+                throw e; // 오류 발생 시 상위로 전파
+            }
+        } else {
+            log.debug("삭제할 디렉토리가 존재하지 않음: {}", directory);
+        }
+    }
+}

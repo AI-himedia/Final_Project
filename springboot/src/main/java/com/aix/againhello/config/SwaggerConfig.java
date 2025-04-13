@@ -13,7 +13,7 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI().openapi("3.0.0") // openAPI 버전 명시
+        return new OpenAPI().openapi("3.0.0")
                 .components(new Components()
                         .addSecuritySchemes("jwt-token",
                                 new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
@@ -24,10 +24,9 @@ public class SwaggerConfig {
 
     private Info apiInfo () {
         return new Info()
-                .title("cc-api Swagger")
-                .description("cc 유저 및 인증, 공연 등에 관한 REST API")
+                .title("다시, 안녕 | Swagger")
+                .description("모두가 보기 편한 Swagger 입니다 ~ ")
                 .version("1.0.0");
     }
-
 
 }

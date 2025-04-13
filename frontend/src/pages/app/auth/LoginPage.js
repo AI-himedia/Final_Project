@@ -32,15 +32,24 @@ export default function LoginPage() {
           navigate('/login-error', { replace: true });
         })
         .finally(() => {
+<<<<<<< HEAD
           setLoading(false); // 로딩 종료
+=======
+          setLoading(false);
+>>>>>>> 178f0856295a616c4e793e07c048830f5ff488e4
         });
     }
   }, [location.search, navigate]);
 
   const handleKakaoLogin = () => {
     const clientId = process.env.REACT_APP_KAKAO_REST_API_KEY;
+<<<<<<< HEAD
     // const redirectUri = encodeURIComponent('http://localhost:3000/login');
     const redirectUri = encodeURIComponent('https://againhello.site/login');
+=======
+    const redirectUri = encodeURIComponent('http://localhost:3000/login');
+    // const redirectUri = encodeURIComponent('https://againhello.site/login');
+>>>>>>> 178f0856295a616c4e793e07c048830f5ff488e4
     const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
     window.location.href = kakaoUrl;
   };
