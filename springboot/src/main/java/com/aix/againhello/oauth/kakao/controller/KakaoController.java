@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,9 @@ import java.util.Map;
 public class KakaoController {
 
     private static final Logger logger = LoggerFactory.getLogger(KakaoController.class);
+
+    @Value("${server.frontend}")
+    private String FrontendRedirectUrl;
 
     private final KakaoAuthService kakaoAuthService;
     private final UserService userService;
@@ -62,7 +66,7 @@ public class KakaoController {
                 logger.info("기존 회원, 로그인 처리 시작: {}", email);
                 User user = kakaoAuthService.getKakaoUser(code);
                 kakaoAuthService.processLogin(user, response);
-                response.sendRedirect("http://localhost:3000/");
+                response.sendRedirect(FrontendRedirectUrl);
             } else {
                 logger.info("신규 회원, 회원가입 페이지로 이동합니다: {}", email);
                 // 필요한 값들만 URL에 넣어 리다이렉트 : email, name, profileImage
@@ -70,7 +74,7 @@ public class KakaoController {
                 String encodedName = URLEncoder.encode(fullName, StandardCharsets.UTF_8);
 //                String encodedProfileImage = URLEncoder.encode(profileImage, StandardCharsets.UTF_8);
 
-                String redirectUrl = "http://localhost:3000/signup?"
+                String redirectUrl = FrontendRedirectUrl + "/signup?"
                         + "email=" + encodedEmail
                         + "&name=" + encodedName;
 //                        + "&profileImage=" + encodedProfileImage;
@@ -80,7 +84,7 @@ public class KakaoController {
         } catch (Exception e) {
             logger.error("카카오 로그인 처리 중 오류 발생", e);
             try {
-                response.sendRedirect("http://localhost:3000/login-error");
+                response.sendRedirect( FrontendRedirectUrl + "/login-error");
             } catch (IOException ioe) {
                 logger.error("로그인 에러 페이지로 리다이렉트 중 오류", ioe);
             }
