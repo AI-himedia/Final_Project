@@ -112,9 +112,9 @@ from fastapi import APIRouter
 from llm.models.request_models import ServiceStartRequest
 from llm.services import file_loader, llm_prompt, llm_executor, result_parser, db_writer
 
-router = APIRouter()
+sms_init_router = APIRouter()
 
-@router.post("/sms/service/start")
+@sms_init_router.post("/sms/service/start")
 async def start_service(req: ServiceStartRequest):
     try:
         # 리스트 
