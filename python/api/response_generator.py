@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 from langchain_core.runnables import RunnableConfig
 from typing import Optional # For optional model choice
 
-from llm.prompt_template import SYSTEM_PROMPT_TEMPLATE # Assuming this still exists for formatting
+from llm.chat.prompt_template import SYSTEM_PROMPT_TEMPLATE # Assuming this still exists for formatting
 # Import the new function from chain_config
-from llm.chain_config import get_llm_and_prompt
-from llm.memory_chain import MyChatChain
-from llm.chat_history import YourPostgresChatMessageHistory
+from llm.chat.chain_config import get_llm_and_prompt
+from llm.chat.memory_chain import MyChatChain
+from llm.chat.chat_history import YourPostgresChatMessageHistory
 from db.query_utils import fetch_prompt_data, add_messages
 import time
 import traceback # For better error logging
