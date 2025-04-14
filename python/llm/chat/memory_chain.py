@@ -1,5 +1,5 @@
 from langchain_core.runnables import RunnableWithMessageHistory
-from llm.chat_history import YourPostgresChatMessageHistory 
+from llm.chat.chat_history import YourPostgresChatMessageHistory 
 
 class MyChatChain:
     def __init__(self, base_chain, deceased_code_map: dict):
