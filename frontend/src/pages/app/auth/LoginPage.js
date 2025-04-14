@@ -32,15 +32,17 @@ export default function LoginPage() {
           navigate('/login-error', { replace: true });
         })
         .finally(() => {
-          setLoading(false); // 로딩 종료
+          setLoading(false);
         });
     }
   }, [location.search, navigate]);
 
   const handleKakaoLogin = () => {
     const clientId = process.env.REACT_APP_KAKAO_REST_API_KEY;
-    const redirectUri = encodeURIComponent('http://localhost:3000/login');
-    // const redirectUri = encodeURIComponent('https://againhello.site/login');
+    // 프론트엔드 페이지가 아닌, 백엔드의 콜백 엔드포인트를 redirect_uri로 지정합니다.
+    const redirectUri = encodeURIComponent(
+      process.env.REACT_APP_KAKAO_REDIRECT_URI
+    );
 
     const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
     window.location.href = kakaoUrl;

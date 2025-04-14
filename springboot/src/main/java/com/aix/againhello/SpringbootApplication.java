@@ -21,7 +21,7 @@ import org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfigur
 })
 public class SpringbootApplication implements CommandLineRunner {
 
-//    private static final Logger logger = LoggerFactory.getLogger(SpringbootApplication.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpringbootApplication.class);
 //
 //    @Value("${app.props.social.kakao.client-id}")
 //    private String clientId;
@@ -37,6 +37,8 @@ public class SpringbootApplication implements CommandLineRunner {
 //
 //    @Value("${app.props.social.kakao.user-info-uri}")
 //    private String userInfoUri;
+    @Value("${app.props.social.kakao.redirect-uri}")
+    private String RedirectUrl;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringbootApplication.class, args);
@@ -45,7 +47,7 @@ public class SpringbootApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
 //        logger.info("env 인식 테스트");
-//        logger.info("Kakao Client ID: {}", clientId);
+        logger.info("Kakao 리다이렉트 URL: {}", RedirectUrl);
 //        logger.info("Kakao Client Secret: {}", clientSecret);
 //        logger.info("Kakao Redirect URI: {}", redirectUri);
 //        logger.info("Kakao Token URI: {}", tokenUri);

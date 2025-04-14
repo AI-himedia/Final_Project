@@ -32,7 +32,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     private String clientSecret;
 
     @Value("${app.props.social.kakao.redirect-uri}")
-    private String redirectUri;
+    private String KakaoRedirectUri;
 
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String KAKAO_USER_URL = "https://kapi.kakao.com/v2/user/me";
@@ -54,12 +54,11 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
-        params.add("redirect_uri", redirectUri);
+        params.add("redirect_uri", KakaoRedirectUri);
         params.add("code", code);
         params.add("client_secret", clientSecret);
 
-        logger.debug("Kakao Token Request Headers: {}", headers);
-        logger.debug("Kakao Token Request Parameters: {}", params);
+//        logger.info("[KakaoAuthService] 토큰 요청 redirect_uri: {}", redirectUri);
 
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
         RestTemplate restTemplate = new RestTemplate();
