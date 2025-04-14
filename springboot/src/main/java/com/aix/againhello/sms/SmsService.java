@@ -140,7 +140,6 @@ public class SmsService {
             }
         }
 
-
         // Python 요청용 DTO 구성
         ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
                 subscriptionCode,
