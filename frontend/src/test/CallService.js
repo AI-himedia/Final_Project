@@ -11,6 +11,7 @@ const CallService = () => {
   const audioRef = useRef(new Audio());
   const readyToStream = useRef(false);
 
+
   const SILENCE_TIMEOUT_MS = 2000;
 
   const connectWebSocket = () => {
@@ -19,6 +20,7 @@ const CallService = () => {
 
     socketRef.current.onopen = () => {
       console.log('WebSocket 연결됨');
+      socketRef.current.send(JSON.stringify({ event: 'ready' }));
     };
 
     if (socketRef.current?.readyState === WebSocket.OPEN) {
@@ -37,21 +39,57 @@ const CallService = () => {
 
       if (msg.type === 'tts') {
         console.log('TTS 수신');
-        const audio = audioRef.current;
-        audio.src = 'data:audio/wav;base64,' + msg.data;
 
+        // if (audioContextRef.current && audioContextRef.current.state === 'running') {
+        //   await audioContextRef.current.close();
+        //   console.log('AudioContext 일시 종료됨');
+        // }
+
+        // const audioUrl = 'data:audio/wav;base64,' + msg.data;
+        // const audio = audioRef.current;
+        // audio.src = audioUrl;
+        
+        // try {
+        //   await audio.play();
+        //   console.log('TTS 오디오 재생 시작');
+        // } catch (err) {
+        //   console.error('오디오 재생 실패:', err);
+        //   alert('브라우저에서 오디오 자동 재생 차단');
+        //   setManualPlayRequired(true);
+        // }
+
+        // audio.onended = () => {
+        //   console.log('TTS 재생 완료. STT 재시작');
+        //   socketRef.current?.send(JSON.stringify({ event: 'ready' }));
+        // };
+
+        const binaryString = atob(msg.data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+      
+        const blob = new Blob([bytes], { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        const audio = audioRef.current;
+        audio.src = url;
+        
         try {
           await audio.play();
-          console.log('TTS 자동 재생 시작');
+          console.log('TTS 오디오 재생 시작');
         } catch (err) {
-          console.warn('자동 재생 실패: ', err);
+          console.error('오디오 재생 실패:', err);
+          alert('브라우저에서 오디오 자동 재생 차단');
           setManualPlayRequired(true);
         }
 
         audio.onended = () => {
           console.log('TTS 재생 완료. STT 재시작');
-          socketRef.current.send(JSON.stringify({ event: 'ready' }));
+          URL.revokeObjectURL(url); 
+          socketRef.current?.send(JSON.stringify({ event: 'ready' }));
         };
+
+        console.log(msg.data.length)
       }
     };
 
@@ -172,6 +210,7 @@ const CallService = () => {
 
   return (
     <div style={{ padding: '1rem' }}>
+      <audio ref={audioRef} hidden preload="auto" />
       <button onClick={handleToggleCall}>
         {isStreaming ? '통화 종료' : '통화 시작'}
       </button>

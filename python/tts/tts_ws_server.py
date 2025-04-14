@@ -2,18 +2,17 @@ import asyncio
 import base64
 import json
 from websockets.server import serve
-from tts_test import run_tts, run_llm 
+from tts_test import run_tts
 
 async def handler(websocket):
     print("클라이언트 연결됨")
 
     try:
-        texts = ["안녕", "지금 시간은?", "테스트."]
+        texts = ["안녕하세요.", "지금 시간은?", "테스트."]
         for text in texts:
-            response_text = run_llm(text)
-            print(f"TTS 생성 시작: {response_text}")
+            response_text = text
 
-            audio_data = run_tts(response_text)
+            audio_data = run_tts(response_text, 'https://ai-himedia.s3.amazonaws.com/voice/0457bede-dada-497d-b53a-5105db61b7e6_test1.wav')
 
             if audio_data:
                 await websocket.send(json.dumps({
