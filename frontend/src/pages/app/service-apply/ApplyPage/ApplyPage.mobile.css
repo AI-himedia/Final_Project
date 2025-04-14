@@ -1,11 +1,12 @@
 @media (max-width: 480px) {
   .ApplyPage_Container {
-    height: 100vh;
+    height: 90vh;
     padding: 0 24px 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .ApplyPage_Title {
