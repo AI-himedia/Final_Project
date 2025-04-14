@@ -2,24 +2,22 @@ import asyncio
 import base64
 import json
 import uuid
+import time
 from websockets.legacy.server import serve, WebSocketServerProtocol
 from pydantic import BaseModel
 from stt_google_api import run_streaming_stt
-from tts_test import run_llm, run_tts
-from api.response_generator import generate_response
+from tts_test import run_tts
+from api.response_generator import generate_response, ChatRequest
 
-
-# LLM 에게 전달할 데이터 형식
-class ChatRequest(BaseModel):
-    subscriptionCode: int
-    userInput: str
 
 MIN_AUDIO_CHUNKS = 1
 
 async def handler(websocket: WebSocketServerProtocol):
+
     print("클라이언트 연결됨")
 
     try:
+        start_total = time.time()
         while True:
             # 클라이언트에게 STT 준비 완료 신호 보내기
             await websocket.send(json.dumps({"event": "ready"}))
@@ -69,48 +67,48 @@ async def handler(websocket: WebSocketServerProtocol):
 
             async def process_call_result():
                 try:
-                    print("process_call_result 시작")
+                    print("전화 서비스 시작")
                     responses = await run_streaming_stt(audio_queue)
+
+                    # STT 결과
                     for response in responses:
-                        print(f"[{session_id}] STT 응답 수신: {response}")
                         
                         for result in response.results:
                             if result.is_final:
+                                stt_start = time.time()
                                 transcript = result.alternatives[0].transcript.strip()
                                 if transcript and transcript not in seen_final_transcripts:
                                     seen_final_transcripts.add(transcript)
                                     print(f"[{session_id}] 최종 STT: {transcript}")
-                        
-                        # if not response.results:
-                        #     continue
-                        # for result in response.results:
-                        #     if not result.alternatives:
-                        #         continue
-
-                        #     transcript = result.alternatives[0].transcript.strip()
-
-                        #     if result.is_final and transcript and transcript not in seen_final_transcripts:
-                        #         seen_final_transcripts.add(transcript)
-                        #         found_final = True
-                        #         print(f"[{session_id}] 최종 STT: {transcript}")
+                                stt_end = time.time()
+                                print(f"STT 처리 시간: {int((stt_end - stt_start) * 1000)}ms")
                                 
+                                if not transcript:
+                                    print(f"[{session_id}] 빈 STT 결과 무시")
+                                    continue
+
                                 # LLM → TTS
                                 try:
+                                    # LLM
+                                    llm_start = time.time()
                                     chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
                                     response_llm = generate_response(chat_input)
-                                    response_message = response_llm["message"]
-                                    print(f"[{session_id}] LLM 응답: {response_message}")
+                                    llm_end = time.time()
+                                    print(f"[{session_id}] LLM 응답: {response_llm['message']}")
+                                    print(f"LLM 처리 시간: {int((llm_end - llm_start) * 1000)}ms")
 
-                                    tts_audio = run_tts(response_message)
+                                    # TTS
+                                    tts_start = time.time()
+                                    tts_audio = run_tts(response_llm["message"])
                                     await websocket.send(json.dumps({
                                         "type": "tts",
                                         "data": base64.b64encode(tts_audio).decode("utf-8")
                                     }))
+                                    tts_end = time.time()
+                                    print(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
                                     print(f"[{session_id}] TTS 전송 완료")
-
                                 except Exception as e:
-                                    print(f"[{session_id}] TTS 처리 오류:", e)
-
+                                    print(f"[{session_id}] LLM/TTS 처리 오류:", e)
                                 return
                     print(f"[{session_id}] STT 결과 없음 - 강제 종료")
                     stt_done.set()
@@ -153,7 +151,9 @@ async def handler(websocket: WebSocketServerProtocol):
             if websocket.closed or user_requested_disconnect:
                 print(f"[{session_id}] 클라이언트 요청으로 루프 종료")
                 break
-            
+                
+        end_total = time.time()
+        print(f"[{session_id}] 전체 처리 시간: {int((end_total - start_total) * 1000)}ms")
     except Exception as e:
         print("[서버 오류] handler 루프 에러:", e)
 

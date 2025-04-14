@@ -34,7 +34,6 @@ def stt_streaming_generator(audio_chunks):
             if chunk is None:
                 print("STT 종료: None 수신")
                 if buffer:
-                    print(f"[STT Generator] 마지막 버퍼 전송: {len(buffer)} bytes")
                     yield speech.StreamingRecognizeRequest(audio_content=buffer)
                 break
 
@@ -43,7 +42,6 @@ def stt_streaming_generator(audio_chunks):
             audio_file.write(chunk)
 
             if len(buffer) >= min_chunk_size:
-                print(f"[STT Generator] Google STT에 전송: {len(buffer)} bytes")
                 yield speech.StreamingRecognizeRequest(audio_content=buffer)
                 buffer = b""
 

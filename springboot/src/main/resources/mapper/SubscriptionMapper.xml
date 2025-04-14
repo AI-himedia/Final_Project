@@ -3,7 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0.4//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aix.againhello.subscription.SubscriptionMapper">
-
     <resultMap id="ExceptionCaseResultMap" type="com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse">
         <result column="subscription_code" property="subscriptionCode"/>
         <result column="service_code" property="serviceCode"/>
@@ -86,7 +85,6 @@
         FROM subscription
         WHERE subscription_code = #{subscriptionCode}
     </select>
-
 
 
 </mapper>

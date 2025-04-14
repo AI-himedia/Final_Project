@@ -65,7 +65,7 @@ public class SmsController {
         // 1. 문자서비스 미신청인 경우
         // 2. 서비스 신청은 했지만 아직 고인에 대한 데이터 없는 경우
         // 3. 서비스 신청, 고인 데이터 기록 모두 있는 경우
-
+        
         // 유저 코드
         int userCode = 3;
         return ResponseEntity.ok(smsService.checkInit(userCode));
