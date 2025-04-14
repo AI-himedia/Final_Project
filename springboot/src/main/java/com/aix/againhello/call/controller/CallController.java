@@ -1,9 +1,12 @@
 package com.aix.againhello.call.controller;
 
-import com.aix.againhello.call.dto.*;
+import com.aix.againhello.call.dto.PreviewResponseDTO;
+import com.aix.againhello.call.dto.ResourceResponseDTO;
+import com.aix.againhello.call.dto.SaveResponseDTO;
+import com.aix.againhello.call.dto.SelectedSpeakersDTO;
 import com.aix.againhello.call.service.AudioProcessingService;
 import com.aix.againhello.call.service.CallService;
-import com.aix.againhello.common.SubscriptionDTO;
+import com.aix.againhello.common.DeceasedDataDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/be/call")
@@ -30,12 +34,13 @@ public class CallController {
      */
     @PostMapping("/service/start")
     public ResponseEntity<?> startService(
-            @RequestParam("userCode") int userCode,
-            @RequestPart("serviceRequest") ServiceRequestDTO serviceRequestDto,
+            @RequestParam("subscriptionCode") int subscriptionCode,
+            @RequestPart("deceasedData") DeceasedDataDTO deceasedDataDto,
             @RequestPart(value = "audioFiles", required = false) List<MultipartFile> audioFiles) {
 
-        SubscriptionDTO subscription = callService.startService(userCode, serviceRequestDto, audioFiles);
-        return ResponseEntity.ok(subscription);
+        callService.processSubscription(subscriptionCode, deceasedDataDto, audioFiles);
+
+        return ResponseEntity.ok(Map.of("message", "Service processing initiated successfully."));
     }
 
     /**

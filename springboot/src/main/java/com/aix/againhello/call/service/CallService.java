@@ -1,23 +1,23 @@
 package com.aix.againhello.call.service;
 
-import com.aix.againhello.call.dto.ServiceRequestDTO;
 import com.aix.againhello.call.mapper.CallMapper;
 import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.common.SubscriptionDTO;
+import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
+import com.aix.againhello.subscription.SubscriptionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CallService {
-    private static final int SMS_SERVICE_CODE = 1;
-    private static final int CALL_SERVICE_CODE = 2;
 
     @Autowired
     private CallMapper callMapper;
@@ -28,113 +28,73 @@ public class CallService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private SubscriptionMapper subscriptionMapper;
+
     /**
-     * 서비스 신청 처리 메소드
+     * 고인 정보 및 파일을 처리하는 메소드
      *
-     * @param userCode 사용자 코드
-     * @param serviceRequestDto 서비스 요청 정보
+     * @param subscriptionCode 구독 코드
+     * @param deceasedDataDto 고인 정보 DTO
      * @param audioFiles 음성/영상 파일 목록
-     * @return 생성된 구독 정보
      */
     @Transactional
-    public SubscriptionDTO startService(int userCode, ServiceRequestDTO serviceRequestDto,
-                                        List<MultipartFile> audioFiles) {
+    public void processSubscription(int subscriptionCode, DeceasedDataDTO deceasedDataDto,
+                                    List<MultipartFile> audioFiles) {
 
-        // 1. 사용자 존재 여부 확인
-        if (!userMapper.existsById(userCode)) {
-            throw new ServiceException("사용자를 찾을 수 없습니다.");
+        // 구독 정보 확인
+        SubscriptionDTO subscription = subscriptionMapper.findSubscriptionByCode(subscriptionCode);
+        if (subscription == null) {
+            throw new ServiceException("유효하지 않은 구독 코드입니다: " + subscriptionCode);
         }
 
-        // 2. 전화 서비스를 신청하는지 확인
-        if (serviceRequestDto.getServiceCode() != CALL_SERVICE_CODE) {
-            throw new ServiceException("이 메소드는 전화 서비스 신청만 처리합니다.");
-        }
+        Integer existingDeceasedCode = subscription.getDeceasedCode();
 
-        // 3. 현재 활성화된 구독 상태 확인
-        SubscriptionDTO existingCallSubscription = callMapper.findActiveSubscription(
-                userCode, CALL_SERVICE_CODE);
+        // 3. 고인 데이터 처리 (Insert 또는 Update)
+        Integer currentDeceasedCode;
 
-        SubscriptionDTO existingSmsSubscription = callMapper.findActiveSubscription(
-                userCode, SMS_SERVICE_CODE);
-
-        // 시나리오 분기 처리
-        if (existingCallSubscription != null) {
-            // [이미 전화서비스를 사용중] - 새로운 고인과의 전화 서비스 신청
-            return processNewUserCallService(userCode, serviceRequestDto, audioFiles);
-        } else if (existingSmsSubscription != null) {
-            // [문자 서비스 사용O, 전화 서비스 사용X] - 기존 고인과의 전화 서비스 신청
-            return processCallServiceExistingForSmsUser(userCode, serviceRequestDto, audioFiles, existingSmsSubscription);
-        } else {
-            // [전화 서비스 사용X, 문자 서비스 사용X] - 새로운 고인과의 전화 서비스 신청
-            return processNewUserCallService(userCode, serviceRequestDto, audioFiles);
-        }
-    }
-
-    /**
-     * 사용자의 새로운 전화 서비스 등록 처리 (문자 서비스 사용X -> 기존 고인 데이터X)
-     */
-    @Transactional
-    protected SubscriptionDTO processNewUserCallService(int userCode, ServiceRequestDTO serviceRequestDto,
-                                                                    List<MultipartFile> audioFiles) {
-        // 새로운 고인 데이터 등록
-        DeceasedDataDTO deceasedDataDto = serviceRequestDto.getDeceasedData();
         if (deceasedDataDto == null) {
             throw new ServiceException("고인 데이터가 필요합니다.");
         }
 
-        DeceasedDataDTO deceasedData = createDeceasedDataFromDto(deceasedDataDto);
-        callMapper.insertDeceasedData(deceasedData);
-        int deceasedCode = deceasedData.getDeceasedCode();
+        if (existingDeceasedCode != null) {
+            // Case 1: 구독 정보에 이미 고인 코드가 연결되어 있는 경우 (기존 고인 데이터 Update)
+            if (!subscriptionMapper.existsByDeceasedCode(existingDeceasedCode)) {
+                throw new ServiceException("구독에 연결된 기존 고인 코드가 유효하지 않습니다: " + existingDeceasedCode);
+            }
+            updateDeceasedData(existingDeceasedCode, deceasedDataDto);
+            currentDeceasedCode = existingDeceasedCode;
+        } else {
+            // Case 2: 구독 정보에 고인 코드가 없는 경우 (새로운 고인 데이터 Insert)
+            currentDeceasedCode = insertDeceasedData(deceasedDataDto);
+            subscription.setDeceasedCode(currentDeceasedCode);
+            subscriptionMapper.updateSubscriptionDeceasedCode(subscription);
+        }
 
-        // 새로운 전화 서비스 구독 정보 생성
-        SubscriptionDTO subscription = createSubscription(userCode, CALL_SERVICE_CODE, deceasedCode);
+        // 음성/영상 파일 처리
+        processAudioFiles(subscriptionCode, currentDeceasedCode, audioFiles);
 
-        // 파일 업로드 처리
-        processAudioFiles(subscription.getSubscriptionCode(), subscription.getDeceasedCode(), audioFiles);
-
-        return subscription;
     }
 
     /**
-     * 문자 서비스 사용 중인 기존 고인과의 전화 서비스 등록 처리 (기존 고인 데이터O)
+     * 고인 데이터 Insert
      */
-    @Transactional
-    protected SubscriptionDTO processCallServiceExistingForSmsUser(int userCode, ServiceRequestDTO serviceRequestDto,
-                                                           List<MultipartFile> audioFiles, SubscriptionDTO existingSmsSubscription) {
-        Integer deceasedCode;
+    private int insertDeceasedData(DeceasedDataDTO deceasedDataDto) {
 
-        // 고인 데이터 처리
-        if (serviceRequestDto.isUsingSameDeceased()) {
-            // 기존 SMS 서비스의 고인 데이터 사용
-            if (existingSmsSubscription.getDeceasedCode() == null) {
-                throw new ServiceException("기존 SMS 서비스에 고인 데이터가 없습니다.");
-            }
-            deceasedCode = existingSmsSubscription.getDeceasedCode();
-        } else {
-            // 새로운 고인 데이터 등록
-            DeceasedDataDTO deceasedDataDto = serviceRequestDto.getDeceasedData();
-            if (deceasedDataDto == null) {
-                throw new ServiceException("고인 데이터가 필요합니다.");
-            }
-
-            DeceasedDataDTO deceasedData = createDeceasedDataFromDto(deceasedDataDto);
-            callMapper.insertDeceasedData(deceasedData);
-            deceasedCode = deceasedData.getDeceasedCode();
+        DeceasedDataDTO deceasedData = createDeceasedDataFromDto(deceasedDataDto);
+        callMapper.insertDeceasedData(deceasedData);
+        if (deceasedData.getDeceasedCode() == null) {
+            throw new ServiceException("고인 데이터 삽입 후 코드를 가져오지 못했습니다.");
         }
+        return deceasedData.getDeceasedCode();
 
-        // 전화 서비스 구독 정보 생성
-        SubscriptionDTO subscription = createSubscription(userCode, CALL_SERVICE_CODE, deceasedCode);
-
-        // 파일 업로드 처리
-        processAudioFiles(subscription.getSubscriptionCode(), subscription.getDeceasedCode(), audioFiles);
-
-        return subscription;
     }
 
     /**
      * 고인 데이터 생성 헬퍼 메서드
      */
     private DeceasedDataDTO createDeceasedDataFromDto(DeceasedDataDTO source) {
+
         DeceasedDataDTO deceasedData = new DeceasedDataDTO();
         deceasedData.setDeceasedName(source.getDeceasedName());
         deceasedData.setGender(source.getGender());
@@ -148,37 +108,78 @@ public class CallService {
         deceasedData.setCommonPhrases(source.getCommonPhrases());
         deceasedData.setExampleLines(source.getExampleLines());
         return deceasedData;
+
     }
 
     /**
-     * 구독 정보 생성 헬퍼 메서드
+     * 기존 고인 데이터 Update
      */
-    private SubscriptionDTO createSubscription(int userCode, int serviceCode, int deceasedCode) {
-        SubscriptionDTO subscription = new SubscriptionDTO();
-        subscription.setUserCode(userCode);
-        subscription.setServiceCode(serviceCode);
-        subscription.setDeceasedCode(deceasedCode);
+    private void updateDeceasedData(int deceasedCode, DeceasedDataDTO deceasedDataDto) {
 
-        callMapper.insertSubscription(subscription);
-        return subscription;
+        deceasedDataDto.setDeceasedCode(deceasedCode);
+        int updatedRows = callMapper.updateDeceasedData(deceasedDataDto);
+        if (updatedRows == 0) {
+            throw new ServiceException("고인 데이터 업데이트에 실패했습니다: " + deceasedCode);
+        }
+
     }
 
     /**
-     * 음성/영상 파일 업로드 처리 헬퍼 메서드
+     * 음성/영상 파일 업로드 처리
      */
+//    private void processAudioFiles(int subscriptionCode, int deceasedCode, List<MultipartFile> audioFiles) {
+//
+//        if (audioFiles != null && !audioFiles.isEmpty()) {
+//            fileStorageService.validateFiles(audioFiles); // 파일 유효성 검증
+//            List<String> audioFilePaths = new ArrayList<>();
+//            for (MultipartFile file : audioFiles) {
+//                if (!file.isEmpty()) {
+//                    // 파일 저장
+//                    String filePath = fileStorageService.storeFile(file, "audio", deceasedCode);
+//                    audioFilePaths.add(filePath);
+//                }
+//            }
+//        }
+//
+//    }
+
     private void processAudioFiles(int subscriptionCode, int deceasedCode, List<MultipartFile> audioFiles) {
+
         if (audioFiles != null && !audioFiles.isEmpty()) {
-            // 파일 유효성 검증
-            fileStorageService.validateFiles(audioFiles);
 
-            List<String> audioFilePaths = new ArrayList<>();
-
+            // 요청 내 중복 파일명 체크
+            Set<String> uniqueFilenames = new HashSet<>();
             for (MultipartFile file : audioFiles) {
-                if (!file.isEmpty()) {
-                    String filePath = fileStorageService.storeFile(file, "audio", deceasedCode);
-                    audioFilePaths.add(filePath);
+                String originalFilename = file.getOriginalFilename();
+
+                // originalFilename이 null이거나 비어있는 경우에 대한 처리
+                if (originalFilename == null || originalFilename.trim().isEmpty()) {
+                    throw new ServiceException("업로드된 파일 중 이름이 없는 파일이 있습니다.");
                 }
+
+                // Set에 파일명을 추가 시도. 이미 존재하면 add()는 false를 반환.
+                if (!uniqueFilenames.add(originalFilename)) {
+                    // 중복 발견 시 예외 발생시켜 처리 중단
+                    throw new ServiceException("파일 목록에 중복된 파일명이 포함되어 있습니다: " + originalFilename);
+                }
+            }
+
+            // 파일 유효성 검증 및 저장
+            try {
+                fileStorageService.validateFiles(audioFiles);
+                List<String> audioFilePaths = new ArrayList<>();
+                for (MultipartFile file : audioFiles) {
+                    if (!file.isEmpty()) {
+                        String filePath = fileStorageService.storeFile(file, "audio", deceasedCode);
+                        audioFilePaths.add(filePath);
+                    }
+                }
+            } catch (ServiceException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new ServiceException("파일 처리 중 오류가 발생했습니다: " + e.getMessage());
             }
         }
     }
+
 }
