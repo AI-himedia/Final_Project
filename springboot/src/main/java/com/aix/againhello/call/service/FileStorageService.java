@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -98,13 +99,15 @@ public class FileStorageService {
             // 파일명 생성
             String newFilename = deceasedCode + "_" + originalFilename;
 
-            // 파일 저장
             Path targetLocation = uploadPath.resolve(newFilename);
-            Files.copy(file.getInputStream(), targetLocation);
+
+            // 파일 저장 (기존 같은 파일이 있으면 덮어쓰기)
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             return targetLocation.toString();
         } catch (IOException ex) {
             throw new RuntimeException("파일 저장 중 오류가 발생했습니다: " + ex.getMessage());
         }
     }
+
 }
