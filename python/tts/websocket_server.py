@@ -4,10 +4,13 @@ import json
 import uuid
 import time
 from websockets.legacy.server import serve, WebSocketServerProtocol
-from pydantic import BaseModel
 from stt_google_api import run_streaming_stt
 from tts_test import run_tts
 from api.response_generator import generate_response, ChatRequest
+
+
+def log(msg):
+    print(msg, flush=True)
 
 
 MIN_AUDIO_CHUNKS = 1
@@ -79,9 +82,9 @@ async def handler(websocket: WebSocketServerProtocol):
                                 transcript = result.alternatives[0].transcript.strip()
                                 if transcript and transcript not in seen_final_transcripts:
                                     seen_final_transcripts.add(transcript)
-                                    print(f"[{session_id}] 최종 STT: {transcript}")
+                                    log(f"[{session_id}] 최종 STT: {transcript}")
                                 stt_end = time.time()
-                                print(f"STT 처리 시간: {int((stt_end - stt_start) * 1000)}ms")
+                                log(f"STT 처리 시간: {int((stt_end - stt_start) * 1000)}ms")
                                 
                                 if not transcript:
                                     print(f"[{session_id}] 빈 STT 결과 무시")
@@ -91,24 +94,31 @@ async def handler(websocket: WebSocketServerProtocol):
                                 try:
                                     # LLM
                                     llm_start = time.time()
+                                    log(f"[{session_id}] LLM 시작")
                                     chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
                                     response_llm = generate_response(chat_input)
                                     llm_end = time.time()
-                                    print(f"[{session_id}] LLM 응답: {response_llm['message']}")
-                                    print(f"LLM 처리 시간: {int((llm_end - llm_start) * 1000)}ms")
-
+                                    log(f"[{session_id}] LLM 응답: {response_llm['message']}")
+                                    log(f"LLM 처리 시간: {int((llm_end - llm_start) * 1000)}ms")
+                               
+                                except Exception as e:
+                                    print(f"[{session_id}] LLM 처리 오류:", e)
+                                
+                                try:
                                     # TTS
                                     tts_start = time.time()
+                                    log(f"[{session_id}] TTS 시작")
                                     tts_audio = run_tts(response_llm["message"])
                                     await websocket.send(json.dumps({
                                         "type": "tts",
                                         "data": base64.b64encode(tts_audio).decode("utf-8")
                                     }))
                                     tts_end = time.time()
-                                    print(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
-                                    print(f"[{session_id}] TTS 전송 완료")
+                                    log(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
+                                    log(f"[{session_id}] TTS 전송 완료")
+                                
                                 except Exception as e:
-                                    print(f"[{session_id}] LLM/TTS 처리 오류:", e)
+                                    print(f"[{session_id}] TTS 처리 오류:", e)
                                 return
                     print(f"[{session_id}] STT 결과 없음 - 강제 종료")
                     stt_done.set()
@@ -146,7 +156,7 @@ async def handler(websocket: WebSocketServerProtocol):
             await asyncio.gather(receive_task, process_task)
             await stt_done.wait()
 
-            print(f"[세션 ID: {session_id}] STT 세션 종료. 다음 발화 대기 중")
+            log(f"[세션 ID: {session_id}] STT 세션 종료. 다음 발화 대기 중")
             
             if websocket.closed or user_requested_disconnect:
                 print(f"[{session_id}] 클라이언트 요청으로 루프 종료")

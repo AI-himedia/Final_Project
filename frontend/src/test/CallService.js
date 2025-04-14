@@ -19,6 +19,7 @@ const CallService = () => {
 
     socketRef.current.onopen = () => {
       console.log('WebSocket 연결됨');
+      socketRef.current.send(JSON.stringify({ event: 'ready' }));
     };
 
     if (socketRef.current?.readyState === WebSocket.OPEN) {
