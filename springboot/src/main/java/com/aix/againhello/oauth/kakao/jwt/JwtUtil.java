@@ -78,7 +78,7 @@ public class JwtUtil {
     // 쿠키에 JWT 저장 (SameSite 옵션 포함)
     public void setJwtCookies(HttpServletResponse response, String accessToken, String refreshToken) {
         // 도메인 설정을 별도 프로퍼티로 관리할 수 있음. 여기서는 null 처리.
-        addCookie(response, "access", accessToken, 60 * 15, true, null, "access");
+        // addCookie(response, "access", accessToken, 60 * 15, true, null, "access");
         addCookie(response, "refresh", refreshToken, 60 * 60 * 24 * 14, true, null, "refresh");
     }
 

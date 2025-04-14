@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../../../components/Header/Header';
+import Header from '../../../components/Header/Header';
 import './TermsOfServicePage.mobile.css';
 
 export default function TermsOfServicePage() {

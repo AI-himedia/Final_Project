@@ -5,9 +5,9 @@ import { GoPerson } from 'react-icons/go';
 import { LuLogOut } from 'react-icons/lu';
 import { IoMdArrowBack } from 'react-icons/io';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearUser } from '../../redux/Slice/UserSlice';
-import styles from '../../components/Header/Header.module.css';
-import { axiosInstance } from '../../api/axios/AxiosInstance';
+import { clearUser } from '../../../redux/Slice/userSlice';
+import styles from '../Header.module.css';
+import { axiosInstance } from '../../../api/AxiosInstance';
 
 export default function HeaderMain({ isMainPage }) {
   const location = useLocation();

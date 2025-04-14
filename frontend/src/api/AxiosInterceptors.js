@@ -1,6 +1,6 @@
 // src/api/axios/AxoisInterceptors
 
-import { refreshJWT } from '../auth/JwtApi';
+import { refreshJWT } from '../api/JwtApi';
 
 export const applyInterceptors = (axiosInstance) => {
   // 요청 인터셉터

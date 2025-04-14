@@ -2,8 +2,8 @@
 
 import { useNavigate } from 'react-router-dom';
 import { IoMdArrowBack } from 'react-icons/io';
-import { useTossPayment } from '../../hooks/useTossPayment';
-import styles from '../../components/Header/Header.module.css';
+import { useTossPayment } from '../../../hooks/useTossPayment';
+import styles from '../Header.module.css';
 
 export default function HeaderProduct({ selectedService }) {
   const navigate = useNavigate();

@@ -1,5 +1,6 @@
 package com.aix.againhello.oauth.kakao.controller;
 
+import com.aix.againhello.oauth.kakao.dto.LoginRequest;
 import com.aix.againhello.oauth.kakao.jwt.JwtUtil;
 import com.aix.againhello.oauth.kakao.dto.User;
 import com.aix.againhello.oauth.kakao.service.UserService;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -16,8 +18,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/be/member")
 public class AuthController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final JwtUtil jwtUtil;
     private final UserService userService;
@@ -27,11 +27,11 @@ public class AuthController {
         this.userService = userService;
     }
 
+
     // access 토큰 재발급
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = getTokenFromCookie(request, "refresh");
-        logger.info("Received refresh token: {}", refreshToken);
         if (refreshToken == null || !jwtUtil.isValidToken(refreshToken)) {
             return ResponseEntity.status(401).body(Map.of("error", "유효하지 않은 refresh token"));
         }
@@ -44,9 +44,17 @@ public class AuthController {
         }
 
         String newAccessToken = jwtUtil.createAccessToken(email);
-        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
 
-        return ResponseEntity.ok(Map.of("message", "access token 재발급 완료"));
+        // Body 전달 후 Redux 저장
+        return ResponseEntity.ok(Map.of(
+                "message", "access token 재발급 완료",
+                "accessToken", newAccessToken
+        ));
+
+        // Access 토큰 쿠키로 보내기
+//        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+//
+//        return ResponseEntity.ok(Map.of("message", "access token 재발급 완료"));
     }
 
     // 내 정보 조회

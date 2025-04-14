@@ -1,12 +1,12 @@
 // src/layout/MainLayout.js
 
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
-import SideBar from '../../components/SideBar/SideBar';
-import UpButton from '../../components/UpButton/UpButton';
+import Header from '../components/Header/Header';
+import Footer from '../components/Footer/Footer';
+import SideBar from '../components/SideBar/SideBar';
+import UpButton from '../components/UpButton/UpButton';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearUser } from '../../redux/Slice/UserSlice';
-import { axiosInstance } from '../../api/axios/AxiosInstance';
+import { clearUser } from '../redux/Slice/userSlice';
+import { axiosInstance } from '.././api/AxiosInstance';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function MainLayout({ children, meta }) {

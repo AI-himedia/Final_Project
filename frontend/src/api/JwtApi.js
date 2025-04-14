@@ -1,7 +1,7 @@
 // src/services/api/JwtApi.js
 
 import axios from 'axios';
-import { API_SERVER_HOST } from '../../config/ApiConfig.js';
+import { API_SERVER_HOST } from '../config/ApiConfig';
 
 export const refreshJWT = async () => {
   const res = await axios.post(
