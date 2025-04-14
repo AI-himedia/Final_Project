@@ -1,8 +1,5 @@
-<<<<<<<< HEAD:springboot/src/main/java/com/aix/againhello/sms/responseWrapper/ChatRequestDTO.java
-package com.aix.againhello.sms.responseWrapper;
-========
 package com.aix.againhello.sms.wrapper;
->>>>>>>> e45f052bedb84a4524582e0402176ef505980401:springboot/src/main/java/com/aix/againhello/sms/wrapper/ChatRequestDTO.java
+
 
 public class ChatRequestDTO {
     private int subscriptionCode;

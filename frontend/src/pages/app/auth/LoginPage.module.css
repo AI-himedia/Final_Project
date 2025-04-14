@@ -11,7 +11,7 @@
 }
 
 @media (max-width: 480px) {
-  .Login_Container {
+  .Container {
     position: fixed;
     height: 100vh;
     width: 100%;
@@ -28,7 +28,8 @@
     align-items: center;
   }
 
-  .Login_Container::before {
+  /* 배경 흐리게 */
+  .Container::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -37,19 +38,32 @@
     z-index: -1;
   }
 
-  .Login_Text_Title {
+  .Title {
+    padding-top: 23.8rem;
+    text-align: center;
+  }
+
+  .Top_Title {
     font-size: 2.5rem;
+  }
+
+  .Sub_Title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.6;
     color: white;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-    margin-top: -100px;
   }
 
-  .Login_Text_Title,
-  .Login_Text_Subtitle {
-    display: none;
+  .Top_Title,
+  .Sub_Title {
+    display: block;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    text-shadow: none;
   }
 
-  .Login_Text_Subtitle {
+  .Sub_Title {
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.9);
     font-weight: 600;
@@ -57,72 +71,12 @@
     text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
   }
 
-  .Login_Header_Container {
-    height: 60px;
-    padding: 0 12px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: white;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    background: transparent;
-  }
-
-  .Login_Header_Inner {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .Mobile_Header {
-    display: none;
-  }
-
-  .Mobile_Header_Icon {
-    font-size: 2rem !important;
-  }
-
-  .Mobile_Header {
-    display: block;
-    width: 100%;
-    text-align: right;
-    padding: 10px 30px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: rgb(255, 255, 255);
-    background: transparent;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-  }
-
-  .Login_Text_Title,
-  .Login_Text_Subtitle {
-    display: block;
-    text-align: center;
-    color: rgb(255, 255, 255);
-    text-shadow: none;
-  }
-
-  .Login_Text_Wrapper {
-    padding-top: 23.5rem;
-    text-align: center;
-  }
+  /* ----------------------------------------- */
 
   .Social_Login {
     width: 100%;
     max-width: 320px;
-    margin-bottom: 10rem;
+    margin-bottom: 15rem;
   }
 
   .Social_Login_Button {

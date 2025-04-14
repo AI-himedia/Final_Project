@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:springboot/src/main/java/com/aix/againhello/sms/responseWrapper/SmsInitResponse.java
-package com.aix.againhello.sms.responseWrapper;
-========
 package com.aix.againhello.sms.wrapper;
->>>>>>>> e45f052bedb84a4524582e0402176ef505980401:springboot/src/main/java/com/aix/againhello/sms/wrapper/SmsInitResponse.java
 
 import java.util.List;
 

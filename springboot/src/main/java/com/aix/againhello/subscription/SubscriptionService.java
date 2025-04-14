@@ -4,10 +4,7 @@ import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.SubscriptionDTO;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
-<<<<<<< HEAD
-=======
 import com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse;
->>>>>>> e45f052bedb84a4524582e0402176ef505980401
 import com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,10 +92,6 @@ public class SubscriptionService {
     }
 
     public DeceasedDataDTO getDeceasedData(int deceasedCode) {
-<<<<<<< HEAD
-        return subscriptionMapper.getDeceasedData(deceasedCode);
-    }
-=======
 
         // 1. 고인 코드 존재 여부 확인
         if(!subscriptionMapper.existsByDeceasedCode(deceasedCode)){
@@ -125,5 +118,4 @@ public class SubscriptionService {
 
 
 
->>>>>>> e45f052bedb84a4524582e0402176ef505980401
 }
