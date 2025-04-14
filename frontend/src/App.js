@@ -27,7 +27,7 @@ export default function App() {
     <div className={`App ${meta.showFooter ? 'hasFooter' : ''}`}>
       <AppLayout meta={meta}>
         <AppRoutes />
-        <EnvLogger />
+        {/* <EnvLogger /> */}
       </AppLayout>
     </div>
   );
