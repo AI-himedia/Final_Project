@@ -61,6 +61,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 //        logger.info("[KakaoAuthService] 토큰 요청 redirect_uri: {}", redirectUri);
 
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
+
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(KAKAO_TOKEN_URL, tokenRequest, Map.class);
 
@@ -119,9 +120,12 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     public void processLogin(User user, HttpServletResponse response) {
         String accessToken = jwtUtil.createAccessToken(user.getEmail());
         String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
+
         logger.info("JWT access token 생성: {}", accessToken);
         logger.info("JWT refresh token 생성: {}", refreshToken);
-        // 예: 쿠키 설정 로직 추가 가능
+
+        jwtUtil.setJwtCookies(response, accessToken, refreshToken);
+
         userService.updateRefreshToken(user.getEmail(), refreshToken);
         logger.info("DB에 refresh token 업데이트 완료 for user: {}", user.getEmail());
     }

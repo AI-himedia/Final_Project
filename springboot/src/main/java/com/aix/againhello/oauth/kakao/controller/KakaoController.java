@@ -64,10 +64,21 @@ public class KakaoController {
             boolean exists = userService.existsByEmail(email);
             if (exists) {
                 logger.info("기존 회원, 로그인 처리 시작: {}", email);
-                User user = kakaoAuthService.getKakaoUser(code);
+
+                String finalEmail = email;
+                String finalName = fullName;
+
+                User user = User.builder()
+                        .email(finalEmail)
+                        .oauth("KAKAO")
+                        .fullName(finalName)
+                        .build();
+
                 kakaoAuthService.processLogin(user, response);
-                response.sendRedirect(FrontendRedirectUrl);
-            } else {
+                response.sendRedirect(FrontendRedirectUrl + "/?login=success");
+
+            }
+            else {
                 logger.info("신규 회원, 회원가입 페이지로 이동합니다: {}", email);
                 // 필요한 값들만 URL에 넣어 리다이렉트 : email, name, profileImage
                 String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);

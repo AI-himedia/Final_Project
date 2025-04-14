@@ -86,5 +86,23 @@
         WHERE subscription_code = #{subscriptionCode}
     </select>
 
+    <!-- 구독 코드로 구독 정보 조회 -->
+    <select id="findSubscriptionByCode" resultType="com.aix.againhello.common.SubscriptionDTO">
+        SELECT
+            subscription_code as subscriptionCode,
+            user_code as userCode,
+            service_code as serviceCode,
+            deceased_code as deceasedCode,
+            start_date as startDate
+        FROM subscription
+        WHERE subscription_code = #{subscriptionCode}
+    </select>
+
+    <!-- 구독 정보에 subscriptionCode 업데이트 -->
+    <update id="updateSubscriptionDeceasedCode" parameterType="com.aix.againhello.common.SubscriptionDTO">
+        UPDATE subscription
+        SET deceased_code = #{deceasedCode}
+        WHERE subscription_code = #{subscriptionCode}
+    </update>
 
 </mapper>

@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  code: null,
   email: null,
   oauth: null,
   gender: null,
@@ -8,7 +9,7 @@ const initialState = {
   number: null,
   admin: false,
   status: false,
-  fetched: false, // 추가된 필드
+  fetched: false,
 };
 
 const userSlice = createSlice({
@@ -17,6 +18,7 @@ const userSlice = createSlice({
   reducers: {
     setUser(state, action) {
       const {
+        code,
         email,
         oauth,
         gender,
@@ -27,6 +29,7 @@ const userSlice = createSlice({
         fetched = true,
       } = action.payload;
 
+      state.code = code;
       state.email = email;
       state.oauth = oauth;
       state.gender = gender;
@@ -34,7 +37,7 @@ const userSlice = createSlice({
       state.number = number;
       state.admin = admin;
       state.status = status;
-      state.fetched = fetched; // 사용자 정보를 가져왔음을 표시
+      state.fetched = fetched;
     },
     clearUser(state) {
       Object.assign(state, initialState);

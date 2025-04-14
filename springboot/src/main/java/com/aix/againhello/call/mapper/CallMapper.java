@@ -1,16 +1,17 @@
 package com.aix.againhello.call.mapper;
 
+import com.aix.againhello.call.dto.CallDeceasedInfoDTO;
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.RawFileDTO;
-import com.aix.againhello.common.SubscriptionDTO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 @Mapper
 public interface CallMapper {
 
-    SubscriptionDTO findActiveSubscription(int userCode, int serviceCode);
     void insertDeceasedData(DeceasedDataDTO deceasedData);
-    void insertSubscription(SubscriptionDTO subscription);
     void insertRawFile(RawFileDTO rawFile);
-
+    int updateDeceasedData(DeceasedDataDTO deceasedDataDto);
+    List<CallDeceasedInfoDTO> findDeceasedListForCallServiceByUser(int userCode);
 }

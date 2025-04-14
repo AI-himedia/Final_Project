@@ -5,7 +5,7 @@ import { API_SERVER_HOST } from '../../config/ApiConfig.js';
 import { applyInterceptors } from './AxiosInterceptors.js';
 
 export const axiosInstance = axios.create({
-  baseURL: `${API_SERVER_HOST}/api`,
+  baseURL: `${API_SERVER_HOST}/be`,
   withCredentials: true,
 });
 
