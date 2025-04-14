@@ -1,6 +1,13 @@
 from openai import OpenAI
+from dotenv import load_dotenv
+import openai
 
-client = OpenAI()
+# .env 로드
+load_dotenv()
+
+# openai.api_key = os.environ["OPENAI_API_KEY"]
+client = openai.OpenAI()
+
 
 def run_analysis(messages: list) -> str:
     response = client.chat.completions.create(
