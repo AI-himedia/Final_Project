@@ -133,10 +133,13 @@ public class SmsService {
 
         // 3. file S3에 저장
         List<String> uploadedUrls = new ArrayList<>();
-        for (MultipartFile file : chatFile) {
-            String url = s3Service.uploadFile(file);
-            uploadedUrls.add(url);
+        if(chatFile != null || !chatFile.isEmpty()) {
+            for (MultipartFile file : chatFile) {
+                String url = s3Service.uploadFile(file);
+                uploadedUrls.add(url);
+            }
         }
+
 
         // Python 요청용 DTO 구성
         ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
