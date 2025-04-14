@@ -1,12 +1,14 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
   config:
     import: optional:file:.env[.properties]
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/againhello
-    username: ${POSTGRESQL_USERNAME}
-    password: ${POSTGRESQL_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    url: jdbc:postgresql://againhello.site:5432/againhello
+#    username: ${POSTGRESQL_USERNAME}
+#    password: ${POSTGRESQL_PASSWORD}
+#    driver-class-name: org.postgresql.Driver
 
   servlet:
     multipart:
@@ -61,6 +63,8 @@ file:
     max-count: 3
     allowed-audio-extensions: mp3,aac,ac3,ogg,flac,wav,m4a
     allowed-video-extensions: avi,mp4,mov,wmv,flv,mkv
+    allowed-text-extensions: txt
+    allowed-image-extensions: jpg,png
     max-audio-size: 5242880
     max-video-size: 314572800
   output:
