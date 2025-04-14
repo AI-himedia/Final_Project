@@ -1,5 +1,6 @@
 package com.aix.againhello.call.service;
 
+import com.aix.againhello.call.dto.CallDeceasedInfoDTO;
 import com.aix.againhello.call.mapper.CallMapper;
 import com.aix.againhello.common.DeceasedDataDTO;
 import com.aix.againhello.common.SubscriptionDTO;
@@ -127,22 +128,6 @@ public class CallService {
     /**
      * 음성/영상 파일 업로드 처리
      */
-//    private void processAudioFiles(int subscriptionCode, int deceasedCode, List<MultipartFile> audioFiles) {
-//
-//        if (audioFiles != null && !audioFiles.isEmpty()) {
-//            fileStorageService.validateFiles(audioFiles); // 파일 유효성 검증
-//            List<String> audioFilePaths = new ArrayList<>();
-//            for (MultipartFile file : audioFiles) {
-//                if (!file.isEmpty()) {
-//                    // 파일 저장
-//                    String filePath = fileStorageService.storeFile(file, "audio", deceasedCode);
-//                    audioFilePaths.add(filePath);
-//                }
-//            }
-//        }
-//
-//    }
-
     private void processAudioFiles(int subscriptionCode, int deceasedCode, List<MultipartFile> audioFiles) {
 
         if (audioFiles != null && !audioFiles.isEmpty()) {
@@ -180,6 +165,20 @@ public class CallService {
                 throw new ServiceException("파일 처리 중 오류가 발생했습니다: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     */
+    @Transactional(readOnly = true)
+    public List<CallDeceasedInfoDTO> getCallServiceDeceasedListByUser(int userCode) {
+
+        if (!userMapper.existsById(userCode)) {
+            throw new ServiceException("사용자를 찾을 수 없습니다: " + userCode);
+        }
+
+        return callMapper.findDeceasedListForCallServiceByUser(userCode);
+
     }
 
 }

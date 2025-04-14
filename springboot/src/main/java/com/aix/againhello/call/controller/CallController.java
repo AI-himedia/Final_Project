@@ -1,9 +1,6 @@
 package com.aix.againhello.call.controller;
 
-import com.aix.againhello.call.dto.PreviewResponseDTO;
-import com.aix.againhello.call.dto.ResourceResponseDTO;
-import com.aix.againhello.call.dto.SaveResponseDTO;
-import com.aix.againhello.call.dto.SelectedSpeakersDTO;
+import com.aix.againhello.call.dto.*;
 import com.aix.againhello.call.service.AudioProcessingService;
 import com.aix.againhello.call.service.CallService;
 import com.aix.againhello.common.DeceasedDataDTO;
@@ -86,4 +83,16 @@ public class CallController {
             return ResponseEntity.internalServerError().body("화자 파일 저장 중 오류 발생: " + e.getMessage());
         }
     }
+
+    /**
+     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     */
+    @GetMapping("/user/{userCode}/deceased-list")
+    public ResponseEntity<List<CallDeceasedInfoDTO>> getDeceasedListForUser(@PathVariable int userCode) {
+
+        List<CallDeceasedInfoDTO> deceasedList = callService.getCallServiceDeceasedListByUser(userCode);
+        return ResponseEntity.ok(deceasedList);
+
+    }
+
 }
