@@ -4,12 +4,28 @@ import { Link, useLocation } from 'react-router-dom';
 import { GoPerson } from 'react-icons/go';
 import { LuLogOut } from 'react-icons/lu';
 import { IoMdArrowBack } from 'react-icons/io';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearUser } from '../../redux/Slice/UserSlice';
 import styles from '../../components/Header/Header.module.css';
+import { axiosInstance } from '../../api/axios/AxiosInstance';
 
-export default function HeaderMain({ isMainPage, isLogin, onLogout }) {
+export default function HeaderMain({ isMainPage }) {
   const location = useLocation();
+  const dispatch = useDispatch();
   const isLoginPage = location.pathname === '/login';
   const isHeaderWhitePage = location.pathname === '/' || isLoginPage;
+
+  const isLogin = useSelector((state) => state.user.status);
+  console.log('[HeaderMain] isLogin:', isLogin);
+
+  const handleLogout = () => {
+    axiosInstance
+      .post('/member/logout', {}, { withCredentials: true })
+      .finally(() => {
+        dispatch(clearUser());
+        window.location.href = '/';
+      });
+  };
 
   return (
     <header
@@ -44,7 +60,7 @@ export default function HeaderMain({ isMainPage, isLogin, onLogout }) {
             </Link>
           ) : isLogin ? (
             <button
-              onClick={onLogout}
+              onClick={handleLogout}
               className={`${styles.Header_LoginButton} ${
                 isMainPage ? styles.Header_White : styles.Header_Black
               }`}

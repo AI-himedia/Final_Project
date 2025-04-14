@@ -5,17 +5,12 @@ import 'swiper/css';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css/pagination';
 import './ApplyPage.mobile.css';
+import HeaderApply from '../../../../layout/Header/HeaderApply';
 
 export default function ApplyPage() {
   const [selectedService, setSelectedService] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const navigate = useNavigate();
   const swiperRef = useRef(null);
-
-  const handleSelect = (service) => {
-    setSelectedService(service);
-    navigate('/service/terms', { state: { service } });
-  };
 
   const slideContents = [
     {
@@ -51,61 +46,58 @@ export default function ApplyPage() {
   ];
 
   return (
-    <div className="ApplyPage_Container">
-      <div className="ApplyPage_Title">
-        <h2>{slideContents[currentSlide].title}</h2>
-        <p className="ApplyPage_Description">
-          {slideContents[currentSlide].description}
-        </p>
-      </div>
+    <>
+      {/* Header를 ApplyPage 내부에서 렌더 */}
+      <HeaderApply
+        selectedService={selectedService}
+        currentSlide={currentSlide}
+        swiperRef={swiperRef}
+      />
 
-      <div className="ApplyPage_Banner">
-        <Swiper
-          className="ApplyPage_Swiper"
-          modules={[Pagination]}
-          onSlideChange={(swiper) => setCurrentSlide(swiper.activeIndex)}
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
-          pagination={{ clickable: true }}
-          spaceBetween={50}
-          slidesPerView={1}
-        >
-          <SwiperSlide>
-            <img
-              src="/assets/apply1.jpg"
-              alt="설명1"
-              className="ApplyPage_BannerImage"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/assets/apply2.jpg"
-              alt="설명2"
-              className="ApplyPage_BannerImage"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="/assets/apply3.jpg"
-              alt="설명3"
-              className="ApplyPage_BannerImage Image_Zoom"
-            />
-          </SwiperSlide>
-        </Swiper>
-      </div>
+      <div className="ApplyPage_Container">
+        {/* 제목, 설명 */}
+        <div className="ApplyPage_Title">
+          <h2>{slideContents[currentSlide].title}</h2>
+          <p className="ApplyPage_Description">
+            {slideContents[currentSlide].description}
+          </p>
+        </div>
 
-      {currentSlide < 2 ? (
-        <div className="ApplyPage_SkipButton">
-          <button onClick={() => swiperRef.current?.slideTo(2)}>
-            건너뛰기
-          </button>
+        {/* 슬라이드 배너 */}
+        <div className="ApplyPage_Banner">
+          <Swiper
+            className="ApplyPage_Swiper"
+            modules={[Pagination]}
+            onSlideChange={(swiper) => setCurrentSlide(swiper.activeIndex)}
+            onSwiper={(swiper) => (swiperRef.current = swiper)}
+            pagination={{ clickable: true }}
+            spaceBetween={50}
+            slidesPerView={1}
+          >
+            <SwiperSlide>
+              <img
+                src="/assets/apply1.jpg"
+                alt="설명1"
+                className="ApplyPage_BannerImage"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="/assets/apply2.jpg"
+                alt="설명2"
+                className="ApplyPage_BannerImage"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="/assets/apply3.jpg"
+                alt="설명3"
+                className="ApplyPage_BannerImage Image_Zoom"
+              />
+            </SwiperSlide>
+          </Swiper>
         </div>
-      ) : (
-        <div className="ApplyPage_CustomNext">
-          <Link to="/service/terms">
-            <button className="ApplyPage_NextButton">시작하기</button>
-          </Link>
-        </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }

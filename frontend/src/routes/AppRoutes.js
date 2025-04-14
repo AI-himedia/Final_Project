@@ -28,6 +28,7 @@ export const AppRoutes = () => (
 
     <Route path="/service" element={<ApplyPage />} />
     <Route path="/service/terms" element={<TermsOfServicePage />} />
+    <Route path="/service/terms/check" element={<ServiceCheck />} />
     <Route path="/service/terms/product" element={<ProductPage />} />
 
     <Route path="/service/terms/product/sms" element={<SmsPage />} />
