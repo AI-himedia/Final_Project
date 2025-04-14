@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateRefreshToken(String email, String refreshToken) {
         userMapper.updateRefreshToken(email, refreshToken);
-        logger.info("Refresh token updated for email: {}", email);
+
     }
 
     @Override

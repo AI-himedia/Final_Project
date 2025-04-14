@@ -25,6 +25,7 @@
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1",
     "react-spinners": "^0.15.0",
+    "redux-persist": "^6.0.0",
     "sweetalert2": "^11.16.0",
     "swiper": "^11.2.6",
     "web-vitals": "^4.2.4"
