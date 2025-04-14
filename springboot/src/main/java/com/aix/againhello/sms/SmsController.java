@@ -26,34 +26,6 @@ public class SmsController {
     ) {
 
         SmsResponse result = smsService.startService(subscriptionCode, deceasedDataDTO, chatFile);
-//        // 1. rawfile
-//        System.out.printf(String.valueOf(deceasedDataDTO));
-//        System.out.printf("--------------------------------------");
-//        System.out.printf("%s\n", chatData.getOriginalFilename());
-//
-//        // 프로필 이미지 서버 실물 경로에 저장(db에 들어갈 이미지 경로 setting)
-//        // S3 로 바꾸면 코드 완전히 바꿔야함(캡슐화 해서 쓰면 좋을듯)
-//        // 배포시점과 서버 변경시점에 backUrl 만 변경해주면 된다.(이미 db에 저장된 데이터는 backUrl 경로만 update)
-//        String savePath = "C:/againhello/data/text/";
-//        File fileDir = new File(savePath);
-//        if(!fileDir.exists()){
-//            fileDir.mkdirs();
-//        }
-//
-//        String originalFileName = chatData.getOriginalFilename();
-//        String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
-//        String savedName = UUID.randomUUID().toString().replace("-", "") + ext;
-//        String filePath = savePath + savedName;
-//        String filePathOnDB = ServerUrlConstants.SPRING_URL + "images/text/" + savedName;
-//
-//        try {
-//            chatData.transferTo(new File(filePath));
-//            System.out.println("파일 저장 성공");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("대화록 업로드 실패");
-//        }
-//        int dbResult = smsService.getPromptFromLLM(deceasedDataDTO, filePath);
 
         return ResponseEntity.ok(result);
     }

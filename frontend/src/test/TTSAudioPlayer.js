@@ -4,6 +4,7 @@ const TTSAudioPlayer = () => {
   const socketRef = useRef(null);
   const audioRef = useRef(new Audio());
   const [connected, setConnected] = useState(false);
+  const [manualPlayRequired, setManualPlayRequired] = useState(false);
 
   useEffect(() => {
     // WebSocket 연결
@@ -33,6 +34,7 @@ const TTSAudioPlayer = () => {
           } catch (err) {
             console.error('오디오 재생 실패:', err);
             alert('브라우저에서 오디오 자동 재생 차단');
+            setManualPlayRequired(true);
           }
 
           audio.onended = () => {
@@ -59,9 +61,28 @@ const TTSAudioPlayer = () => {
     };
   }, []);
 
+  const handleManualPlay = async () => {
+    try {
+      await audioRef.current.play();
+      console.log('수동 재생 성공');
+      setManualPlayRequired(false);
+    } catch (err) {
+      console.error('수동 재생 실패:', err);
+      alert('재생에 실패했습니다. 브라우저 설정을 확인해주세요.');
+    }
+  };
+
+
   return (
     <div>
       <p>{connected ? 'TTS 서버 연결됨' : 'TTS 서버 연결 중'}</p>
+
+      {manualPlayRequired && (
+        <div style={{ marginTop: '1rem' }}>
+          <p>브라우저에서 자동 재생이 차단되었습니다.</p>
+          <button onClick={handleManualPlay}>수동 재생</button>
+        </div>
+      )}
     </div>
   );
 };

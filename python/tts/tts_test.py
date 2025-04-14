@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 from urllib.parse import urlparse
 import boto3
 from io import BytesIO
+import numpy as np
+from pydub import AudioSegment
 
 load_dotenv()
 
@@ -24,6 +26,11 @@ sys.path.insert(0, project_root)
 
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
+
+
+# 캐시용 전역 변수
+spark_model = None
+cached_global_token_ids = None
 
 
 # 🔧 S3 URL 파싱
@@ -51,10 +58,6 @@ def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> Bytes
     except Exception as e:
         raise Exception(f"S3 다운로드 실패: {e}")
 
-# 캐시용 전역 변수
-spark_model = None
-
-cached_global_token_ids = None
 
 # 모델 및 프롬프트 준비
 def ensure_environment_ready():
@@ -95,30 +98,31 @@ def Ready_S3File(s3_url: str) -> BytesIO:
         raise
 
 
-# TTS 합성
-def run_tts(text: str, s3_url: str) -> bytes:
+def initialize_tts_environment():
     global spark_model, cached_global_token_ids
-
-    processed_audio_buffer = Ready_S3File(s3_url)
-
     if spark_model is None:
-        print("Spark-TTS 모델 초기화")
+        print("모델 최초 로딩")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
 
     if cached_global_token_ids is None:
         print("Voice cloning 최초 임베딩 생성 중")
-        # 필요 시 임시 파일로 저장하거나, SparkTTS에서 buffer 지원하는지 확인 필요
+        s3_url = 'https://ai-himedia.s3.amazonaws.com/voice/0457bede-dada-497d-b53a-5105db61b7e6_test1.wav'
+        buffer = Ready_S3File(s3_url)
         with open("temp_prompt.wav", "wb") as f:
-            f.write(processed_audio_buffer.read())
-        processed_audio_buffer.seek(0)
+            f.write(buffer.read())
+        buffer.seek(0)
         _, cached_global_token_ids = spark_model.process_prompt(
             text="임베딩 생성용 텍스트",
-            prompt_speech_path=Path("temp_prompt.wav")  # 또는 SparkTTS가 buffer 직접 지원한다면 대체
+            prompt_speech_path=Path("temp_prompt.wav")
         )
         print("Global token 캐싱 완료")
 
-    print("TTS 음성 생성 중")
+def run_tts(text: str) -> bytes:
+    global spark_model, cached_global_token_ids
+    if spark_model is None or cached_global_token_ids is None:
+        raise RuntimeError("TTS 환경이 초기화되지 않았습니다.")
+
     wav_np = spark_model.inference(
         text=text,
         global_token_ids=cached_global_token_ids
@@ -128,4 +132,44 @@ def run_tts(text: str, s3_url: str) -> bytes:
     write(output_buffer, 16000, wav_np)
     output_buffer.seek(0)
     print("TTS 생성 완료 (메모리 버퍼 반환)")
+
+    # 디버깅용 저장, 생성된 TTS 음성 파일
+    with open("debug_tts.wav", "wb") as f:
+        write(f, 16000, wav_np)
+        print("debug_tts.wav 저장 완료")
     return output_buffer.read()
+
+
+# def run_tts(text: str, s3_url: str) -> bytes:
+#     global spark_model, cached_global_token_ids
+#     processed_audio_buffer = Ready_S3File(s3_url)
+#     if spark_model is None:
+#         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+#         print("모델 초기화 완료 (최초 1회)")
+#     if cached_global_token_ids is None:
+#         print("Voice cloning 최초 임베딩 생성 중")
+#         # 필요 시 임시 파일로 저장하거나, SparkTTS에서 buffer 지원하는지 확인 필요
+#         with open("temp_prompt.wav", "wb") as f:
+#             f.write(processed_audio_buffer.read())
+#         processed_audio_buffer.seek(0)
+#         _, cached_global_token_ids = spark_model.process_prompt(
+#             text="임베딩 생성용 텍스트",
+#             prompt_speech_path=Path("temp_prompt.wav")  # 또는 SparkTTS가 buffer 직접 지원한다면 대체
+#         )
+#         print("Global token 캐싱 완료")
+#     print("TTS 음성 생성 중")
+#     wav_np = spark_model.inference(
+#         text=text,
+#         global_token_ids=cached_global_token_ids
+#     )
+#     output_buffer = BytesIO()
+#     write(output_buffer, 16000, wav_np)
+#     output_buffer.seek(0)
+#     print("TTS 생성 완료 (메모리 버퍼 반환)")
+
+#     # 디버깅용 저장, 생성된 TTS 음성 파일
+#     with open("debug_tts.wav", "wb") as f:
+#         write(f, 16000, wav_np)
+#         print("debug_tts.wav 저장 완료")
+#     return output_buffer.read()
