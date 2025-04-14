@@ -34,7 +34,6 @@ async def handle_client(websocket: WebSocketServerProtocol):
                     continue
                 audio_chunks += 1
                 audio_queue.append(message)
-                print(f"[{session_id}] audio_queue 크기: {len(audio_queue)}")
                 if len(audio_queue) == 0:
                     print(f"[{session_id}] STT 요청 전에 오디오가 없음 (빈 큐)")
 
@@ -71,32 +70,33 @@ async def handle_client(websocket: WebSocketServerProtocol):
                                 if transcript and transcript not in seen_final_transcripts:
                                     seen_final_transcripts.add(transcript)
                                     print(f"[{session_id}] 최종 STT: {transcript}")
+                                    llm_start = time.time()
+                                    chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
+                                    response_llm = generate_response(chat_input)
+                                    llm_end = time.time()
 
-                                    # llm_start = time.time()
-                                    # chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
-                                    # response_llm = generate_response(chat_input)
-                                    # llm_end = time.time()
+                                    response_message = response_llm["message"]
+                                    print(f"LLM 처리 시간: {int((llm_end - llm_start) * 1000)}ms")
+                                    print(f"[{session_id}] LLM 응답: {response_message}")
 
-                                    # response_message = response_llm["message"]
-                                    # print(f"LLM 처리 시간: {int((llm_end - llm_start) * 1000)}ms")
-                                    # print(f"[{session_id}] LLM 응답: {response_message}")
+                                    tts_start = time.time()
+                                    tts_audio = run_tts(response_message)
+                                    tts_end = time.time()
+                                    print(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
 
-                                    # # tts_start = time.time()
-                                    # # tts_audio = run_tts(response_message)
-                                    # # tts_end = time.time()
-                                    # # print(f"TTS 처리 시간: {int((tts_end - tts_start) * 1000)}ms")
-
-                                    # # await websocket.send(json.dumps({
-                                    # #     "type": "tts",
-                                    # #     "data": base64.b64encode(tts_audio).decode("utf-8")
-                                    # # }))
-                                    # # print(f"[{session_id}] TTS 전송 완료")
+                                    await websocket.send(json.dumps({
+                                        "type": "tts",
+                                        "data": base64.b64encode(tts_audio).decode("utf-8")
+                                    }))
+                                    print(f"[{session_id}] TTS 전송 완료")
                                     end = time.time()
                                     print(f"[{session_id}] 총 처리 시간: {int((end - start) * 1000)}ms")
                                     return
-                                
-                            else:
-                                print(f"[{session_id}] 중간 STT: {transcript}")
+                                    
+                            elif result.alternatives:
+                                interim = result.alternatives[0].transcript.strip()
+                                if interim:
+                                    print(f"[{session_id}] 중간 STT: {interim}")
                     print(f"[{session_id}] STT 결과 없음")
                     
     except Exception as e:

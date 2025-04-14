@@ -1,5 +1,6 @@
 package com.aix.againhello.sms.wrapper;
 
+
 public class ChatRequestDTO {
     private int subscriptionCode;
     private String userInput;
