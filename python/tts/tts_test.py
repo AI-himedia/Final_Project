@@ -6,7 +6,7 @@ from huggingface_hub import snapshot_download
 from pydub import AudioSegment
 from pathlib import Path
 import torch
-from cli.SparkTTS import SparkTTS
+from tts.cli.SparkTTS import SparkTTS
 from scipy.io.wavfile import write
 from dotenv import load_dotenv
 from urllib.parse import urlparse

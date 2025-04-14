@@ -23,9 +23,9 @@ sms_router = APIRouter()
 class ChatRequest(BaseModel):
     subscriptionCode: int
     userInput: str
-    model_choice: Optional[str] = "claude"
+    model_choice: Optional[str] = "openai"
 
-@sms_router.post("/responses")
+@sms_router.post("/ai/responses")
 def generate_response(request: ChatRequest):
     start_time = time.time()
     subscription_code = request.subscriptionCode
@@ -113,31 +113,31 @@ def generate_response(request: ChatRequest):
     return {"status": "LLM_RESPONSE", "message": response_content, "model_used": model_choice}
 
 
-# --- 새로운 엔드포인트 정의 ---
-@sms_router.post("/responses/logic") # <--- 새로운 경로 지정
-async def handle_generate_response_logic_endpoint(request: ChatRequest):
-    """
-    분리된 로직 핸들러를 사용하는 새로운 엔드포인트입니다.
-    BERT Score 계산 기능 포함 가능.
-    """
-    print(f"라우터: 새로운 /responses/logic 엔드포인트 호출됨 - 구독 코드: {request.subscriptionCode}")
-    try:
-        # 핸들러 함수 호출 시, FastAPI가 받은 ChatRequest 객체를
-        # 핸들러 함수가 기대하는 타입(ChatRequestForHandler)으로 전달합니다.
-        # 두 클래스의 구조가 동일하다면 별도 변환 없이 전달 가능합니다.
-        # 만약 구조가 다르다면, 필요한 데이터만 추출하여 전달해야 합니다.
-        response_data = generate_response_logic(request) # 핸들러 함수 호출
-        print(f"라우터: 핸들러로부터 응답 받음: {response_data.get('status')}")
-        return response_data
-    except HTTPException as http_exc:
-        # 핸들러에서 발생한 HTTPException을 그대로 전달
-        print(f"라우터: 핸들러에서 HTTP 예외 발생 - Status: {http_exc.status_code}, Detail: {http_exc.detail}")
-        raise http_exc
-    except Exception as e:
-        # 그 외 예기치 않은 오류 처리
-        print(f"라우터: /responses/logic 처리 중 예기치 않은 오류 발생: {e}")
-        traceback.print_exc() # 상세 오류 로그 출력
-        raise HTTPException(status_code=500, detail="라우터 처리 중 예기치 않은 오류 발생")
+# # --- 새로운 엔드포인트 정의 ---
+# @sms_router.post("/responses/logic") # <--- 새로운 경로 지정
+# async def handle_generate_response_logic_endpoint(request: ChatRequest):
+#     """
+#     분리된 로직 핸들러를 사용하는 새로운 엔드포인트입니다.
+#     BERT Score 계산 기능 포함 가능.
+#     """
+#     print(f"라우터: 새로운 /responses/logic 엔드포인트 호출됨 - 구독 코드: {request.subscriptionCode}")
+#     try:
+#         # 핸들러 함수 호출 시, FastAPI가 받은 ChatRequest 객체를
+#         # 핸들러 함수가 기대하는 타입(ChatRequestForHandler)으로 전달합니다.
+#         # 두 클래스의 구조가 동일하다면 별도 변환 없이 전달 가능합니다.
+#         # 만약 구조가 다르다면, 필요한 데이터만 추출하여 전달해야 합니다.
+#         response_data = generate_response_logic(request) # 핸들러 함수 호출
+#         print(f"라우터: 핸들러로부터 응답 받음: {response_data.get('status')}")
+#         return response_data
+#     except HTTPException as http_exc:
+#         # 핸들러에서 발생한 HTTPException을 그대로 전달
+#         print(f"라우터: 핸들러에서 HTTP 예외 발생 - Status: {http_exc.status_code}, Detail: {http_exc.detail}")
+#         raise http_exc
+#     except Exception as e:
+#         # 그 외 예기치 않은 오류 처리
+#         print(f"라우터: /responses/logic 처리 중 예기치 않은 오류 발생: {e}")
+#         traceback.print_exc() # 상세 오류 로그 출력
+#         raise HTTPException(status_code=500, detail="라우터 처리 중 예기치 않은 오류 발생")
 
 
 # from fastapi import APIRouter
