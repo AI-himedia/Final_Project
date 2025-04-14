@@ -1,7 +1,7 @@
 // src/pages/shared/auth/SignUpPage.js
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { axiosInstance } from '../../../../api/axios/AxiosInstance';
+import { axiosInstance } from '../../../api/AxiosInstance';
 import './SignUpPage.web.css';
 
 export default function SignUpPage() {

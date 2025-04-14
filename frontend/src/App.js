@@ -4,13 +4,11 @@ import './App.css';
 import { useLocation } from 'react-router-dom';
 import { routeMeta } from './routes/RouteMeta';
 import { AppRoutes } from './routes/AppRoutes';
-import AppLayout from './layout/Main/MainLayout';
-import useAuthCheck from './hooks/useAuthUser';
+import AppLayout from './components/MainLayout';
 import { useSelector } from 'react-redux';
 
-export default function App() {
+function App() {
   const location = useLocation();
-
   const user = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -29,8 +27,6 @@ export default function App() {
     );
   }, [location.pathname]);
 
-  useAuthCheck();
-
   // 사용자 정보 로딩이 완료된 후 앱 렌더링
   return (
     <div className={`App ${meta.showFooter ? 'hasFooter' : ''}`}>
@@ -41,3 +37,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;

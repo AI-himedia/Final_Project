@@ -2,16 +2,16 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import MainPage from '../pages/app/main/MainPage';
-import LoginPage from '../pages/app/auth/LoginPage';
-import SignUpPage from '../pages/app/auth/SignUpPage/SignUpPage';
+import MainPage from '../pages/main/MainPage';
+import LoginPage from '../pages/auth/LoginPage';
+import SignUpPage from '../pages/auth/SignUpPage/SignUpPage';
 
-import ApplyPage from '../pages/app/service-apply/ApplyPage/ApplyPage';
-import CallPage from '../pages/app/service-apply/CallPage/CallPage';
-import SmsPage from '../pages/app/service-apply/SmsPage/SmsPage';
-import TermsOfServicePage from '../pages/app/service-apply/TermsOfServicePage/TermsOfServicePage';
-import ProductPage from '../pages/app/service-apply/ProductPage/ProductPage';
-import ServiceCheck from '../pages/app/service-apply/ServiceCheck/ServiceCheck';
+import ApplyPage from '../pages/service-apply/ApplyPage/ApplyPage';
+import CallPage from '../pages/service-apply/CallPage/CallPage';
+import SmsPage from '../pages/service-apply/SmsPage/SmsPage';
+import TermsOfServicePage from '../pages/service-apply/TermsOfServicePage/TermsOfServicePage';
+import ProductPage from '../pages/service-apply/ProductPage/ProductPage';
+import ServiceCheck from '../pages/service-apply/ServiceCheck/ServiceCheck';
 
 import ConnectionTestPage from '../test/ConnectionTestPage';
 import RealTimeAudioStream from '../test/RealTimeAudioStream';

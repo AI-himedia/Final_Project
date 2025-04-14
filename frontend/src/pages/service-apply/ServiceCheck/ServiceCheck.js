@@ -3,7 +3,7 @@ import styles from './ServiceCheck.module.css';
 // src/pages/ServiceCheck.js
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getServiceCheck } from '../../../../api/service/ServiceApi';
+import { getServiceCheck } from '../../.././api/ServiceApi';
 
 export default function ServiceCheck() {
   const userCode = useSelector((state) => state.user.code);

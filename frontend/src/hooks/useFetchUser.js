@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/Slice/UserSlice';
+import { setUser } from '../redux/Slice/userSlice';
 import { axiosInstance } from '../api/axios/AxiosInstance';
 
 export default function useFetchUser() {

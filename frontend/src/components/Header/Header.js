@@ -1,39 +1,47 @@
-// src/components/Header/Header.js
+// components/Header/Header.js
 
-import HeaderMain from '../../layout/Header/HeaderMain';
-import HeaderTerms from '../../layout/Header/HeaderTerms';
-import HeaderProduct from '../../layout/Header/HeaderProduct';
+import * as HeaderVariants from './variants';
 import { useLocation, useNavigate } from 'react-router-dom';
-import HeaderApply from '../../layout/Header/HeaderApply';
-import { axiosInstance } from '../../api/axios/AxiosInstance';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearUser } from '../../redux/Slice/UserSlice';
+import { clearUser } from '../../redux/Slice/userSlice';
+import { axiosInstance } from '../../api/AxiosInstance';
+
+// 헤더 매핑 정의
+const headerMap = [
+  { path: '/service/terms/product', component: HeaderVariants.HeaderProduct },
+  { path: '/service/check', component: HeaderVariants.HeaderApply },
+  { path: '/service/terms', component: HeaderVariants.HeaderTerms },
+  { path: '/service', component: HeaderVariants.HeaderApply },
+];
 
 export default function Header(props) {
   const { pathname } = useLocation();
-  const isLogin = useSelector((state) => state.user.status);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isLogin = useSelector((state) => state.user.status);
 
   const handleLogout = () => {
     axiosInstance
-      .post('/be/member/logout', {}, { withCredentials: true })
+      .post('/member/logout', {}, { withCredentials: true })
       .finally(() => {
         dispatch(clearUser());
         navigate('/');
       });
   };
 
-  const headerProps = {
+  const commonProps = {
     ...props,
     isLogin,
     onLogout: handleLogout,
   };
 
-  if (pathname === '/service/terms/product')
-    return <HeaderProduct {...headerProps} />;
-  if (pathname === '/service/check') return <HeaderApply {...headerProps} />;
-  if (pathname === '/service/terms') return <HeaderTerms {...headerProps} />;
-  if (pathname === '/service') return <HeaderApply {...headerProps} />;
-  return <HeaderMain {...headerProps} />;
+  const MatchedHeader = headerMap.find(
+    (entry) => pathname === entry.path
+  )?.component;
+
+  return MatchedHeader ? (
+    <MatchedHeader {...commonProps} />
+  ) : (
+    <HeaderVariants.HeaderMain {...commonProps} />
+  );
 }

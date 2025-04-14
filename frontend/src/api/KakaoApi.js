@@ -1,6 +1,6 @@
 // src/api/auth/KakaoApi.js
 import axios from 'axios';
-import { API_SERVER_HOST } from '../../config/ApiConfig.js';
+import { API_SERVER_HOST } from '../config/ApiConfig.js';
 
 export const kakaoLoginRedirect = async (code) => {
   if (!code) {

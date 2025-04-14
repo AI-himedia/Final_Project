@@ -5,7 +5,7 @@ import 'swiper/css';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css/pagination';
 import './ApplyPage.mobile.css';
-import HeaderApply from '../../../../layout/Header/HeaderApply';
+import HeaderApply from '../../../components/Header/variants/HeaderApply';
 
 export default function ApplyPage() {
   const [selectedService, setSelectedService] = useState(null);

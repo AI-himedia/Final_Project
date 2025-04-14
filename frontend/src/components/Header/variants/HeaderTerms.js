@@ -2,7 +2,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { IoMdArrowBack } from 'react-icons/io';
-import styles from '../../components/Header/Header.module.css';
+import styles from '../Header.module.css';
 
 export default function HeaderTerms({ isTermsAgreed }) {
   const navigate = useNavigate();

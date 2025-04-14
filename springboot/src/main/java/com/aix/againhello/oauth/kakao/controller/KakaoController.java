@@ -2,6 +2,7 @@
 package com.aix.againhello.oauth.kakao.controller;
 
 import com.aix.againhello.oauth.kakao.dto.User;
+import com.aix.againhello.oauth.kakao.jwt.JwtUtil;
 import com.aix.againhello.oauth.kakao.service.KakaoAuthService;
 import com.aix.againhello.oauth.kakao.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -28,11 +30,13 @@ public class KakaoController {
 
     private final KakaoAuthService kakaoAuthService;
     private final UserService userService;
+    private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public KakaoController(KakaoAuthService kakaoAuthService, UserService userService) {
+    public KakaoController(KakaoAuthService kakaoAuthService, UserService userService, JwtUtil jwtUtil) {
         this.kakaoAuthService = kakaoAuthService;
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -74,8 +78,17 @@ public class KakaoController {
                         .fullName(finalName)
                         .build();
 
-                kakaoAuthService.processLogin(user, response);
+                String accessToken = jwtUtil.createAccessToken(user.getEmail());
+                String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
+
+                jwtUtil.addCookie(response, "refresh", refreshToken, 60 * 60 * 24 * 14, true, null, "refresh");
+                userService.updateRefreshToken(user.getEmail(), refreshToken);
+
+                // accessToken을 쿼리에 넣지 않고, JSON으로 응답
+                response.setContentType("application/json");
+                response.getWriter().write("{\"accessToken\":\"" + accessToken + "\", \"message\": \"로그인 성공\"}");
                 response.sendRedirect(FrontendRedirectUrl + "/?login=success");
+
 
             }
             else {
@@ -109,8 +122,16 @@ public class KakaoController {
     public Object completeSignup(@RequestBody User user, HttpServletResponse response) {
         try {
             userService.save(user);
-            kakaoAuthService.processLogin(user, response);
-            return "신규 회원가입 및 로그인 완료";
+            String accessToken = jwtUtil.createAccessToken(user.getEmail());
+            String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
+
+            jwtUtil.addCookie(response, "refresh", refreshToken, 60 * 60 * 24 * 14, true, null, "refresh");
+            userService.updateRefreshToken(user.getEmail(), refreshToken);
+
+            return ResponseEntity.ok(Map.of(
+                    "accessToken", accessToken,
+                    "message", "신규 회원가입 및 로그인 완료"
+            ));
         } catch (Exception e) {
             logger.error("회원가입 처리 중 오류 발생: {}", e.getMessage(), e);
             return HttpStatus.INTERNAL_SERVER_ERROR + " 회원가입 처리 중 오류 발생: " + e.getMessage();
