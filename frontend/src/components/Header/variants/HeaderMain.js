@@ -1,29 +1,34 @@
-// src/layout/Header/HeaderMain.js
+// src/components/Header/variants/HeaderMain.js
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { GoPerson } from 'react-icons/go';
 import { LuLogOut } from 'react-icons/lu';
 import { IoMdArrowBack } from 'react-icons/io';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearUser } from '../../../redux/Slice/userSlice';
 import styles from '../Header.module.css';
 import { axiosInstance } from '../../../api/AxiosInstance';
+import { clearUser } from '../../../redux/Slice/userSlice';
 
 export default function HeaderMain({ isMainPage }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const isLoginPage = location.pathname === '/login';
   const isHeaderWhitePage = location.pathname === '/' || isLoginPage;
 
-  const isLogin = useSelector((state) => state.user.status);
-  console.log('[HeaderMain] isLogin:', isLogin);
+  const isLogin = useSelector((state) => state.user.isLoggedIn);
+  console.log('[HeaderMain] 렌더링됨 - isLogin:', isLogin);
 
   const handleLogout = () => {
     axiosInstance
       .post('/member/logout', {}, { withCredentials: true })
+      .catch((err) => {
+        console.error('로그아웃 실패:', err);
+      })
       .finally(() => {
         dispatch(clearUser());
-        window.location.href = '/';
+        navigate('/');
       });
   };
 

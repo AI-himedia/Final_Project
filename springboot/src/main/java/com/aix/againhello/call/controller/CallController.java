@@ -3,7 +3,6 @@ package com.aix.againhello.call.controller;
 import com.aix.againhello.call.dto.*;
 import com.aix.againhello.call.service.AudioProcessingService;
 import com.aix.againhello.call.service.CallService;
-import com.aix.againhello.common.DeceasedDataDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -31,11 +30,10 @@ public class CallController {
      */
     @PostMapping("/service/start")
     public ResponseEntity<?> startService(
-            @RequestParam("subscriptionCode") int subscriptionCode,
-            @RequestPart("deceasedData") DeceasedDataDTO deceasedDataDto,
+            @RequestPart("request") SubscriptionRequestDTO request,
             @RequestPart(value = "audioFiles", required = false) List<MultipartFile> audioFiles) {
 
-        callService.processSubscription(subscriptionCode, deceasedDataDto, audioFiles);
+        callService.processSubscription(request.getSubscriptionCode(), request.getDeceasedData(), audioFiles);
 
         return ResponseEntity.ok(Map.of("message", "Service processing initiated successfully."));
     }

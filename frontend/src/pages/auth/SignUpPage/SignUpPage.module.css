@@ -1,0 +1,66 @@
+/* src/pages/shared/auth/SignUpPage.module.css */
+
+.Container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 32px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  background-color: #fff;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.Container h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.FromContainer,
+form > div {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #444;
+}
+
+input,
+select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+  border-color: #007aff;
+  outline: none;
+}
+
+button[type='submit'] {
+  padding: 12px;
+  background-color: #007aff;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button[type='submit']:hover {
+  background-color: #007aff;
+}

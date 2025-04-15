@@ -14,6 +14,8 @@ from io import BytesIO
 import numpy as np
 from pydub import AudioSegment
 import datetime
+import uuid
+from tempfile import NamedTemporaryFile
 
 load_dotenv()
 
@@ -61,7 +63,7 @@ def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> Bytes
 
 # 모델 및 프롬프트 준비
 def ensure_environment_ready():
-    if not os.path.exists(MODEL_SAVE_DIR):
+    if not os.path.exists(MODEL_SAVE_DIR) or not os.path.exists(os.path.join(MODEL_SAVE_DIR, "config.json")):
         print("Spark-TTS 모델 다운로드 시작")
         snapshot_download(
             repo_id="SparkAudio/Spark-TTS-0.5B",
@@ -69,7 +71,8 @@ def ensure_environment_ready():
             repo_type="model"
         )
         print("모델 다운로드 완료")
-
+    else:
+        print(":흰색_확인_표시: 이미 모델이 존재합니다. 다운로드 생략.")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # 오디오 변환
@@ -87,15 +90,42 @@ def convert_prompt_audio_memory(input_buffer: BytesIO) -> BytesIO:
 def Ready_S3File(s3_url: str) -> BytesIO:
     print("[Ready_S3File] 시작")
     print("S3 주소:", s3_url)
-
     try:
+        ensure_environment_ready()
         bucket, key = parse_s3_url(s3_url)
         original_buffer = download_audio_from_s3_to_memory(bucket, key)
         processed_buffer = convert_prompt_audio_memory(original_buffer)
-        return processed_buffer
+        embedding_result = embedding(processed_buffer)
+        return embedding_result
     except Exception as e:
         print("함수 실행 중 오류 발생:", str(e))
         raise
+
+def embedding(processed_audio: BytesIO) -> list:
+    global spark_model
+    print("임베딩 생성 중...")
+
+    # 1. 모델 초기화 (최초 1회)
+    if spark_model is None:
+        print("Spark-TTS 모델 초기화")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+
+    # 2. 항상 새로 임베딩 생성
+    with NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+        tmp_filename = tmp_file.name
+        tmp_file.write(processed_audio.read())
+
+    try:
+        _, global_token_ids = spark_model.process_prompt(
+            text="임베딩 생성용 텍스트",
+            prompt_speech_path=Path(tmp_filename)
+        )
+        print("임베딩 생성 완료")
+        print("원본 임베딩 값:", global_token_ids.tolist())
+        return global_token_ids.tolist()
+    finally:
+        Path(tmp_filename).unlink(missing_ok=True)
 
 
 def initialize_tts_environment():

@@ -2,13 +2,12 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
-import './SignUpPage.web.css';
+import style from './SignUpPage.module.css';
 
 export default function SignUpPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // location.state에서 전달된 데이터 추출 (없으면 기본값 사용)
   const {
     email: emailFromState = '',
     oauth = 'KAKAO',
@@ -55,15 +54,15 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="signup-container">
+    <div className={style.Container}>
       <h2>추가 정보 입력</h2>
-      <form onSubmit={handleSubmit} className="signup-form">
-        <div>
+      <form onSubmit={handleSubmit}>
+        <div className={style.FromContainer}>
           <label>이메일</label>
           <input type="email" name="email" value={form.email} disabled />
         </div>
         <div>
-          <label>이름</label>
+          <label>성함</label>
           <input
             type="text"
             name="fullName"
@@ -90,6 +89,7 @@ export default function SignUpPage() {
           <input
             type="text"
             name="number"
+            placeholder="예) 010-1234-5678"
             value={form.number}
             onChange={handleChange}
             required

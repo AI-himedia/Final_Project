@@ -7,8 +7,9 @@
 
   .SubBanner_Content h2 {
     font-size: 24px;
+    font-weight: 100;
     margin-bottom: 10px;
-    color: #ffffff;
+    color: #000000d2;
   }
 
   .SubBanner_Content p {
@@ -16,5 +17,9 @@
     color: #000000d2;
     /* text-shadow: -0.5px -0.5px 0 #969696, 0.5px -0.5px 0 #969696,
         -0.5px 0.5px 0 #969696, 0.5px 0.5px 0 #969696; */
+  }
+
+  .Footer_bg {
+    margin-bottom: 7rem;
   }
 }
