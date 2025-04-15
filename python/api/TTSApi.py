@@ -13,7 +13,7 @@ class S3Request(BaseModel):
     s3_url: str
     subscription_code: int
 
-@TTSReady_router.post("/ai/be/synthesize")
+@TTSReady_router.post("/ai/synthesize")
 def synthesize(request: S3Request):
     try:
         # 1. 임베딩 생성
