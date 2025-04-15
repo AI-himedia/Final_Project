@@ -50,6 +50,7 @@ export function SubBanner2() {
           </div>
         </div>
       </section>
+      <div className="Footer_bg"></div>
     </>
   );
 }
