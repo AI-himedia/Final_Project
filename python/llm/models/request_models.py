@@ -13,10 +13,11 @@ class DeceasedData(BaseModel):
     relationship: Optional[str] = None
     speakingTone: Optional[bool] = None
     toneStyle: Optional[str] = None
-    commonPhrases: Optional[str] = None
-    exampleLines: Optional[str] = None
+    commonPhrases: Optional[List[str]] = None
+    exampleLines: Optional[List[str]] = None
 
 class ServiceStartRequest(BaseModel):
     subscriptionCode: int
     deceasedData: DeceasedData
     chatFileUrls: List[str]
+    presignedUrls: List[str]
