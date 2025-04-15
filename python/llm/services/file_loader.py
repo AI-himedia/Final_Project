@@ -68,7 +68,7 @@ def load_text_and_images(chat_urls: List[str]) -> Tuple[str, List[str]]:
         if ext == "txt":
             text = get_text_from_s3_url(url)
             texts.append(text)
-        elif ext in ["jpg", "jpeg", "png"]:
+        elif ext in ["jpg", "jpeg", "png", "webp"]:
             base64_img = get_base64_from_s3_url(url)
             base64_images.append(base64_img)
         else:

@@ -44,6 +44,8 @@ def generate_response(request: ChatRequest):
         # 2. system prompt 생성
         try:
             system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
+            print("------------------------------------------")
+            print('system_prompt:', system_prompt)
         except KeyError as e:
             raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
 

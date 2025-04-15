@@ -125,7 +125,7 @@ public class SmsService {
 
         System.out.println("subscriptionCode : " + subscriptionCode);
         System.out.println("deceasedDataDTO : " + deceasedDataDTO);
-        System.out.println("chatFile : " + chatFile.size());
+//        System.out.println("chatFile : " + chatFile.size());
 
         // 1. subscriptionCode 존재여부 확인
         if (!subscriptionMapper.existsBySubscriptionCode(subscriptionCode)) {
@@ -137,9 +137,13 @@ public class SmsService {
 
         // 3. file S3에 저장
         List<String> uploadedUrls = new ArrayList<>();
+        List<String> presignedUrls = new ArrayList<>();
         if(chatFile != null || !chatFile.isEmpty()) {
             for (MultipartFile file : chatFile) {
                 String url = s3Service.uploadFile(file);
+                String key = s3Service.extractKeyFromUrl(url);
+                String presignedUrl = s3Service.generatePresignedUrl(key);
+                presignedUrls.add(presignedUrl);
                 uploadedUrls.add(url);
             }
         }
@@ -148,7 +152,8 @@ public class SmsService {
         ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
                 subscriptionCode,
                 deceasedDataDTO,
-                uploadedUrls
+                uploadedUrls,
+                presignedUrls
         );
 
         // 4. python 전달
