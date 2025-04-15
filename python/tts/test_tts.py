@@ -1,37 +1,33 @@
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "cli"))
+import aiofiles
+import aioboto3
 from huggingface_hub import snapshot_download
-from pydub import AudioSegment
 from pathlib import Path
-import torch
-from cli.SparkTTS import SparkTTS
-from scipy.io.wavfile import write
+from pydub import AudioSegment
 from dotenv import load_dotenv
 from urllib.parse import urlparse
-import boto3
 from io import BytesIO
+import torch
 import numpy as np
-from pydub import AudioSegment
+from scipy.io.wavfile import write
+from cli.SparkTTS import SparkTTS
 import datetime
+import boto3
 
 load_dotenv()
-
 
 # 경로 설정
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
-
 MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B")
 OUTPUT_DIR = os.path.join(current_dir, "results")
 
-
-# 캐시용 전역 변수
 spark_model = None
 cached_global_token_ids = None
-
 
 # 🔧 S3 URL 파싱
 def parse_s3_url(s3_url: str):
@@ -121,25 +117,33 @@ def initialize_tts_environment():
 def now():
     return datetime.datetime.now().strftime('%H:%M:%S')
 
-def run_tts(text: str) -> bytes:
+
+# TTS 메인 함수
+async def run_tts(text: str) -> bytes:
     global spark_model, cached_global_token_ids
+    
     if spark_model is None or cached_global_token_ids is None:
         raise RuntimeError("TTS 환경이 초기화되지 않았습니다.")
+
+    print(f"\n[{now()}] TTS 생성 시작")
 
     wav_np = spark_model.inference(
         text=text,
         global_token_ids=cached_global_token_ids
     )
 
-    print(f"[{now()}] TTS 생성 시작")
-    output_buffer = BytesIO()
-    write(output_buffer, 16000, wav_np)
-    output_buffer.seek(0)
-    print(f"[{now()}] TTS 생성 완료")
+    print(f"[{now()}]TTS inference 완료")
+    wav_int16 = np.int16(wav_np * 32767)
 
-    # 디버깅용 저장, 생성된 TTS 음성 파일
-    print(f"[{now()}] debug_tts.wav 생성 시작")
-    with open("debug_tts.wav", "wb") as f:
-        write(f, 16000, wav_np)
-        print(f"[{now()}] debug_tts.wav 저장 완료")
-    return output_buffer.read()
+    output_buffer = BytesIO()
+    write(output_buffer, 16000, wav_int16)
+    output_buffer.seek(0)
+
+    audio_bytes = output_buffer.getvalue() 
+    print(f"[{now()}]TTS 생성 완료 (메모리 버퍼 반환)")
+
+    async with aiofiles.open("debug_tts.wav", "wb") as f:
+        await f.write(output_buffer.getvalue())
+        print(f"[{now()}]debug_tts.wav 저장 완료")
+
+    return audio_bytes

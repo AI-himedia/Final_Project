@@ -2,7 +2,7 @@ import asyncio
 import base64
 import json
 from websockets.server import serve
-from tts_test import run_tts
+from test_tts import run_tts, initialize_tts_environment
 
 async def handler(websocket):
     print("클라이언트 연결됨")
@@ -12,7 +12,7 @@ async def handler(websocket):
         for text in texts:
             response_text = text
 
-            audio_data = run_tts(response_text, 'https://ai-himedia.s3.amazonaws.com/voice/0457bede-dada-497d-b53a-5105db61b7e6_test1.wav')
+            audio_data = await run_tts(response_text)
 
             if audio_data:
                 await websocket.send(json.dumps({
@@ -39,4 +39,5 @@ async def main():
         await asyncio.Future()  # 무한 대기
 
 if __name__ == "__main__":
+    initialize_tts_environment()
     asyncio.run(main())
