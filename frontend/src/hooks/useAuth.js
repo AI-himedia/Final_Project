@@ -1,20 +1,27 @@
-import { useEffect } from 'react';
+// hooks/useAuth.js
+
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setAccessToken, clearAuth } from '../redux/Slice/authSlice';
-import { axiosInstance } from '../api/axios/AxiosInstance';
+import { setUser, clearUser } from '../redux/Slice/userSlice';
+import { axiosInstance } from '../api/AxiosInstance';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     axiosInstance
-      .post('/member/token/refresh')
+      .get('/member/me', { withCredentials: true })
       .then((res) => {
-        dispatch(setAccessToken(res.data.accessToken));
+        dispatch(setUser(res.data));
       })
       .catch(() => {
-        dispatch(clearAuth());
-        window.location.href = '/login';
+        dispatch(clearUser());
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-  }, []);
+  }, [dispatch]);
+
+  return { isLoading };
 };

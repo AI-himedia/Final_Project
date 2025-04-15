@@ -6,8 +6,17 @@ import { routeMeta } from './routes/RouteMeta';
 import { AppRoutes } from './routes/AppRoutes';
 import AppLayout from './components/MainLayout';
 import { useSelector } from 'react-redux';
+import { useAuth } from './hooks/useAuth';
 
 function App() {
+  // useAuth 훅을 App 컴포넌트 레벨에서 호출
+  const { isLoading } = useAuth();
+
+  // 인증 상태 확인 중이면 로딩 화면 표시
+  if (isLoading) {
+    // 앱 전체 로딩 또는 최소한의 레이아웃과 스피너 표시 가능
+  }
+
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
