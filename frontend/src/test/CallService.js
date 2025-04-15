@@ -43,12 +43,10 @@ const CallService = () => {
           startStreaming();
           return
         } 
-        
+
         if (msg.type === 'llm') {
           console.log('LLM 응답 수신:', msg.data);
-          
-          const parsed = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data;
-          console.log('LLM 메시지:', parsed.message);
+          console.log('LLM 메시지:', msg.data.message);
           return
         }
         

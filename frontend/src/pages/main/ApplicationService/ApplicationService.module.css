@@ -1,0 +1,105 @@
+.Service_Container {
+  padding: 3rem 0;
+  background-color: #ffffff;
+}
+
+.Service_Wrap {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.Service_Text_Container {
+  text-align: left;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.Service_Title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212121;
+  margin-bottom: 24px;
+}
+
+.Service_Intro {
+  font-size: 16px;
+  color: #4f4f4f;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.highlight {
+  color: #3182f6;
+  font-weight: 600;
+}
+
+.Service_Detail_Split {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.Service_Box {
+  border-radius: 16px;
+  padding: 24px 20px;
+  z-index: 1;
+}
+
+.Service_Box_Row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding: 0.2rem;
+}
+
+.Service_Box_Title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #212121;
+}
+
+.Service_Icon {
+  width: 12rem;
+  height: 12rem;
+  padding: 1.5rem 0.5rem 0 0;
+  display: block;
+  z-index: 0;
+}
+
+.Service_Box_Text {
+  font-size: 15px;
+  color: #4f4f4f;
+  line-height: 1.7;
+}
+
+.Service_Vertical_Line {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .Service_Title {
+    font-size: 22px;
+  }
+
+  .Service_Intro {
+    font-size: 1rem;
+  }
+
+  .Service_Box {
+    padding: 0;
+  }
+
+  .Service_Box_Title {
+    font-size: 2rem;
+  }
+
+  .Service_Box_Text {
+    font-size: 1rem;
+  }
+}
