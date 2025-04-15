@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 public class SignupRequest {
     private String email;
-    private String password;
     private String gender;
     private String fullName;
     private String number;

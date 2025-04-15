@@ -1,20 +1,32 @@
-import { useEffect } from 'react';
+// hooks/useAuth.js
+
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setAccessToken, clearAuth } from '../redux/Slice/authSlice';
-import { axiosInstance } from '../api/axios/AxiosInstance';
+import { setUser, clearUser } from '../redux/Slice/userSlice';
+import { axiosInstance } from '../api/AxiosInstance';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('[AUTH] useEffect start', Date.now());
+    setIsLoading(true); // 로딩 시작 시점 명확화
     axiosInstance
-      .post('/member/token/refresh')
+      .get('/member/me', { withCredentials: true })
       .then((res) => {
-        dispatch(setAccessToken(res.data.accessToken));
+        console.log('[AUTH] API success', Date.now());
+        dispatch(setUser(res.data));
       })
       .catch(() => {
-        dispatch(clearAuth());
-        window.location.href = '/login';
+        console.log('[AUTH] API error', Date.now());
+        dispatch(clearUser());
+      })
+      .finally(() => {
+        console.log('[AUTH] API finally, setting isLoading false', Date.now());
+        setIsLoading(false);
       });
-  }, []);
+  }, [dispatch]);
+
+  return { isLoading };
 };

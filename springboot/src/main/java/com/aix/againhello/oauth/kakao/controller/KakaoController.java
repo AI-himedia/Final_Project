@@ -53,7 +53,7 @@ public class KakaoController {
             // 필요한 데이터 추출: email, fullName, profileImage
             String email = "";
             String fullName = "";
-            String profileImage = "";
+//            String profileImage = "";
             if (kakaoData.get("kakao_account") != null) {
                 Map<String, Object> kakaoAccount = (Map<String, Object>) kakaoData.get("kakao_account");
                 email = kakaoAccount.get("email") != null ? (String) kakaoAccount.get("email") : "";
@@ -61,7 +61,7 @@ public class KakaoController {
                 if (kakaoAccount.get("profile") != null) {
                     Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                     fullName = profile.get("nickname") != null ? (String) profile.get("nickname") : "";
-                    profileImage = profile.get("profile_image_url") != null ? (String) profile.get("profile_image_url") : "";
+//                    profileImage = profile.get("profile_image_url") != null ? (String) profile.get("profile_image_url") : "";
                 }
             }
 
@@ -81,17 +81,15 @@ public class KakaoController {
                 String accessToken = jwtUtil.createAccessToken(user.getEmail());
                 String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
 
+                jwtUtil.addCookie(response, "access", accessToken, 60 * 60, true, "/", "access");
                 jwtUtil.addCookie(response, "refresh", refreshToken, 60 * 60 * 24 * 14, true, null, "refresh");
+
                 userService.updateRefreshToken(user.getEmail(), refreshToken);
 
-                // accessToken을 쿼리에 넣지 않고, JSON으로 응답
-                response.setContentType("application/json");
-                response.getWriter().write("{\"accessToken\":\"" + accessToken + "\", \"message\": \"로그인 성공\"}");
+                // JSON 응답 제거하고, 리다이렉트만 남김
                 response.sendRedirect(FrontendRedirectUrl + "/?login=success");
 
-
-            }
-            else {
+            } else {
                 logger.info("신규 회원, 회원가입 페이지로 이동합니다: {}", email);
                 // 필요한 값들만 URL에 넣어 리다이렉트 : email, name, profileImage
                 String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);

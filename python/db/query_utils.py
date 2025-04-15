@@ -1,6 +1,6 @@
 from db.postgresql_connector import get_db_connection
-from typing import List, Literal, Tuple
-from psycopg2.extras import execute_values
+from typing import List, Literal, Tuple, Optional
+from psycopg2.extras import execute_values, Json
 from datetime import datetime
 from llm.models.request_models import DeceasedData
 
@@ -185,3 +185,24 @@ def insert_raw_file(subscription_code: int, chat_urls: list[str]):
                 VALUES (%s, %s)
             """, (subscription_code, chat_urls))
         conn.commit()
+
+def voice_raw_file(conn, subscription_code: int, s3_url: str, embedding_data: dict, sms_paths: Optional[List[str]] = None):
+    with conn.cursor() as cur:
+        query = """
+        INSERT INTO raw_file (subscription_code, audio_file_paths, embedding, sms_file_paths)
+        VALUES (%s, %s, %s, %s)
+        RETURNING Code;
+        """
+        try:
+            cur.execute(query, (
+                subscription_code,
+                s3_url,
+                Json(embedding_data),         # embedding 값을 JSONB로 저장
+                sms_paths if sms_paths else None
+            ))
+            code = cur.fetchone()[0]
+            conn.commit()
+            return code
+        except Exception as e:
+            print("DB 저장 중 오류:", str(e))
+            raise

@@ -8,7 +8,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { GoHomeFill } from 'react-icons/go';
 import { PiPhoneCallLight } from 'react-icons/pi';
 import { IoChatbubblesOutline } from 'react-icons/io5';
-import { RxFilePlus } from 'react-icons/rx';
+import { CgAddR } from 'react-icons/cg';
 import { GoPerson } from 'react-icons/go';
 
 export default function Footer() {
@@ -47,7 +47,7 @@ export default function Footer() {
           location.pathname === '/service' ? 'active' : ''
         }`}
       >
-        <RxFilePlus />
+        <CgAddR />
         {/* <span>서비스 신청</span> */}
       </Link>
       <Link

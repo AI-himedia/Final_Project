@@ -18,23 +18,61 @@ import RealTimeAudioStream from '../test/RealTimeAudioStream';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import CallService from '../test/CallService';
 import ChatTestPage from '../test/ChatTestPage';
+import PrivateRoute from './PrivateRoute';
 
 export const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<MainPage />} />
     <Route path="/login" element={<LoginPage />} />
-
     <Route path="/signup" element={<SignUpPage />} />
+
+    {/* Private Page */}
+
+    <Route
+      path="/service/terms/check"
+      element={
+        <PrivateRoute>
+          <ServiceCheck />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/service/terms/product"
+      element={
+        <PrivateRoute>
+          <ProductPage />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/service/terms/product/sms"
+      element={
+        <PrivateRoute>
+          <SmsPage />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/service/terms/product/call"
+      element={
+        <PrivateRoute>
+          <CallPage />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/service/check"
+      element={
+        <PrivateRoute>
+          <ServiceCheck />
+        </PrivateRoute>
+      }
+    />
+
+    {/* 리디렉션 */}
 
     <Route path="/service" element={<ApplyPage />} />
     <Route path="/service/terms" element={<TermsOfServicePage />} />
-    <Route path="/service/terms/check" element={<ServiceCheck />} />
-    <Route path="/service/terms/product" element={<ProductPage />} />
-
-    <Route path="/service/terms/product/sms" element={<SmsPage />} />
-    <Route path="/service/terms/product/call" element={<CallPage />} />
-
-    <Route path="/service/check" element={<ServiceCheck />} />
 
     <Route
       path="/success"
@@ -45,6 +83,7 @@ export const AppRoutes = () => (
       element={<Navigate to="/service/terms/product" replace />}
     />
 
+    {/* 공개 테스트용 라우트 */}
     <Route path="/test" element={<ConnectionTestPage />} />
     <Route path="/wstest" element={<RealTimeAudioStream />} />
     <Route path="/ttstest" element={<TTSAudioPlayer />} />

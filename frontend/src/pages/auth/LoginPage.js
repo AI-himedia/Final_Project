@@ -1,12 +1,8 @@
 // src/pages/shared/auth/LoginPage.js
 import styles from './LoginPage.module.css';
-import { useState } from 'react';
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
-
   const handleKakaoLogin = () => {
-    setLoading(true);
     const clientId = process.env.REACT_APP_KAKAO_REST_API_KEY;
     const redirectUri = encodeURIComponent(
       process.env.REACT_APP_KAKAO_REDIRECT_URI
@@ -28,7 +24,6 @@ export default function LoginPage() {
         <button
           className={styles.Social_Login_Button}
           onClick={handleKakaoLogin}
-          disabled={loading}
         >
           카카오로 로그인
           <img
