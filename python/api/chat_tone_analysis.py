@@ -16,23 +16,44 @@ async def start_service(req: ServiceStartRequest):
         # UnboundLocalError 방지를 위한 기본값 지정
         parsed = None
         deceased_data = req.deceasedData
+        print("------------------------------------------")
+        print('deceased_data:', deceased_data)
+        print('presignedUrls:', req.presignedUrls)
+        print('chatFileUrls:', req.chatFileUrls)
         if req.chatFileUrls:
             # url 리스트로 S3에서 파일 가져와서 전처리
-            combined_text, base64_images = file_loader.load_text_and_images(req.chatFileUrls)
-        
+            # combined_text, base64_images = file_loader.load_text_and_images(req.chatFileUrls)
+            print("------------------------------------------")
+            # print('combined_text:', combined_text)
+            # print('base64_images:', base64_images)
+
             # 동적으로 prompt 생성
-            prompt = llm_prompt.build_analysis_messages(combined_text, base64_images)
+            # prompt = llm_prompt.build_analysis_messages(combined_text, base64_images)
+            prompt = llm_prompt.build_analysis_messages_with_presigned_urls(req.presignedUrls)
+            print("------------------------------------------")
+            print('prompt:', prompt)
 
             # LLM api 실행
             llm_result = llm_executor.run_analysis(prompt)
+            print("------------------------------------------")
+            print('llm_result:', llm_result)
 
             # DB에 넣을수 있게 response 파싱
             parsed = result_parser.parse_response(llm_result)
-            
+            print("------------------------------------------")
+            print('parsed:', parsed)
+
+
             # LLM 분석 결과 병합
-            deceased_data["tone_style"] = parsed.get("tone_style")
-            deceased_data["common_phrases"] = parsed.get("common_phrases")
-            deceased_data["example_lines"] = parsed.get("example_lines")
+            deceased_data.toneStyle = parsed.get("tone_style")
+            deceased_data.commonPhrases = parsed.get("common_phrases")
+            deceased_data.exampleLines = parsed.get("example_lines")
+
+
+        print("------------------------------------------")
+        print('deceased_data:', deceased_data)
+        print('subscriptionCode:', req.subscriptionCode)
+        print('chatFileUrls:', req.chatFileUrls)
 
         db_writer.save_all_to_db(req.subscriptionCode, deceased_data, req.chatFileUrls)
 

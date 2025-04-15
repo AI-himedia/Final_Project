@@ -2,6 +2,7 @@ from db.postgresql_connector import get_db_connection
 from typing import List, Literal, Tuple
 from psycopg2.extras import execute_values
 from datetime import datetime
+from llm.models.request_models import DeceasedData
 
 # system_prompt_template에 필요한 data
 def fetch_prompt_data(subscription_code: int) -> dict:
@@ -89,7 +90,7 @@ def add_messages(
 
 
 # 고인 정보 INSERT
-def insert_deceased_data(deceased_data: dict) -> int:
+def insert_deceased_data(deceased_data: DeceasedData) -> int:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -100,17 +101,17 @@ def insert_deceased_data(deceased_data: dict) -> int:
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING deceased_code
             """, (
-                deceased_data.get("deceased_name"),
-                deceased_data.get("gender"),
-                deceased_data.get("deceased_age"),
-                deceased_data.get("personality"),
-                deceased_data.get("deceased_nickname"),
-                deceased_data.get("user_nickname"),
-                deceased_data.get("relationship"),
-                deceased_data.get("speaking_tone"),
-                deceased_data.get("tone_style"),
-                deceased_data.get("common_phrases"),
-                deceased_data.get("example_lines"),
+                deceased_data.deceasedName,
+                deceased_data.gender,
+                deceased_data.deceasedAge,
+                deceased_data.personality,
+                deceased_data.deceasedNickname,
+                deceased_data.userNickname,
+                deceased_data.relationship,
+                deceased_data.speakingTone,
+                deceased_data.toneStyle,
+                deceased_data.commonPhrases,
+                deceased_data.exampleLines,
             ))
             new_id = cur.fetchone()[0]
             conn.commit()
@@ -119,7 +120,7 @@ def insert_deceased_data(deceased_data: dict) -> int:
 
 # 고인 정보 UPDATE
 # tone_style, common_phrases, example_lines 는 required=false
-def update_deceased_data(deceased_data: dict) -> None:
+def update_deceased_data(deceased_data: DeceasedData) -> None:
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             fields = []
@@ -127,31 +128,32 @@ def update_deceased_data(deceased_data: dict) -> None:
 
             # 기본 필드
             field_map = {
-                "deceased_name": "deceased_name",
+                "deceasedName": "deceased_name",
                 "gender": "gender",
-                "deceased_age": "deceased_age",
+                "deceasedAge": "deceased_age",
                 "personality": "personality",
-                "deceased_nickname": "deceased_nickname",
-                "user_nickname": "user_nickname",
+                "deceasedNickname": "deceased_nickname",
+                "userNickname": "user_nickname",
                 "relationship": "relationship",
-                "speaking_tone": "speaking_tone",
+                "speakingTone": "speaking_tone",
                 # 선택적 필드
-                "tone_style": "tone_style",
-                "common_phrases": "common_phrases",
-                "example_lines": "example_lines"
+                "toneStyle": "tone_style",
+                "commonPhrases": "common_phrases",
+                "exampleLines": "example_lines"
             }
 
-            for key, column in field_map.items():
-                if key in deceased_data and deceased_data[key] is not None:
+            for attr, column in field_map.items():
+                value = getattr(deceased_data, attr)
+                if value is not None:
                     fields.append(f"{column} = %s")
-                    values.append(deceased_data[key])
+                    values.append(value)
 
             if not fields:
                 print("업데이트할 필드가 없습니다.")
                 return
 
-            # 마지막에 WHERE 조건 넣기
-            values.append(deceased_data["deceased_code"])
+            # 마지막 WHERE 조건에 deceasedCode 사용
+            values.append(deceased_data.deceasedCode)
             query = f"""
                 UPDATE deceased_data
                 SET {', '.join(fields)}
@@ -159,6 +161,7 @@ def update_deceased_data(deceased_data: dict) -> None:
             """
             cur.execute(query, values)
             conn.commit()
+
 
 
 # subscription 테이블 UPDATE
