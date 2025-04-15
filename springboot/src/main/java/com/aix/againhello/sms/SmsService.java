@@ -123,6 +123,10 @@ public class SmsService {
 
     public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, List<MultipartFile> chatFile) {
 
+        System.out.println("subscriptionCode : " + subscriptionCode);
+        System.out.println("deceasedDataDTO : " + deceasedDataDTO);
+        System.out.println("chatFile : " + chatFile.size());
+
         // 1. subscriptionCode 존재여부 확인
         if (!subscriptionMapper.existsBySubscriptionCode(subscriptionCode)) {
             throw new ServiceException("구독(결제) 정보가 없습니다.");
