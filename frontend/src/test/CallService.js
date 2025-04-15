@@ -15,6 +15,11 @@ const CallService = () => {
   const SILENCE_TIMEOUT_MS = 2000;
 
   const connectWebSocket = () => {
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.close();
+    }
+
     socketRef.current = new WebSocket('ws://localhost:8765');
     socketRef.current.binaryType = 'arraybuffer';
 
@@ -23,80 +28,87 @@ const CallService = () => {
       socketRef.current.send(JSON.stringify({ event: 'ready' }));
     };
 
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({ event: 'ready' }));
-    }
-
     socketRef.current.onmessage = async (event) => {
-      const msg = JSON.parse(event.data);
+      console.log('Received Raw Message:', event.data); 
 
-      if (msg.event === 'ready') {
-        console.log('서버 준비 완료 - 오디오 전송 시작');
-        readyToStream.current = true;
-        startStreaming();
-        return;
-      }
+      try {
+        const msg = JSON.parse(event.data);
+        console.log('파싱된 msg:', msg);
+        console.log('msg.type:', msg.type);
+        console.log('msg.event:', msg.event);
 
-      if (msg.type === 'tts') {
-        console.log('TTS 수신');
-
-        // if (audioContextRef.current && audioContextRef.current.state === 'running') {
-        //   await audioContextRef.current.close();
-        //   console.log('AudioContext 일시 종료됨');
-        // }
-
-        // const audioUrl = 'data:audio/wav;base64,' + msg.data;
-        // const audio = audioRef.current;
-        // audio.src = audioUrl;
+        if (msg.event === 'ready') {
+          console.log('서버 준비 완료 - 오디오 전송 시작');
+          readyToStream.current = true;
+          startStreaming();
+          return
+        } 
         
-        // try {
-        //   await audio.play();
-        //   console.log('TTS 오디오 재생 시작');
-        // } catch (err) {
-        //   console.error('오디오 재생 실패:', err);
-        //   alert('브라우저에서 오디오 자동 재생 차단');
-        //   setManualPlayRequired(true);
-        // }
-
-        // audio.onended = () => {
-        //   console.log('TTS 재생 완료. STT 재시작');
-        //   socketRef.current?.send(JSON.stringify({ event: 'ready' }));
-        // };
-
-        const binaryString = atob(msg.data);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
+        if (msg.type === 'llm') {
+          console.log('LLM 응답 수신:', msg.data);
+          
+          const parsed = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data;
+          console.log('LLM 메시지:', parsed.message);
+          return
         }
-      
-        const blob = new Blob([bytes], { type: 'audio/wav' });
-        const url = URL.createObjectURL(blob);
-        const audio = audioRef.current;
-        audio.src = url;
         
-        try {
-          await audio.play();
-          console.log('TTS 오디오 재생 시작');
-        } catch (err) {
-          console.error('오디오 재생 실패:', err);
-          alert('브라우저에서 오디오 자동 재생 차단');
-          setManualPlayRequired(true);
+        if (msg.type === 'tts') {
+
+          console.log('TTS 수신');
+
+          if (audioContextRef.current && audioContextRef.current.state === 'running') {
+            await audioContextRef.current.close();
+            console.log('AudioContext 종료됨');
+          }
+
+          const binaryString = atob(msg.data);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
+          const blob = new Blob([bytes], { type: 'audio/wav' });
+          const url = URL.createObjectURL(blob);
+
+          const audio = audioRef.current;
+          audio.src = url;
+
+          try {
+            await audio.play();
+            console.log('TTS 오디오 재생 시작');
+          } catch (err) {
+            console.error('오디오 재생 실패:', err);
+            alert('브라우저에서 오디오 자동 재생이 차단되었습니다.');
+            setManualPlayRequired(true);
+          }
+
+          audio.onended = () => {
+            console.log('TTS 재생 완료. STT 재시작');
+            URL.revokeObjectURL(url);
+            socketRef.current?.send(JSON.stringify({ event: 'ready' }));
+          };
+
+          console.log('Base64 길이:', msg.data.length);
+
+          return
+        } else {
+          console.warn('알 수 없는 메시지:', msg);
         }
-
-        audio.onended = () => {
-          console.log('TTS 재생 완료. STT 재시작');
-          URL.revokeObjectURL(url); 
-          socketRef.current?.send(JSON.stringify({ event: 'ready' }));
-        };
-
-        console.log(msg.data.length)
+      } catch (err) {
+        console.error('JSON 파싱 실패:', err);
+        console.warn('수신 데이터 일부:', event.data?.slice(0, 200));
       }
     };
-
-    socketRef.current.onerror = (error) => {
+      socketRef.current.onerror = (error) => {
       console.error('WebSocket 오류:', error);
     };
+
+    socketRef.current.onclose = () => {
+      console.log('WebSocket 연결 종료됨');
+      setIsStreaming(false);
+    };
   };
+
 
   // 스트리밍 시작
   const startStreaming = async () => {
