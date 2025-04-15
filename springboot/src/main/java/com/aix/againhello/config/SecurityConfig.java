@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/be/**",
+                                "/be/member/kakao/token",
+                                "/be/member/kakao/signup",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
