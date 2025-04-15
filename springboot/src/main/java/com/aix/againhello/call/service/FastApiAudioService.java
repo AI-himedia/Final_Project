@@ -7,14 +7,17 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Service
 public class FastApiAudioService {
@@ -52,4 +55,37 @@ public class FastApiAudioService {
             httpClient.close();
         }
     }
+
+    public AudioProcessResponseDTO sendS3UrlAndSubCodeToPython(String fileUrl, int subscriptionCode) throws IOException {
+        // FastAPI 엔드포인트 URL
+        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "synthesize";
+
+        // 요청 JSON 생성
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonBody = objectMapper.writeValueAsString(
+                Map.of(
+                        "s3_url", fileUrl,
+                        "subscription_code", subscriptionCode
+                )
+        );
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(pythonApiUrl);
+
+            // JSON 본문 설정
+            StringEntity requestEntity = new StringEntity(jsonBody, ContentType.APPLICATION_JSON);
+            httpPost.setEntity(requestEntity);
+
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                HttpEntity responseEntity = response.getEntity();
+                if (responseEntity != null) {
+                    String jsonResponse = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
+                    return objectMapper.readValue(jsonResponse, AudioProcessResponseDTO.class);
+                } else {
+                    throw new IOException("No response from FastAPI server");
+                }
+            }
+        }
+    }
+
 }
