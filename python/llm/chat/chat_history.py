@@ -7,18 +7,18 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
         self.session_id = session_id  # 예: "sms-123"
         self.subscription_code = int(session_id)
         self.deceased_code = deceased_code
-        self.conn = get_db_connection()
 
     @property
     def messages(self):
-        with self.conn.cursor() as cur:
-            cur.execute("""
-            SELECT role, content
-            FROM contents
-            WHERE deceased_code = %s
-            ORDER BY message_time ASC
-        """, (self.deceased_code,))
-            rows = cur.fetchall()
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT role, content
+                    FROM contents
+                    WHERE deceased_code = %s
+                    ORDER BY message_time ASC
+                """, (self.deceased_code,))
+                rows = cur.fetchall()
 
         message_objs = []
         for role, content in rows:
@@ -38,9 +38,10 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
         
     
     def clear(self):
-        with self.conn.cursor() as cur:
-            cur.execute("""
-            DELETE FROM contents
-            WHERE deceased_code = %s
-            """, (self.deceased_code,))
-            self.conn.commit()
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    DELETE FROM contents
+                    WHERE deceased_code = %s
+                """, (self.deceased_code,))
+                conn.commit()
