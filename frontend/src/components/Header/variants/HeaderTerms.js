@@ -17,11 +17,14 @@ export default function HeaderTerms({ isTermsAgreed }) {
           <IoMdArrowBack fontSize="medium" />
         </button>
 
+        {/* 가운데 텍스트 */}
+        <div className={styles.Header_Title}>약관 동의</div>
+
         <button
           className={`${styles.Header_PaymentButton} ${
-            isTermsAgreed ? styles.active : ''
+            isTermsAgreed ? styles.Header_PaymentButton_Active : ''
           }`}
-          onClick={() => navigate('/service/terms/product')}
+          onClick={() => navigate('/service/terms/check')}
           disabled={!isTermsAgreed}
         >
           다음

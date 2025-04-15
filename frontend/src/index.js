@@ -7,13 +7,16 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import store from './redux/Store/Store';
 import { Provider } from 'react-redux';
+import { LoadingProvider } from './utils/LoadingOverlay';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <Provider store={store}>
     <BrowserRouter>
-      <App />
+      <LoadingProvider>
+        <App />
+      </LoadingProvider>
     </BrowserRouter>
   </Provider>
 );

@@ -68,7 +68,7 @@ public class AuthController {
 
         // 추출
         return ResponseEntity.ok(Map.of(
-                "id", user.getCode(),
+                "userCode", user.getCode(),
                 "email", user.getEmail(),
                 "fullName", user.getFullName(),
                 "oauth", user.getOauth()
