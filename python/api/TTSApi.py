@@ -9,8 +9,9 @@ TTSReady_router = APIRouter()
 
 class S3Request(BaseModel):
     s3_url: str
+    subscription_code: int
 
-@TTSReady_router.post("/be/synthesize")
+@TTSReady_router.post("/ai/synthesize")
 def synthesize(request: S3Request):
     try:
         processed_audio = Ready_S3File(request.s3_url)

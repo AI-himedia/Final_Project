@@ -4,8 +4,7 @@ import com.aix.againhello.S3.S3Service;
 import com.aix.againhello.call.dto.*;
 import com.aix.againhello.call.mapper.CallMapper;
 import com.aix.againhello.call.utils.CustomMultipartFile;
-import com.aix.againhello.common.RawFileDTO;
-import lombok.extern.slf4j.Slf4j; // SLF4J 로깅 추가
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -282,10 +281,11 @@ public class AudioProcessingService {
      */
     private String uploadFileToS3(File file, int subscriptionCode) throws IOException {
         log.debug("S3 업로드 및 FastAPI 전송 시작. 파일: {}, 구독 코드: {}", file.getName(), subscriptionCode);
+
         // MultipartFile로 변환
         MultipartFile multipartFile = convertFileToMultipart(file);
 
-        // 최종 파일명 정의 (S3 저장용)
+        // S3 저장용 파일명
         String finalS3Filename = "subCode_" + subscriptionCode + "_combined_audio.wav";
 
         // S3에 업로드
@@ -293,43 +293,88 @@ public class AudioProcessingService {
         log.info("S3 업로드 완료. 파일 URL: {}", fileUrl);
 
         // DB에 파일 정보 저장
-        try {
-            RawFileDTO rawFile = new RawFileDTO();
-            rawFile.setSubscriptionCode(subscriptionCode);
-            rawFile.setAudioFilePaths(fileUrl); // S3 URL 저장
-            callMapper.insertRawFile(rawFile);
-            log.info("DB에 파일 정보 저장 완료. 구독 코드: {}", subscriptionCode);
-        } catch (Exception e) {
-            log.error("DB 저장 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
-            // DB 저장 실패 시 처리를 어떻게 할 것인가? S3 파일 롤백? 예외 던지기?
-            // 여기서는 일단 예외를 던져서 상위 호출자에게 알림
-            throw new RuntimeException("DB 저장 실패: " + e.getMessage(), e);
-        }
+//        try {
+//            RawFileDTO rawFile = new RawFileDTO();
+//            rawFile.setSubscriptionCode(subscriptionCode);
+//            rawFile.setAudioFilePaths(fileUrl); // S3 URL 저장
+//            callMapper.insertRawFile(rawFile);
+//            log.info("DB에 파일 정보 저장 완료. 구독 코드: {}", subscriptionCode);
+//        } catch (Exception e) {
+//            log.error("DB 저장 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
+//            throw new RuntimeException("DB 저장 실패: " + e.getMessage(), e);
+//        }
 
-        // FastAPI로 파일 직접 전송 (여기서 ClassNotFoundException 등 발생 가능성 있음)
+        // FastAPI로 S3 URL과 subscriptionCode 전송
         try {
-            log.debug("FastAPI로 파일 전송 시도...");
-            // FastApiAudioService의 sendAudioFileToPython 메소드가 File 객체를 받는지 확인 필요
-            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendAudioFileToPython(file, subscriptionCode);
-            log.info("FastAPI 응답 수신: {}", pythonResponse); // 응답 객체 로깅
+            log.debug("FastAPI로 S3 URL 전송 시도...");
+            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendS3UrlAndSubCodeToPython(fileUrl, subscriptionCode);
+            log.info("FastAPI 응답 수신: {}", pythonResponse);
 
             if ("success".equals(pythonResponse.getStatus())) {
                 log.info("FastAPI 처리 성공.");
-                // 필요 시 pythonResponse의 다른 데이터 활용
             } else {
                 log.warn("FastAPI 처리 실패 응답: status={}, message={}", pythonResponse.getStatus(), pythonResponse.getMessage());
-                // Python API가 실패를 반환한 경우, Spring에서도 예외를 던질지 결정
                 throw new RuntimeException("Python API 처리 실패: " + pythonResponse.getMessage());
             }
-        } catch (Exception e) { // 네트워크 오류, ClassNotFoundException, 설정 오류 등 FastAPI 호출 자체의 문제
-            log.error("FastAPI 호출 중 심각한 오류 발생. 구독 코드: {}", subscriptionCode, e); // <-- 중요: 예외 객체 'e' 포함 로깅!
-            // 여기서 예외를 다시 던져서 상위 메소드(saveSelectedSpeakers)에 실패를 명확히 알려야 함
-            throw new RuntimeException("FastAPI 서비스 호출 실패: " + e.getMessage(), e); // <-- 중요: 예외 다시 던지기!
+        } catch (Exception e) {
+            log.error("FastAPI 호출 중 심각한 오류 발생. 구독 코드: {}", subscriptionCode, e);
+            throw new RuntimeException("FastAPI 서비스 호출 실패: " + e.getMessage(), e);
         }
 
         log.debug("S3 업로드 및 FastAPI 전송 완료.");
-        return fileUrl; // 모든 과정 성공 시 S3 URL 반환
+        return fileUrl;
     }
+
+//    private String uploadFileToS3(File file, int subscriptionCode) throws IOException {
+//        log.debug("S3 업로드 및 FastAPI 전송 시작. 파일: {}, 구독 코드: {}", file.getName(), subscriptionCode);
+//        // MultipartFile로 변환
+//        MultipartFile multipartFile = convertFileToMultipart(file);
+//
+//        // 최종 파일명 정의 (S3 저장용)
+//        String finalS3Filename = "subCode_" + subscriptionCode + "_combined_audio.wav";
+//
+//        // S3에 업로드
+//        String fileUrl = s3Service.uploadFile(new CustomMultipartFile(multipartFile, finalS3Filename));
+//        log.info("S3 업로드 완료. 파일 URL: {}", fileUrl);
+//
+//        // DB에 파일 정보 저장
+//        try {
+//            RawFileDTO rawFile = new RawFileDTO();
+//            rawFile.setSubscriptionCode(subscriptionCode);
+//            rawFile.setAudioFilePaths(fileUrl); // S3 URL 저장
+//            callMapper.insertRawFile(rawFile);
+//            log.info("DB에 파일 정보 저장 완료. 구독 코드: {}", subscriptionCode);
+//        } catch (Exception e) {
+//            log.error("DB 저장 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
+//            // DB 저장 실패 시 처리를 어떻게 할 것인가? S3 파일 롤백? 예외 던지기?
+//            // 여기서는 일단 예외를 던져서 상위 호출자에게 알림
+//            throw new RuntimeException("DB 저장 실패: " + e.getMessage(), e);
+//        }
+//
+//        // FastAPI로 파일 직접 전송 (여기서 ClassNotFoundException 등 발생 가능성 있음)
+//        try {
+//            log.debug("FastAPI로 파일 전송 시도...");
+//            // FastApiAudioService의 sendAudioFileToPython 메소드가 File 객체를 받는지 확인 필요
+//            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendAudioFileToPython(file, subscriptionCode);
+//            log.info("FastAPI 응답 수신: {}", pythonResponse); // 응답 객체 로깅
+//
+//            if ("success".equals(pythonResponse.getStatus())) {
+//                log.info("FastAPI 처리 성공.");
+//                // 필요 시 pythonResponse의 다른 데이터 활용
+//            } else {
+//                log.warn("FastAPI 처리 실패 응답: status={}, message={}", pythonResponse.getStatus(), pythonResponse.getMessage());
+//                // Python API가 실패를 반환한 경우, Spring에서도 예외를 던질지 결정
+//                throw new RuntimeException("Python API 처리 실패: " + pythonResponse.getMessage());
+//            }
+//        } catch (Exception e) { // 네트워크 오류, ClassNotFoundException, 설정 오류 등 FastAPI 호출 자체의 문제
+//            log.error("FastAPI 호출 중 심각한 오류 발생. 구독 코드: {}", subscriptionCode, e); // <-- 중요: 예외 객체 'e' 포함 로깅!
+//            // 여기서 예외를 다시 던져서 상위 메소드(saveSelectedSpeakers)에 실패를 명확히 알려야 함
+//            throw new RuntimeException("FastAPI 서비스 호출 실패: " + e.getMessage(), e); // <-- 중요: 예외 다시 던지기!
+//        }
+//
+//        log.debug("S3 업로드 및 FastAPI 전송 완료.");
+//        return fileUrl; // 모든 과정 성공 시 S3 URL 반환
+//    }
 
     /**
      * File 객체를 MultipartFile 객체로 변환하는 헬퍼 메서드
