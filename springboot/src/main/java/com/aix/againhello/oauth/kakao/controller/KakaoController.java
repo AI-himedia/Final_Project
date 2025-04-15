@@ -87,7 +87,7 @@ public class KakaoController {
                 userService.updateRefreshToken(user.getEmail(), refreshToken);
 
                 // JSON 응답 제거하고, 리다이렉트만 남김
-                response.sendRedirect(FrontendRedirectUrl + "/");
+                response.sendRedirect(FrontendRedirectUrl + "/?login=success");
 
             } else {
                 logger.info("신규 회원, 회원가입 페이지로 이동합니다: {}", email);

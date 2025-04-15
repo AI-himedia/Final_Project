@@ -31,7 +31,7 @@ export const applyInterceptors = (axiosInstance) => {
           await refreshJWT();
           // return axiosInstance(originalRequest); // 재요청
         } catch (refreshErr) {
-          console.error('토큰 갱신 실패:', refreshErr);
+          console.error('[DEBUG] 토큰 갱신 실패:', refreshErr);
         }
       }
 

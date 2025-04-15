@@ -16,7 +16,7 @@ export default function MainLayout({ children, meta }) {
       await axiosInstance.post('/member/logout');
       navigate('/');
     } catch (err) {
-      console.error('로그아웃 실패:', err);
+      console.error('[DEBUG] 로그아웃 실패:', err);
     }
   };
 

@@ -11,7 +11,6 @@ const CallService = () => {
   const audioRef = useRef(new Audio());
   const readyToStream = useRef(false);
 
-
   const SILENCE_TIMEOUT_MS = 2000;
 
   const connectWebSocket = () => {
@@ -19,7 +18,7 @@ const CallService = () => {
     socketRef.current.binaryType = 'arraybuffer';
 
     socketRef.current.onopen = () => {
-      console.log('WebSocket 연결됨');
+      console.log('[DEBUG] WebSocket 연결됨');
       socketRef.current.send(JSON.stringify({ event: 'ready' }));
     };
 
@@ -31,14 +30,14 @@ const CallService = () => {
       const msg = JSON.parse(event.data);
 
       if (msg.event === 'ready') {
-        console.log('서버 준비 완료 - 오디오 전송 시작');
+        console.log('[DEBUG] 서버 준비 완료 - 오디오 전송 시작');
         readyToStream.current = true;
         startStreaming();
         return;
       }
 
       if (msg.type === 'tts') {
-        console.log('TTS 수신');
+        console.log('[DEBUG] TTS 수신');
 
         // if (audioContextRef.current && audioContextRef.current.state === 'running') {
         //   await audioContextRef.current.close();
@@ -48,7 +47,7 @@ const CallService = () => {
         // const audioUrl = 'data:audio/wav;base64,' + msg.data;
         // const audio = audioRef.current;
         // audio.src = audioUrl;
-        
+
         // try {
         //   await audio.play();
         //   console.log('TTS 오디오 재생 시작');
@@ -68,12 +67,12 @@ const CallService = () => {
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
-      
+
         const blob = new Blob([bytes], { type: 'audio/wav' });
         const url = URL.createObjectURL(blob);
         const audio = audioRef.current;
         audio.src = url;
-        
+
         try {
           await audio.play();
           console.log('TTS 오디오 재생 시작');
@@ -85,11 +84,11 @@ const CallService = () => {
 
         audio.onended = () => {
           console.log('TTS 재생 완료. STT 재시작');
-          URL.revokeObjectURL(url); 
+          URL.revokeObjectURL(url);
           socketRef.current?.send(JSON.stringify({ event: 'ready' }));
         };
 
-        console.log(msg.data.length)
+        console.log(msg.data.length);
       }
     };
 
@@ -178,23 +177,26 @@ const CallService = () => {
     console.log('STT 세션 종료');
   };
 
-    const handleToggleCall = async () => {
-      if (!isStreaming) {
-        connectWebSocket();
-        setTimeout(() => {
-          if (socketRef.current?.readyState === WebSocket.OPEN) {
-            socketRef.current.send(JSON.stringify({ event: 'ready' }));
-          }
-        }, 500);
-      } else {
-        stopStreaming();
-        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-          socketRef.current.close();
-          console.log("WebSocket 연결 종료됨");
+  const handleToggleCall = async () => {
+    if (!isStreaming) {
+      connectWebSocket();
+      setTimeout(() => {
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+          socketRef.current.send(JSON.stringify({ event: 'ready' }));
         }
-        setIsStreaming(false);
+      }, 500);
+    } else {
+      stopStreaming();
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
+        socketRef.current.close();
+        console.log('WebSocket 연결 종료됨');
       }
-    };
+      setIsStreaming(false);
+    }
+  };
 
   // 수동재생 버튼
   const handleManualPlay = async () => {

@@ -13,7 +13,7 @@ const userSlice = createSlice({
   reducers: {
     setUser: (state, action) => {
       const userData = action.payload;
-      console.log('[userSlice] setUser 실행됨:', userData);
+      console.log('[DEBUG] setUser 실행됨:', userData);
       state.isLoggedIn = true;
       state.user = userData;
       setTimeout(() => {
