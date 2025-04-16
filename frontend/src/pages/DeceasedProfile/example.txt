@@ -1,0 +1,8 @@
+deceased_name : DeceasedName	    고인의 성함은 어떻게 되시나요?
+gender	            고인의 성별을 알려주세요.
+deceased_age	    고인이 돌아가셨을 당시의 나이는 몇 세였나요?
+personality	        고인은 어떤 성격이나 말투, 특징을 가지셨나요? (자유롭게 표현해주세요)
+deceased_nickname	평소에 고인을 어떻게 불렀나요? 예: 아빠, 할머니, 00형
+user_nickname	    고인은 당신을 뭐라고 불렀나요? 예: 아들, 딸, 우리 강아지
+relationship	    고인과의 관계는 무엇인가요? 예: 어머니, 친구, 할아버지
+speaking_tone	    고인의 말투는 보통 반말이었나요, 존댓말이었나요?
