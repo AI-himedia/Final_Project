@@ -23,20 +23,22 @@ async def start_service(req: ServiceStartRequest):
         if req.chatFileUrls:
             # url 리스트로 S3에서 파일 가져와서 전처리
             # combined_text, base64_images = file_loader.load_text_and_images(req.chatFileUrls)
+            combined_text = file_loader.load_text(req.chatFileUrls)
             print("------------------------------------------")
             # print('combined_text:', combined_text)
             # print('base64_images:', base64_images)
 
             # 동적으로 prompt 생성
             # prompt = llm_prompt.build_analysis_messages(combined_text, base64_images)
-            prompt = llm_prompt.build_analysis_messages_with_presigned_urls(req.presignedUrls)
+            prompt = llm_prompt.build_analysis_messages_with_presigned_urls(combined_text, req.presignedUrls)
             print("------------------------------------------")
-            print('prompt:', prompt)
+            # print('prompt:', prompt)
 
             # LLM api 실행
-            llm_result = llm_executor.run_analysis(prompt)
+            llm_result, token_count = llm_executor.run_analysis(prompt)
             print("------------------------------------------")
             print('llm_result:', llm_result)
+            print('token_count:', token_count)
 
             # DB에 넣을수 있게 response 파싱
             parsed = result_parser.parse_response(llm_result)
@@ -64,6 +66,7 @@ async def start_service(req: ServiceStartRequest):
         # 소요시간
         print("------------------------------------------")
         print('Time Taken (seconds):', time_taken)
+        print('token_count:', token_count)
         print('local time:', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
         return {"status": "success", "message": "분석 및 저장 완료"}
