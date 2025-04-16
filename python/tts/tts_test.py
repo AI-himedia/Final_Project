@@ -5,7 +5,7 @@ from huggingface_hub import snapshot_download
 from pydub import AudioSegment
 from pathlib import Path
 import torch
-from cli.SparkTTS import SparkTTS
+from tts.cli.SparkTTS import SparkTTS
 from scipy.io.wavfile import write
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -60,8 +60,18 @@ def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> Bytes
     except Exception as e:
         raise Exception(f"S3 다운로드 실패: {e}")
 
+#모델 준비
+def ensure_model_loaded():
+    global spark_model
+    ensure_environment_ready()  # 모델 파일이 없다면 다운로드
 
-# 모델 및 프롬프트 준비
+    if spark_model is None:
+        print("모델 메모리 로딩 시작")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+        print("모델 로딩 완료")
+
+# 모델 다운로드
 def ensure_environment_ready():
     if not os.path.exists(MODEL_SAVE_DIR) or not os.path.exists(os.path.join(MODEL_SAVE_DIR, "config.json")):
         print("Spark-TTS 모델 다운로드 시작")
@@ -106,7 +116,7 @@ def Ready_S3File(s3_url: str) -> BytesIO:
     print("[Ready_S3File] 시작")
     print("S3 주소:", s3_url)
     try:
-        ensure_environment_ready()
+        ensure_model_loaded()
         bucket, key = parse_s3_url(s3_url)
         original_buffer = download_audio_from_s3_to_memory(bucket, key)
         processed_buffer = convert_prompt_audio_memory(original_buffer)
@@ -119,11 +129,7 @@ def embedding(processed_audio: BytesIO) -> list:
     global spark_model
     print("임베딩 생성 중...")
 
-    # 1. 모델 초기화 (최초 1회)
-    if spark_model is None:
-        print("Spark-TTS 모델 초기화")
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+    ensure_model_loaded()
 
     # 2. 항상 새로 임베딩 생성
     with NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
@@ -141,26 +147,12 @@ def embedding(processed_audio: BytesIO) -> list:
     finally:
         Path(tmp_filename).unlink(missing_ok=True)
 
-
-def initialize_tts_environment():
-    global spark_model, cached_global_token_ids
-    if spark_model is None:
-        print("모델 최초 로딩")
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
-
+# 임베딩 값 캐시화
+def cache_embedding_data(embedding_data: list):
+    global cached_global_token_ids
     if cached_global_token_ids is None:
-        print("Voice cloning 최초 임베딩 생성 중")
-        s3_url = 'https://ai-himedia.s3.amazonaws.com/voice/0457bede-dada-497d-b53a-5105db61b7e6_test1.wav'
-        buffer = Ready_S3File(s3_url)
-        with open("temp_prompt.wav", "wb") as f:
-            f.write(buffer.read())
-        buffer.seek(0)
-        _, cached_global_token_ids = spark_model.process_prompt(
-            text="임베딩 생성용 텍스트",
-            prompt_speech_path=Path("temp_prompt.wav")
-        )
-        print("Global token 캐싱 완료")
+        cached_global_token_ids = torch.tensor(embedding_data)
+        print("임베딩 캐싱 완료")
 
 def now():
     return datetime.datetime.now().strftime('%H:%M:%S')

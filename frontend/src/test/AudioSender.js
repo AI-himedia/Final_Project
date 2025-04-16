@@ -7,9 +7,10 @@ const AudioSender = () => {
     const workletNodeRef = useRef(null);
     const streamRef = useRef(null);
 
+    const webSocketUrl = "ws://localhost:8080/be/ws/audio"
 
     const startAudio = async () => {
-        socketRef.current = new WebSocket("ws://localhost:8080/be/ws/audio");
+        socketRef.current = new WebSocket(webSocketUrl);
         socketRef.current.binaryType = "arraybuffer";
 
         socketRef.current.onopen = async () => {
@@ -29,7 +30,12 @@ const AudioSender = () => {
                 const { type, silent, buffer } = event.data;
 
                 if (type === "audio" && socketRef.current?.readyState === WebSocket.OPEN) {
-                    socketRef.current.send(buffer);
+                    console.log("buffer 타입:", buffer.constructor.name);
+
+                    const byteView = new Uint8Array(buffer);
+                    socketRef.current.send(byteView);
+
+                    // socketRef.current.send(buffer);
                     totalSentBytes += buffer.byteLength;
                     console.log('오디오 전송:', buffer.byteLength);
                 }

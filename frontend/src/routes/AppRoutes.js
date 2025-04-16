@@ -1,6 +1,6 @@
 // src/routes/AppRoutes.js
-
 import { Routes, Route, Navigate } from 'react-router-dom';
+import PrivateRoute from './PrivateRoute';
 
 import MainPage from '../pages/main/MainPage';
 import LoginPage from '../pages/auth/LoginPage';
@@ -14,11 +14,11 @@ import ProductPage from '../pages/service-apply/ProductPage/ProductPage';
 import ServiceCheck from '../pages/service-apply/ServiceCheck/ServiceCheck';
 
 import ConnectionTestPage from '../test/ConnectionTestPage';
-import RealTimeAudioStream from '../test/RealTimeAudioStream';
+// import RealTimeAudioStream from '../test/RealTimeAudioStream';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import CallService from '../test/CallService';
 import ChatTestPage from '../test/ChatTestPage';
-import PrivateRoute from './PrivateRoute';
+// import PrivateRoute from './PrivateRoute';
 import AudioSender from '../test/AudioSender';
 
 export const AppRoutes = () => (
@@ -27,54 +27,27 @@ export const AppRoutes = () => (
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignUpPage />} />
 
-    {/* Private Page */}
-
-    <Route
-      path="/service/terms/check"
-      element={
-        <PrivateRoute>
-          <ServiceCheck />
-        </PrivateRoute>
-      }
-    />
-    <Route
-      path="/service/terms/product"
-      element={
-        <PrivateRoute>
-          <ProductPage />
-        </PrivateRoute>
-      }
-    />
-    <Route
-      path="/service/terms/product/sms"
-      element={
-        <PrivateRoute>
-          <SmsPage />
-        </PrivateRoute>
-      }
-    />
-    <Route
-      path="/service/terms/product/call"
-      element={
-        <PrivateRoute>
-          <CallPage />
-        </PrivateRoute>
-      }
-    />
-    <Route
-      path="/service/check"
-      element={
-        <PrivateRoute>
-          <ServiceCheck />
-        </PrivateRoute>
-      }
-    />
-
-    {/* 리디렉션 */}
-
+    {/* 공개 접근 라우트 */}
     <Route path="/service" element={<ApplyPage />} />
     <Route path="/service/terms" element={<TermsOfServicePage />} />
 
+    {/* 인증 필요 라우트 */}
+    <Route element={<PrivateRoute />}>
+      <Route path="/service/terms/check" element={<ServiceCheck />} />
+      <Route path="/service/terms/product" element={<ProductPage />} />
+      <Route path="/service/terms/product/sms" element={<SmsPage />} />
+      <Route path="/service/terms/product/call" element={<CallPage />} />
+      <Route path="/service/check" element={<ServiceCheck />} />
+    </Route>
+
+    {/* 테스트 라우트 */}
+    <Route path="/test" element={<ConnectionTestPage />} />
+    <Route path="/wstest" element={<AudioSender />} />
+    <Route path="/ttstest" element={<TTSAudioPlayer />} />
+    <Route path="/call" element={<CallService />} />
+    <Route path="/chattest" element={<ChatTestPage />} />
+
+    {/* 리디렉션 */}
     <Route
       path="/success"
       element={<Navigate to="/service/terms/product" replace />}
