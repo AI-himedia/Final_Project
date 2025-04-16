@@ -206,3 +206,15 @@ def voice_raw_file(conn, subscription_code: int, s3_url: str, embedding_data: di
         except Exception as e:
             print("DB 저장 중 오류:", str(e))
             raise
+
+def get_latest_embedding(conn, subscription_code: int):
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT embedding
+            FROM raw_file
+            WHERE subscription_code = %s
+            ORDER BY update_date DESC
+            LIMIT 1
+        """, (subscription_code,))
+        result = cur.fetchone()
+        return result[0] if result else None

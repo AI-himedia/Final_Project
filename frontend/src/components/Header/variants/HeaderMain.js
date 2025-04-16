@@ -18,7 +18,6 @@ export default function HeaderMain({ isMainPage }) {
   const isHeaderWhitePage = location.pathname === '/' || isLoginPage;
 
   const isLogin = useSelector((state) => state.user.isLoggedIn);
-  console.log('[DEBUG] 렌더링됨 - isLogin:', isLogin);
 
   const handleLogout = () => {
     axiosInstance

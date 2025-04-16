@@ -13,18 +13,18 @@ const userSlice = createSlice({
   reducers: {
     setUser: (state, action) => {
       const userData = action.payload;
-      console.log('[DEBUG] setUser 실행됨:', userData);
+      // console.log('[DEBUG] setUser 실행됨:', userData);
       state.isLoggedIn = true;
       state.user = userData;
-      setTimeout(() => {
-        localStorage.setItem('user', JSON.stringify(userData));
-      }, 0);
+      // setTimeout(() => {
+      //   localStorage.setItem('user', JSON.stringify(userData));
+      // }, 0);
     },
 
     clearUser: (state) => {
       state.isLoggedIn = false;
       state.user = null;
-      localStorage.removeItem('user');
+      // localStorage.removeItem('user');
     },
   },
 });

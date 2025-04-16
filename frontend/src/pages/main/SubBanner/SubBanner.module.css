@@ -1,0 +1,64 @@
+/* modules.css */
+
+@media (max-width: 480px) {
+  .container {
+    position: relative;
+  }
+
+  .wrap {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .content {
+    position: relative;
+    margin: 20px 1rem;
+    padding: 20px 1rem;
+    text-align: center;
+  }
+
+  .content h2 {
+    font-size: 24px;
+    font-weight: 100;
+    margin-bottom: 10px;
+    color: #000000d2;
+  }
+
+  .content p {
+    font-size: 18px;
+    color: #000000d2;
+    /* text-shadow: -0.5px -0.5px 0 #969696, 0.5px -0.5px 0 #969696,
+        -0.5px 0.5px 0 #969696, 0.5px 0.5px 0 #969696; */
+  }
+
+  .bg1 {
+    background-image: url('https://cdn.imweb.me/thumbnail/20250312/2dc9dfe2ebad5.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: absolute;
+    inset: 0;
+  }
+
+  .bg2 {
+    background-image: url('https://cdn.imweb.me/thumbnail/20250312/e157380b7059d.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: absolute;
+    inset: 0;
+  }
+
+  .bgColor {
+    background-color: rgba(158, 158, 158, 0.3);
+    position: absolute;
+    inset: 0;
+  }
+
+  .footerSpacer {
+    margin-bottom: 7rem;
+  }
+}
