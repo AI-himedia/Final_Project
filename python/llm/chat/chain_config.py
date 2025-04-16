@@ -8,7 +8,6 @@ MODEL_LLMS = {
     "openai": ChatOpenAI(
         model="gpt-4o-mini",
         temperature=0.5,
-        # max_tokens=None, # Default: No limit or model's max
         verbose=True # For LangChain callbacks
     ),
     "claude": ChatAnthropic(
@@ -39,9 +38,8 @@ def get_llm_and_prompt(model_choice: str):
     if not llm:
         raise ValueError(f"Unsupported model choice: {model_choice}. Choose from {list(MODEL_LLMS.keys())}")
 
-    # In this setup, we use the same prompt structure for all models.
-    # If drastically different prompts were needed, this function could
-    # also return a model-specific prompt object.
+    # 모델에 따라서 다른 prompt 로 갈아 끼워 주고 있지 않다
+    # 추후 모델 맞춤 prompt 가 작성되면 수정하도록 하자
     return llm, prompt
 
 ## 남준님 코드

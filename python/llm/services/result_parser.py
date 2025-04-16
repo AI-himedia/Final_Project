@@ -2,6 +2,7 @@ import json
 import re
 
 # LLM이 JSON 앞에 안내 문장을 붙이는 경우까지 고려
+# Structured ouputs 로 대체 가능한지 추후에 알아보자
 def parse_response(text: str) -> dict:
     try:
         match = re.search(r'\{[\s\S]*\}', text)
