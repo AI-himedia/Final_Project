@@ -21,4 +21,4 @@ def run_analysis(messages: list) -> str:
     print(response.usage)
 
 
-    return response.choices[0].message.content
+    return response.choices[0].message.content, response.usage.prompt_tokens

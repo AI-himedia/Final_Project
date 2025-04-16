@@ -19,7 +19,9 @@ def build_analysis_messages(combined_text: str, base64_images: List[str]) -> Lis
         content_list += [
             {
                 "type": "image_url",
-                "image_url": {"url": f"data:{img['mime']};base64,{img['base64']}"}
+                "image_url": {"url": f"data:{img['mime']};base64,{img['base64']}",
+                              "detail": "low"
+                              }
             }
             for img in base64_images
         ]
@@ -52,15 +54,28 @@ def build_analysis_messages(combined_text: str, base64_images: List[str]) -> Lis
     return messages
 
 
-def build_analysis_messages_with_presigned_urls(presignedUrls: List[str]) -> List[dict]:
+def build_analysis_messages_with_presigned_urls(combined_text: str, presignedUrls: List[str]) -> List[dict]:
     content_list = []
 
+    # 텍스트가 있을 경우
+    # 빈 문자열은 스킵
+    if combined_text.strip():
+        content_list.append({
+            "type": "text", 
+            "text": 
+                (
+                f"다음은 실제 대화 내용입니다:\n\n[대화 시작]\n{combined_text}\n[대화 끝]"
+            )            
+        })
+
+    # 이미지가 있을 경우
     if presignedUrls:
         content_list += [
             {
                 "type": "image_url",
                 "image_url": {
-                    "url": url
+                    "url": url,
+                    "detail": "low"
                 }
             }
             for url in presignedUrls
