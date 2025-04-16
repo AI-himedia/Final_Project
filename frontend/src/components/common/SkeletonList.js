@@ -1,24 +1,11 @@
-// components/common/SkeletonList.js
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import CardSkeleton from './skeletons/SkeletonCard';
 
-export default function SkeletonList({
-  count = 3,
-  width = 200,
-  height = 20,
-  style = {},
-}) {
+export default function SkeletonList({ count = 5 }) {
   return (
-    <ul>
-      {[...Array(count)].map((_, i) => (
-        <li key={i}>
-          <Skeleton
-            width={width}
-            height={height}
-            style={{ marginBottom: 10, ...style }}
-          />
-        </li>
+    <>
+      {Array.from({ length: count }).map((_, idx) => (
+        <CardSkeleton key={idx} />
       ))}
-    </ul>
+    </>
   );
 }

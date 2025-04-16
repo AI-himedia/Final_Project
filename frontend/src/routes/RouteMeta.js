@@ -31,8 +31,8 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
-  '/service/check': {
-    showHeader: true,
+  '/service/terms/check': {
+    showHeader: false,
     showFooter: false,
     showSidebar: false,
     showUpButton: false,
