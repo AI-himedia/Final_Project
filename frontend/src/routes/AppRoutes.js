@@ -13,10 +13,12 @@ import ProductPage from '../pages/service-apply/ProductPage/ProductPage';
 import ServiceCheck from '../pages/service-apply/ServiceCheck/ServiceCheck';
 
 import ConnectionTestPage from '../test/ConnectionTestPage';
-import RealTimeAudioStream from '../test/RealTimeAudioStream';
+// import RealTimeAudioStream from '../test/RealTimeAudioStream';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import CallService from '../test/CallService';
 import ChatTestPage from '../test/ChatTestPage';
+// import PrivateRoute from './PrivateRoute';
+import AudioSender from '../test/AudioSender';
 
 export const AppRoutes = () => (
   <Routes>
@@ -38,7 +40,7 @@ export const AppRoutes = () => (
 
     {/* 테스트 라우트 */}
     <Route path="/test" element={<ConnectionTestPage />} />
-    <Route path="/wstest" element={<RealTimeAudioStream />} />
+    <Route path="/wstest" element={<AudioSender />} />
     <Route path="/ttstest" element={<TTSAudioPlayer />} />
     <Route path="/call" element={<CallService />} />
     <Route path="/chattest" element={<ChatTestPage />} />
@@ -52,5 +54,12 @@ export const AppRoutes = () => (
       path="/fail"
       element={<Navigate to="/service/terms/product" replace />}
     />
+
+    {/* 공개 테스트용 라우트 */}
+    <Route path="/test" element={<ConnectionTestPage />} />
+    <Route path="/wstest" element={<AudioSender />} />
+    <Route path="/ttstest" element={<TTSAudioPlayer />} />
+    <Route path="/call" element={<CallService />} />
+    <Route path="/chattest" element={<ChatTestPage />} />
   </Routes>
 );

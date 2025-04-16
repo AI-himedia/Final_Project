@@ -39,18 +39,15 @@ const CallService = () => {
           console.log('서버 준비 완료 - 오디오 전송 시작');
           readyToStream.current = true;
           startStreaming();
-          return;
-        }
+          return
+        } 
 
         if (msg.type === 'llm') {
           console.log('LLM 응답 수신:', msg.data);
-
-          const parsed =
-            typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data;
-          console.log('LLM 메시지:', parsed.message);
-          return;
+          console.log('LLM 메시지:', msg.data.message);
+          return
         }
-
+        
         if (msg.type === 'tts') {
           console.log('TTS 수신');
 
