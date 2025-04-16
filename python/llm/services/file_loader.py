@@ -3,7 +3,6 @@ from typing import List, Tuple
 import boto3
 import base64
 
-
 # S3 URL 파싱
 # 내부에서 URL 파싱해서 bucket, key 분리 
 def parse_s3_url(s3_url: str) -> Tuple[str, str]:
@@ -40,10 +39,6 @@ def get_text_from_s3_url(http_url: str) -> str:
     response = s3.get_object(Bucket=bucket, Key=key)
     return response["Body"].read().decode("utf-8")
 
-# # 전체 리스트 처리(텍스트 이어 붙이기)
-# def load_combined_text(chat_urls: List[str]) -> str:
-#     texts = [get_text_from_s3_url(url) for url in chat_urls]
-#     return "\n".join(texts)
 
 # 이미지 파일  S3에서 가져와서 base64 인코딩(전처리)
 def get_base64_from_s3_url(http_url: str) -> str:
@@ -77,3 +72,18 @@ def load_text_and_images(chat_urls: List[str]) -> Tuple[str, List[str]]:
 # texts 리스트가 비어 있으면 combined_text 는 ""(빈 문자열)
     combined_text = "\n".join(texts)
     return combined_text, base64_images
+
+def load_text(chat_urls: List[str]) -> Tuple[str, List[str]]:
+    texts = []
+
+    for url in chat_urls:
+        ext = get_file_extension(url)
+        if ext == "txt":
+            text = get_text_from_s3_url(url)
+            texts.append(text)
+        else:
+            print(f"지원하지 않는 형식: {ext} (url: {url})")
+
+# texts 리스트가 비어 있으면 combined_text 는 ""(빈 문자열)
+    combined_text = "\n".join(texts)
+    return combined_text

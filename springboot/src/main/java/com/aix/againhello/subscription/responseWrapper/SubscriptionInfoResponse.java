@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubscriptionInfoResponse {
-    public Integer ServiceCode;
+    public Integer serviceCode;
     public String deceasedName;
     public Integer deceasedCode;
 
