@@ -26,4 +26,8 @@
         FROM users
         WHERE code = #{code}
     </select>
+
+    <select id="findById" resultType="com.aix.againhello.oauth.kakao.dto.User">
+        SELECT * FROM users WHERE ㅊ = #{email}
+    </select>
 </mapper>

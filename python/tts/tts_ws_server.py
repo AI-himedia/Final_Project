@@ -1,8 +1,14 @@
 import asyncio
 import base64
 import json
-from websockets.server import serve
-from test_tts import run_tts, initialize_tts_environment
+from websockets import serve
+from test_tts import initialize_tts_environment
+from tts_test import cache_embedding_data, ensure_model_loaded, run_tts
+
+# 예시 임베딩 (DB에서 가져온 것처럼)
+# 추후에 변경 예정 (웹소켓 서버 여부에 따라)
+embedding_data = [[[3199,253,1592,4042,290,1733,1056,2665,3594,3475,672,3142,738,3628,3253,3101,1084,3088,3227,1261,541,2425,2271,1461,1602,204,3531,3143,3780,2572,2946,135]]]
+
 
 async def handler(websocket):
     print("클라이언트 연결됨")
@@ -39,5 +45,6 @@ async def main():
         await asyncio.Future()  # 무한 대기
 
 if __name__ == "__main__":
-    initialize_tts_environment()
+    cache_embedding_data(embedding_data)
+    ensure_model_loaded()
     asyncio.run(main())

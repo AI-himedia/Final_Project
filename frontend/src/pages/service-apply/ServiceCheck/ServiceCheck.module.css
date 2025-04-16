@@ -1,2 +1,150 @@
 .Container {
 }
+.Container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.HeaderTextGroup {
+  text-align: left;
+}
+
+.Description {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.CardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ServiceCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.ServiceCard.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
+}
+
+.ServiceIcon {
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.ProfileImage {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ServiceInfo {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ServiceTextArea {
+  display: flex;
+  flex-direction: column;
+}
+
+.ServiceName {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.ServiceType {
+  font-size: 14px;
+  color: #666;
+}
+
+.ServiceDate {
+  font-size: 13px;
+  color: #999;
+  text-align: right;
+}
+
+.BadgeTopRight {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.ServiceBadge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: center;
+}
+
+.Available {
+  background-color: #e0f0ff;
+  color: #0077cc;
+}
+
+.Unavailable {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.WaterFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: rgba(0, 122, 255, 0.2);
+  transition: width 1s linear;
+  pointer-events: none;
+  border-radius: 12px 0 0 12px;
+  z-index: 1;
+}
+
+.Filling {
+  width: 100%;
+}
+
+.ServiceTypeButton {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.AddButton {
+  padding: 10px 20px;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.AddButton:hover {
+  background-color: #007aff;
+}
