@@ -1,30 +1,85 @@
-// src/pages/SuccessPage.js
-import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+// src/pages/payment/SuccessPage.js
+
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styles from './SuccessPage.module.css';
 
 const SuccessPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [receipt, setReceipt] = useState({});
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const paymentType = queryParams.get('paymentType');
-    const orderId = queryParams.get('orderId');
+    const orderId = queryParams.get('orderId')?.replace('order-', '');
     const paymentKey = queryParams.get('paymentKey');
     const amount = queryParams.get('amount');
 
-    console.log('결제 성공 정보:', {
-      paymentType,
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${
+      now.getMonth() + 1
+    }-${now.getDate()} ${now.toLocaleTimeString()}`;
+
+    setReceipt({
+      vaccine: '결제',
+      manufacturer: '카드',
+      lotNumber: paymentKey.slice(-6),
+      date: formattedDate,
       orderId,
-      paymentKey,
+      country: '대한민국',
+      agency: 'TossPayments',
+      status: '결제완료',
       amount,
     });
-
-    // 여기에 amount 검증 로직도 추가 가능
   }, [location]);
 
+  const handleConfirm = () => {
+    navigate('/deceased/profile/name');
+  };
+
   return (
-    <div>
-      <h1>결제 성공</h1>
+    <div className={styles.container}>
+      <img src="/assets/payments.png" alt="체크" className={styles.checkIcon} />
+      {/* <h2 className={styles.title}>OO 서비스가 신청되었습니다.</h2> */}
+
+      <div className={styles.receiptBox}>
+        <div className={styles.row}>
+          <span className={styles.label}>항목</span>
+          <span className={styles.value}>{receipt.vaccine}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>결제수단</span>
+          <span className={styles.value}>{receipt.manufacturer}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>승인번호</span>
+          <span className={styles.value}>{receipt.lotNumber}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>결제일시</span>
+          <span className={styles.value}>{receipt.date}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>주문ID</span>
+          <span className={styles.value}>{receipt.orderId}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>결제국가</span>
+          <span className={styles.value}>{receipt.country}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>결제기관</span>
+          <span className={styles.value}>{receipt.agency}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.label}>상태</span>
+          <span className={styles.status}>{receipt.status}</span>
+        </div>
+      </div>
+
+      <button className={styles.confirmButton} onClick={handleConfirm}>
+        확인
+      </button>
     </div>
   );
 };
