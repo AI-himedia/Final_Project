@@ -1,13 +1,10 @@
 // src/pages/app/service-apply/TermsOfServicePage/TermsOfServicePage.js
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Header from '../../../components/Header/Header';
+import Header from '../../../components/Header/variants/HeaderTerms';
 import './TermsOfServicePage.mobile.css';
 
 export default function TermsOfServicePage() {
-  const navigate = useNavigate();
-
   const [checkedItems, setCheckedItems] = useState({
     all: false,
     personal: false,
@@ -28,7 +25,7 @@ export default function TermsOfServicePage() {
     checkedItems.payment;
 
   useEffect(() => {
-    console.log('[약관 동의 상태]', isTermsAgreed);
+    console.log('[DEBUG] ', isTermsAgreed);
   }, [isTermsAgreed]);
 
   // 체크박스 상태 토글 핸들러

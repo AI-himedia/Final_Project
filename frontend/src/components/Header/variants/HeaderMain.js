@@ -18,13 +18,13 @@ export default function HeaderMain({ isMainPage }) {
   const isHeaderWhitePage = location.pathname === '/' || isLoginPage;
 
   const isLogin = useSelector((state) => state.user.isLoggedIn);
-  console.log('[HeaderMain] 렌더링됨 - isLogin:', isLogin);
+  console.log('[DEBUG] 렌더링됨 - isLogin:', isLogin);
 
   const handleLogout = () => {
     axiosInstance
       .post('/member/logout', {}, { withCredentials: true })
       .catch((err) => {
-        console.error('로그아웃 실패:', err);
+        console.error('[DEBUG] 로그아웃 실패:', err);
       })
       .finally(() => {
         dispatch(clearUser());

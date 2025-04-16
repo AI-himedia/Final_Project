@@ -3,7 +3,7 @@ import base64
 import json
 import uuid
 import time
-from websockets.legacy.server import serve, WebSocketServerProtocol
+# from websockets.legacy.server import serve, WebSocketServerProtocol
 from websockets.server import serve
 import traceback
 from stt_google_api import run_streaming_stt
@@ -22,8 +22,8 @@ async def handler(websocket):
         start_total = time.time()
         while True:
             # 클라이언트에게 STT 준비 완료 신호 보내기
-            # await websocket.send(json.dumps({"event": "ready"}))
-
+            await websocket.send(json.dumps({"event": "ready"}))
+        
             session_id = str(uuid.uuid4())
             print(f"[{session_id}] STT 세션 시작")
 
@@ -90,6 +90,7 @@ async def handler(websocket):
                                     llm_start = time.time()
                                     chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
                                     response_llm = generate_response(chat_input)
+                                    response_llm = "test"
                                     print(f"[{session_id}] LLM 응답 전체: {response_llm}")
                                     print(f"[{session_id}] WebSocket에 전송 직전")
                                     message_to_send = {
@@ -97,8 +98,9 @@ async def handler(websocket):
                                         "data": response_llm
                                     }
                                     print('[서버에서 전송할 메시지]:', message_to_send)
-                                    print('[JSON 문자열로 변환한 메시지]:', json.dumps(message_to_send))
+                                   
                                     try:
+                                        await websocket.send(json.dumps({"event": "ready"}))
                                         await websocket.send(json.dumps(message_to_send))
                                         print(f"[{session_id}] WebSocket 전송 완료")
                                     except Exception as e:

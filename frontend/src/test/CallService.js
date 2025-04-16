@@ -11,11 +11,9 @@ const CallService = () => {
   const audioRef = useRef(new Audio());
   const readyToStream = useRef(false);
 
-
   const SILENCE_TIMEOUT_MS = 2000;
 
   const connectWebSocket = () => {
-
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.close();
     }
@@ -29,7 +27,7 @@ const CallService = () => {
     };
 
     socketRef.current.onmessage = async (event) => {
-      console.log('Received Raw Message:', event.data); 
+      console.log('Received Raw Message:', event.data);
 
       try {
         const msg = JSON.parse(event.data);
@@ -51,10 +49,12 @@ const CallService = () => {
         }
         
         if (msg.type === 'tts') {
-
           console.log('TTS 수신');
 
-          if (audioContextRef.current && audioContextRef.current.state === 'running') {
+          if (
+            audioContextRef.current &&
+            audioContextRef.current.state === 'running'
+          ) {
             await audioContextRef.current.close();
             console.log('AudioContext 종료됨');
           }
@@ -88,7 +88,7 @@ const CallService = () => {
 
           console.log('Base64 길이:', msg.data.length);
 
-          return
+          return;
         } else {
           console.warn('알 수 없는 메시지:', msg);
         }
@@ -97,7 +97,7 @@ const CallService = () => {
         console.warn('수신 데이터 일부:', event.data?.slice(0, 200));
       }
     };
-      socketRef.current.onerror = (error) => {
+    socketRef.current.onerror = (error) => {
       console.error('WebSocket 오류:', error);
     };
 
@@ -106,7 +106,6 @@ const CallService = () => {
       setIsStreaming(false);
     };
   };
-
 
   // 스트리밍 시작
   const startStreaming = async () => {
@@ -188,23 +187,26 @@ const CallService = () => {
     console.log('STT 세션 종료');
   };
 
-    const handleToggleCall = async () => {
-      if (!isStreaming) {
-        connectWebSocket();
-        setTimeout(() => {
-          if (socketRef.current?.readyState === WebSocket.OPEN) {
-            socketRef.current.send(JSON.stringify({ event: 'ready' }));
-          }
-        }, 500);
-      } else {
-        stopStreaming();
-        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-          socketRef.current.close();
-          console.log("WebSocket 연결 종료됨");
+  const handleToggleCall = async () => {
+    if (!isStreaming) {
+      connectWebSocket();
+      setTimeout(() => {
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+          socketRef.current.send(JSON.stringify({ event: 'ready' }));
         }
-        setIsStreaming(false);
+      }, 500);
+    } else {
+      stopStreaming();
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
+        socketRef.current.close();
+        console.log('WebSocket 연결 종료됨');
       }
-    };
+      setIsStreaming(false);
+    }
+  };
 
   // 수동재생 버튼
   const handleManualPlay = async () => {
