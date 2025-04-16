@@ -95,6 +95,11 @@
     line-height: 1.5;
     font-weight: 500;
   }
+  .Notice_Card.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
 
   .Notice_Tag {
     background-color: #e0e0e0;
@@ -123,5 +128,15 @@
     text-align: center;
     z-index: 10;
     white-space: nowrap;
+  }
+
+  .Available {
+    background-color: #e0f0ff;
+    color: #007aff;
+  }
+
+  .Unavailable {
+    background-color: #e0e0e0;
+    color: #888;
   }
 }

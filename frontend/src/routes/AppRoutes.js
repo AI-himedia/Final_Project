@@ -7,8 +7,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import SignUpPage from '../pages/auth/SignUpPage/SignUpPage';
 
 import ApplyPage from '../pages/service-apply/ApplyPage/ApplyPage';
-import CallPage from '../pages/service-apply/CallPage/CallPage';
-import SmsPage from '../pages/service-apply/SmsPage/SmsPage';
+
 import TermsOfServicePage from '../pages/service-apply/TermsOfServicePage/TermsOfServicePage';
 import ProductPage from '../pages/service-apply/ProductPage/ProductPage';
 import ServiceCheck from '../pages/service-apply/ServiceCheck/ServiceCheck';
@@ -33,8 +32,7 @@ export const AppRoutes = () => (
     <Route element={<PrivateRoute />}>
       <Route path="/service/terms/check" element={<ServiceCheck />} />
       <Route path="/service/terms/product" element={<ProductPage />} />
-      <Route path="/service/terms/product/sms" element={<SmsPage />} />
-      <Route path="/service/terms/product/call" element={<CallPage />} />
+
       <Route path="/service/check" element={<ServiceCheck />} />
     </Route>
 

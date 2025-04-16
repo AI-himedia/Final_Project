@@ -15,7 +15,7 @@ export default function HeaderProduct({ selectedService }) {
       <div className={styles.Header_Inner}>
         <button
           className={`${styles.Header_LoginButton} ${styles.Header_Black}`}
-          onClick={() => navigate('/service/terms')}
+          onClick={() => navigate('/service/terms/check')}
           title="이전 페이지"
         >
           <IoMdArrowBack fontSize="medium" />

@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 // 헤더 매핑 정의
 const headerMap = [
   { path: '/service/terms/product', component: HeaderVariants.HeaderProduct },
-  { path: '/service/check', component: HeaderVariants.HeaderApply },
+  { path: '/service/check', component: HeaderVariants.HeaderCheck },
   { path: '/service/terms', component: HeaderVariants.HeaderTerms },
   { path: '/service', component: HeaderVariants.HeaderApply },
 ];

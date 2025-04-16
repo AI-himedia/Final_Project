@@ -2,6 +2,7 @@
 import { useSelector } from 'react-redux';
 
 export const useAuthenticate = () => {
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
-  return isLoggedIn;
+  const user = useSelector((state) => state.user.user);
+  const isAuthenticated = !!user?.userCode;
+  return isAuthenticated;
 };
