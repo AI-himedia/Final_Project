@@ -28,7 +28,7 @@ export const useAuth = () => {
               icon: 'success',
               title: '로그인 성공!',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 3000,
               timerProgressBar: true,
             });
 

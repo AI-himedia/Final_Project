@@ -33,7 +33,7 @@ export const AppRoutes = () => (
     <Route path="/service" element={<ApplyPage />} />
     <Route path="/service/terms" element={<TermsOfServicePage />} />
 
-    <Route path="/deceased-profile" element={<DeceasedName />} />
+    <Route path="/deceased/profile/name" element={<DeceasedName />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>

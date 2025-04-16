@@ -72,6 +72,9 @@ export default function ApplyPage() {
             pagination={{ clickable: true }}
             spaceBetween={50}
             slidesPerView={1}
+            simulateTouch={true}
+            allowTouchMove={true}
+            grabCursor={true}
           >
             <SwiperSlide>
               <img
