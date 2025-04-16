@@ -1,7 +1,11 @@
 // 토스페이먼츠 V2 버전부터는 customKey 값이 필수 파라미터이니 꼭 같이 넣어주시기 바랍니다.
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import { useSelector } from 'react-redux';
 
 export const useTossPayment = () => {
+  // Redux 사용자 정보 추출 - 훅 레벨에서 호출
+  const { fullName, email } = useSelector((state) => state.user);
+
   const handlePayment = async (selectedService) => {
     // 결제 금액 설정
     const amount = selectedService === 'sms' ? 3900 : 5000;
@@ -25,8 +29,8 @@ export const useTossPayment = () => {
       },
       orderId: `order-${Date.now()}`,
       orderName: selectedService === 'sms' ? '문자 서비스' : '통화 서비스',
-      customerEmail: 'test@example.com',
-      customerName: '홍길동',
+      customerName: fullName,
+      customerEmail: email,
       successUrl: `${window.location.origin}/success`,
       failUrl: `${window.location.origin}/fail`,
     });
