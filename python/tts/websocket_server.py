@@ -3,7 +3,8 @@ import base64
 import json
 import uuid
 import time
-from websockets.legacy.server import serve, WebSocketServerProtocol
+# from websockets.legacy.server import serve, WebSocketServerProtocol
+from websockets.server import serve
 import traceback
 from stt_google_api import run_streaming_stt
 from tts_test import run_tts, initialize_tts_environment
@@ -12,7 +13,8 @@ from api.response_generator import generate_response, ChatRequest
 
 MIN_AUDIO_CHUNKS = 1
 
-async def handler(websocket: WebSocketServerProtocol):
+# async def handler(websocket: WebSocketServerProtocol):
+async def handler(websocket):
 
     print("클라이언트 연결됨")
 
@@ -21,7 +23,7 @@ async def handler(websocket: WebSocketServerProtocol):
         while True:
             # 클라이언트에게 STT 준비 완료 신호 보내기
             await websocket.send(json.dumps({"event": "ready"}))
-
+        
             session_id = str(uuid.uuid4())
             print(f"[{session_id}] STT 세션 시작")
 
@@ -88,17 +90,18 @@ async def handler(websocket: WebSocketServerProtocol):
                                     llm_start = time.time()
                                     chat_input = ChatRequest(subscriptionCode=300, userInput=transcript)
                                     response_llm = generate_response(chat_input)
+                                    response_llm = "test"
                                     print(f"[{session_id}] LLM 응답 전체: {response_llm}")
                                     print(f"[{session_id}] WebSocket에 전송 직전")
-                                    print(json.dumps({
-                                            "type": "llm",
-                                            "data": response_llm
-                                        }))
+                                    message_to_send = {
+                                        "type": "llm",
+                                        "data": response_llm
+                                    }
+                                    print('[서버에서 전송할 메시지]:', message_to_send)
+                                   
                                     try:
-                                        await websocket.send(json.dumps({
-                                            "type": "llm",
-                                            "data": response_llm
-                                        }))
+                                        await websocket.send(json.dumps({"event": "ready"}))
+                                        await websocket.send(json.dumps(message_to_send))
                                         print(f"[{session_id}] WebSocket 전송 완료")
                                     except Exception as e:
                                         print(f"[{session_id}] WebSocket 전송 중 오류 발생:", e)

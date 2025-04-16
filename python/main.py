@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware import Middleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from dotenv import load_dotenv
 from api import routers
 import psycopg2
@@ -9,14 +11,29 @@ import os
 
 app = FastAPI()
 
-# CORS 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+origins = [
+    "http://localhost:8080",
+]
+
+app = FastAPI(middleware=[
+    Middleware(CORSMiddleware,
+            #    allow_origins=["*"],
+               allow_origins=origins,
+               allow_credentials=True,
+               allow_methods=["*"],
+               allow_headers=["*"]),
+    Middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 필수
+])
+
+# # CORS 설정
+# app.add_middleware(
+#     CORSMiddleware,
+#     # allow_origins=["*"],
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # .env 로드
 load_dotenv()
