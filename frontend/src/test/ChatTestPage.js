@@ -7,7 +7,7 @@ const ChatTestPage = () => {
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
 
-  const subscriptionCode = 400; // 하드코딩된 테스트용 코드
+  const subscriptionCode = 300; // 하드코딩된 테스트용 코드
 
   const handleSend = async () => {
     if (!input.trim()) return;
