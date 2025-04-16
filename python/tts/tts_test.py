@@ -16,6 +16,8 @@ from pydub import AudioSegment
 import datetime
 import uuid
 from tempfile import NamedTemporaryFile
+import aiofiles
+import aioboto3
 
 load_dotenv()
 
@@ -143,25 +145,32 @@ def cache_embedding_data(embedding_data: list):
 def now():
     return datetime.datetime.now().strftime('%H:%M:%S')
 
-def run_tts(text: str) -> bytes:
+# TTS 메인 함수
+async def run_tts(text: str) -> bytes:
     global spark_model, cached_global_token_ids
+    
     if spark_model is None or cached_global_token_ids is None:
         raise RuntimeError("TTS 환경이 초기화되지 않았습니다.")
+
+    print(f"\n[{now()}] TTS 생성 시작")
 
     wav_np = spark_model.inference(
         text=text,
         global_token_ids=cached_global_token_ids
     )
 
-    print(f"[{now()}] TTS 생성 시작")
-    output_buffer = BytesIO()
-    write(output_buffer, 16000, wav_np)
-    output_buffer.seek(0)
-    print(f"[{now()}] TTS 생성 완료")
+    print(f"[{now()}]TTS inference 완료")
+    wav_int16 = np.int16(wav_np * 32767)
 
-    # 디버깅용 저장, 생성된 TTS 음성 파일
-    print(f"[{now()}] debug_tts.wav 생성 시작")
-    with open("debug_tts.wav", "wb") as f:
-        write(f, 16000, wav_np)
-        print(f"[{now()}] debug_tts.wav 저장 완료")
-    return output_buffer.read()
+    output_buffer = BytesIO()
+    write(output_buffer, 16000, wav_int16)
+    output_buffer.seek(0)
+
+    audio_bytes = output_buffer.getvalue() 
+    print(f"[{now()}]TTS 생성 완료 (메모리 버퍼 반환)")
+
+    async with aiofiles.open("debug_tts.wav", "wb") as f:
+        await f.write(output_buffer.getvalue())
+        print(f"[{now()}]debug_tts.wav 저장 완료")
+
+    return audio_bytes
