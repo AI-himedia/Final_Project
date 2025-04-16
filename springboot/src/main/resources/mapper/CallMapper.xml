@@ -16,9 +16,7 @@
             user_nickname,
             relationship,
             speaking_tone,
-            tone_style,
-            common_phrases,
-            example_lines
+            tone_style
         ) VALUES (
                      #{deceasedName},
                      #{gender},
@@ -28,9 +26,7 @@
                      #{userNickname},
                      #{relationship},
                      #{speakingTone},
-                     #{toneStyle},
-                     #{commonPhrases},
-                     #{exampleLines}
+                     #{toneStyle}
                  )
     </insert>
 
@@ -58,8 +54,6 @@
             <if test="relationship != null">relationship = #{relationship},</if>
             <if test="speakingTone != null">speaking_tone = #{speakingTone},</if>
             <if test="toneStyle != null">tone_style = #{toneStyle},</if>
-            <if test="commonPhrases != null">common_phrases = #{commonPhrases},</if>
-            <if test="exampleLines != null">example_lines = #{exampleLines}</if>
         </set>
         WHERE deceased_code = #{deceasedCode}
     </update>
