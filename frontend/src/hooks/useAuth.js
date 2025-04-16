@@ -20,10 +20,8 @@ export const useAuth = () => {
           dispatch(setUser(res.data));
           setIsLoggedIn(true);
 
-          if (
-            !loginAttempted.current &&
-            window.location.search.includes('login=success')
-          ) {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('login') === 'success') {
             Swal.fire({
               toast: true,
               position: 'top',
@@ -33,6 +31,9 @@ export const useAuth = () => {
               timer: 2000,
               timerProgressBar: true,
             });
+
+            const nextURL = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, nextURL);
           }
         })
         .catch((error) => {
@@ -45,6 +46,7 @@ export const useAuth = () => {
             !loginAttempted.current
           ) {
             loginAttempted.current = true;
+
             setTimeout(checkAuthStatus, 1);
           }
         })

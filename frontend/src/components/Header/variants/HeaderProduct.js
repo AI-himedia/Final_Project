@@ -7,7 +7,7 @@ import styles from '../Header.module.css';
 
 export default function HeaderProduct({ selectedService }) {
   const navigate = useNavigate();
-  const { handlePayment } = useTossPayment();
+  const { handleBilling } = useTossPayment();
   const isServiceSelected = !!selectedService;
 
   return (
@@ -25,7 +25,7 @@ export default function HeaderProduct({ selectedService }) {
           className={`${styles.Header_PaymentButton} ${
             isServiceSelected ? styles.active : ''
           }`}
-          onClick={() => handlePayment(selectedService)}
+          onClick={handleBilling}
           disabled={!isServiceSelected}
         >
           결제하기

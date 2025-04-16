@@ -9,7 +9,6 @@ import { useAuth } from './hooks/useAuth';
 
 function App() {
   const { isLoading } = useAuth();
-
   const location = useLocation();
 
   // 메타 정보 설정
