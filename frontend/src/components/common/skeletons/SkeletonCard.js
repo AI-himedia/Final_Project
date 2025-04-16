@@ -1,29 +1,21 @@
-// components/common/skeletons/SkeletonCard.jsx
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-export default function SkeletonCard({ count = 1 }) {
+export default function CardSkeleton() {
   return (
-    <>
-      {[...Array(count)].map((_, i) => (
-        <div key={i} style={styles.card}>
-          <Skeleton height={150} style={{ marginBottom: 12 }} />
-          <Skeleton width="80%" height={20} style={{ marginBottom: 8 }} />
-          <Skeleton width="60%" height={16} />
-        </div>
-      ))}
-    </>
+    <div
+      style={{
+        display: 'flex',
+        padding: '1rem',
+        gap: '1rem',
+        alignItems: 'center',
+      }}
+    >
+      <Skeleton circle width={48} height={48} />
+      <div style={{ flex: 1 }}>
+        <Skeleton width="60%" height={20} />
+        <Skeleton width="40%" height={16} style={{ marginTop: 8 }} />
+      </div>
+    </div>
   );
 }
-
-const styles = {
-  card: {
-    width: '100%',
-    maxWidth: '300px',
-    padding: '16px',
-    border: '1px solid #e0e0e0',
-    borderRadius: '12px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-    marginBottom: '24px',
-  },
-};

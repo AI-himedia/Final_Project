@@ -22,7 +22,7 @@ export default function HeaderTerms({ isTermsAgreed }) {
 
         <button
           className={`${styles.Header_PaymentButton} ${
-            isTermsAgreed ? styles.Header_PaymentButton_Active : ''
+            isTermsAgreed ? styles.active : ''
           }`}
           onClick={() => navigate('/service/terms/check')}
           disabled={!isTermsAgreed}

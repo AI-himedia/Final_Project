@@ -1,20 +1,31 @@
 import { useState } from 'react';
-import Header from '../../../components/Header/Header';
+import { useSearchParams } from 'react-router-dom';
 import './Product.mobile.css';
+import { HeaderProduct } from '../../../components/Header/variants';
 
 export default function ProductPage() {
+  const [searchParams] = useSearchParams();
   const [selectedService, setSelectedService] = useState(null);
+
+  const servicesParam = searchParams.get('services');
+  const disabledServices = servicesParam
+    ? servicesParam.split(',').map(Number)
+    : [];
+
+  const isSmsDisabled = disabledServices.includes(1);
+  const isCallDisabled = disabledServices.includes(2);
 
   return (
     <>
-      <Header selectedService={selectedService} />
+      <HeaderProduct selectedService={selectedService} />
 
       <div className="PaymentNotice_Container">
+        {/* 문자 서비스 카드 */}
         <div
           className={`Notice_Card ${
             selectedService === 'sms' ? 'selected' : ''
-          }`}
-          onClick={() => setSelectedService('sms')}
+          } ${isSmsDisabled ? 'disabled' : ''}`}
+          onClick={() => !isSmsDisabled && setSelectedService('sms')}
         >
           <div className="Notice_Left">
             <img
@@ -32,15 +43,22 @@ export default function ProductPage() {
             </div>
           </div>
           <div className="Notice_Right">
-            <div className="Notice_Tag">신청가능</div>
+            <div
+              className={`Notice_Tag ${
+                isSmsDisabled ? 'Unavailable' : 'Available'
+              }`}
+            >
+              {isSmsDisabled ? '이미 신청됨' : '신청가능'}
+            </div>
           </div>
         </div>
 
+        {/* 통화 서비스 카드 */}
         <div
           className={`Notice_Card ${
             selectedService === 'call' ? 'selected' : ''
-          }`}
-          onClick={() => setSelectedService('call')}
+          } ${isCallDisabled ? 'disabled' : ''}`}
+          onClick={() => !isCallDisabled && setSelectedService('call')}
         >
           <div className="Notice_Left">
             <img
@@ -58,7 +76,13 @@ export default function ProductPage() {
             </div>
           </div>
           <div className="Notice_Right">
-            <div className="Notice_Tag">신청가능</div>
+            <div
+              className={`Notice_Tag ${
+                isCallDisabled ? 'Unavailable' : 'Available'
+              }`}
+            >
+              {isCallDisabled ? '이미 신청됨' : '신청가능'}
+            </div>
           </div>
         </div>
 
