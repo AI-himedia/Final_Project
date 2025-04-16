@@ -1,4 +1,3 @@
-// hooks/useAuth.js
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from '../redux/Slice/userSlice';
@@ -8,6 +7,7 @@ import Swal from 'sweetalert2';
 export const useAuth = () => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const loginAttempted = useRef(false);
 
   useEffect(() => {
@@ -18,10 +18,10 @@ export const useAuth = () => {
         .get('/member/me', { withCredentials: true })
         .then((res) => {
           dispatch(setUser(res.data));
+          setIsLoggedIn(true);
 
-          // /?login=success 로 접근한 경우에만 알림 표시
           if (
-            !loginAttempted &&
+            !loginAttempted.current &&
             window.location.search.includes('login=success')
           ) {
             Swal.fire({
@@ -37,6 +37,7 @@ export const useAuth = () => {
         })
         .catch((error) => {
           dispatch(clearUser());
+          setIsLoggedIn(false);
 
           if (
             error.response &&
@@ -53,7 +54,7 @@ export const useAuth = () => {
     };
 
     checkAuthStatus();
-  }, [dispatch, loginAttempted]);
+  }, [dispatch]);
 
-  return { isLoading };
+  return { isLoading, isLoggedIn };
 };
