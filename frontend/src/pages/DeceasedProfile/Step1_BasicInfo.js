@@ -1,30 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDeceasedProfile from '../../redux/Store/useDeceasedProfile';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { FaChevronDown } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step1_BasicInfo() {
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState('');
-  const [age, setAge] = useState('');
-  const [focusedField, setFocusedField] = useState(null);
-  const [showGenderOptions, setShowGenderOptions] = useState(false);
-
-  const profile = useDeceasedProfile();
-  console.log('[Zustand] Step1 전체 상태:', profile);
-
-  const setDeceasedName = useDeceasedProfile((state) => state.setDeceasedName);
-  const setGenderGlobal = useDeceasedProfile((state) => state.setGender);
-  const setDeceasedAge = useDeceasedProfile((state) => state.setDeceasedAge);
+  console.log('[zustand 전체 상태]', useDeceasedProfile.getState());
 
   const navigate = useNavigate();
 
+  // zustand 상태 + setter
+  const name = useDeceasedProfile((state) => state.deceased_name);
+  const gender = useDeceasedProfile((state) => state.gender);
+  const age = useDeceasedProfile((state) => String(state.deceased_age || ''));
+
+  const setName = useDeceasedProfile((state) => state.setDeceasedName);
+  const setGender = useDeceasedProfile((state) => state.setGender);
+  const setAge = useDeceasedProfile((state) => state.setDeceasedAge);
+
+  const [focusedField, setFocusedField] = useState(null);
+  const [showGenderOptions, setShowGenderOptions] = useState(false);
+
   const handleSubmit = () => {
     if (name.trim() && gender && age) {
-      setDeceasedName(name.trim());
-      setGenderGlobal(gender);
-      setDeceasedAge(Number(age));
+      // zustand에 이미 저장되어 있어서 따로 set할 필요는 없지만,
+      // trim은 해주는 게 좋음
+      setName(name.trim());
       navigate('/deceased/profile/step2');
     }
   };
@@ -58,8 +59,7 @@ export default function Step1_BasicInfo() {
           )}
         </div>
 
-        {/* 성별 */}
-        {/* 성별 + 연세 한 줄 */}
+        {/* 성별 + 연세 */}
         <div className={styles.rowGroup}>
           {/* 성별 */}
           <div className={styles.inputGroup}>

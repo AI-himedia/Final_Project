@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDeceasedProfile from '../../redux/Store/useDeceasedProfile';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 

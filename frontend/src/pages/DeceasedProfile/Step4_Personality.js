@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDeceasedProfile from '../../redux/Store/useDeceasedProfile';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import styles from './Deceased.module.css';
 
 export default function Step4_Personality() {

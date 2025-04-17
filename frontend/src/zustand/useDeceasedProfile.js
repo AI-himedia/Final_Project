@@ -27,7 +27,20 @@ const useDeceasedProfile = create((set) => ({
   setSpeakingTone: (val) => set({ speaking_tone: val }),
   setPersonality: (val) => set({ personality: val }),
 
-  // 전체 초기화
+  // 전체 프로필 일괄 저장
+  setDeceasedProfile: (profile) =>
+    set({
+      deceased_name: profile.deceasedName || '',
+      gender: profile.gender || '',
+      deceased_age: profile.deceasedAge || 0,
+      deceased_nickname: profile.deceasedNickname || '',
+      user_nickname: profile.userNickname || '',
+      relationship: profile.relationship || '',
+      speaking_tone: profile.speakingTone || false,
+      personality: profile.personality || '',
+    }),
+
+  // 초기화
   resetProfile: () =>
     set({
       deceased_name: '',
