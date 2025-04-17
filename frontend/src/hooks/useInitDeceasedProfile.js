@@ -1,5 +1,3 @@
-// src/hooks/useDeceasedFormField.js
-
 import { useEffect, useState } from 'react';
 import useDeceasedProfile from '../zustand/useDeceasedProfile';
 
@@ -23,7 +21,7 @@ export default function useDeceasedFormField(fieldKey) {
   const [value, setValue] = useState('');
 
   useEffect(() => {
-    if (profile?.[fieldKey]) {
+    if (profile?.[fieldKey] !== undefined) {
       setValue(profile[fieldKey]);
     }
   }, [profile, fieldKey]);
