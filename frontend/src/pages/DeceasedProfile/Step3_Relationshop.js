@@ -5,16 +5,15 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step3_Relationship() {
-  const [relationship, setRelationshipLocal] = useState('');
+  console.log('[zustand 전체 상태]', useDeceasedProfile.getState());
+  const navigate = useNavigate();
+
+  const relationship = useDeceasedProfile((state) => state.relationship);
+  const setRelationship = useDeceasedProfile((state) => state.setRelationship);
+
   const [focused, setFocused] = useState(false);
   const [showFamily, setShowFamily] = useState(false);
   const [showSocial, setShowSocial] = useState(false);
-
-  const setRelationship = useDeceasedProfile((state) => state.setRelationship);
-  const profile = useDeceasedProfile();
-  console.log('[Zustand] Step3 상태:', profile);
-
-  const navigate = useNavigate();
 
   const handleSubmit = () => {
     if (relationship.trim()) {
@@ -71,15 +70,19 @@ export default function Step3_Relationship() {
 
         {/* 입력창 */}
         <div className={styles.inputGroup}>
-          {(focused || relationship) && (
-            <label className={styles.floatingLabel}>관계</label>
-          )}
+          <label
+            className={`${styles.floatingLabel} ${
+              focused || relationship ? styles.visible : styles.hidden
+            }`}
+          >
+            관계
+          </label>
           <input
             type="text"
             value={relationship}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            onChange={(e) => setRelationshipLocal(e.target.value)}
+            onChange={(e) => setRelationship(e.target.value)}
             className={styles.input}
             placeholder={
               !focused && !relationship ? '예: 어머니, 친구, 선배' : ''
@@ -88,12 +91,13 @@ export default function Step3_Relationship() {
           {relationship && (
             <button
               className={styles.clearButton}
-              onClick={() => setRelationshipLocal('')}
+              onClick={() => setRelationship('')}
             >
               ✕
             </button>
           )}
         </div>
+
         <p className={styles.helperText}>
           * 고인과의 관계를 자유롭게 입력하거나 아래에서 선택할 수 있어요.
         </p>
@@ -119,7 +123,7 @@ export default function Step3_Relationship() {
                 className={`${styles.optionButton} ${
                   relationship === option ? styles.selected : ''
                 }`}
-                onClick={() => setRelationshipLocal(option)}
+                onClick={() => setRelationship(option)}
               >
                 {option}
               </button>
@@ -148,7 +152,7 @@ export default function Step3_Relationship() {
                 className={`${styles.optionButton} ${
                   relationship === option ? styles.selected : ''
                 }`}
-                onClick={() => setRelationshipLocal(option)}
+                onClick={() => setRelationship(option)}
               >
                 {option}
               </button>

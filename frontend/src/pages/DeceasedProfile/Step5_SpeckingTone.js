@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import styles from './Deceased.module.css';
 
 export default function Step5_SpeakingTone() {
-  const [selectedTone, setSelectedTone] = useState(null);
-  const setSpeakingTone = useDeceasedProfile((state) => state.setSpeakingTone);
-  const profile = useDeceasedProfile();
-  console.log('[Zustand] Step5 상태:', profile);
-
   const navigate = useNavigate();
+
+  const speakingTone = useDeceasedProfile((state) => state.speaking_tone);
+  const setSpeakingTone = useDeceasedProfile((state) => state.setSpeakingTone);
+
+  const [selectedTone, setSelectedTone] = useState(null);
+
+  // 초기 zustand 값 반영
+  useEffect(() => {
+    if (typeof speakingTone === 'boolean') {
+      setSelectedTone(speakingTone);
+    }
+  }, [speakingTone]);
 
   const handleSubmit = () => {
     if (selectedTone !== null) {
