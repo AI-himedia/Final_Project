@@ -27,19 +27,6 @@ public class CallController {
     private AudioProcessingService audioProcessingService;
 
     /**
-     * 전화 서비스 신청
-     */
-//    @PostMapping("/service/start")
-//    public ResponseEntity<?> startService(
-//            @RequestPart("request") SubscriptionRequestDTO request,
-//            @RequestPart(value = "audioFiles", required = false) List<MultipartFile> audioFiles) {
-//
-//        callService.processSubscription(request.getSubscriptionCode(), request.getDeceasedData(), audioFiles);
-//
-//        return ResponseEntity.ok(Map.of("message", "Service processing initiated successfully."));
-//    }
-
-    /**
      * 전화 서비스 신청 및 화자 분리
      */
     @PostMapping("/service/start-and-separate")
@@ -69,19 +56,6 @@ public class CallController {
                     .body(Map.of("error", "처리 중 오류 발생: " + e.getMessage()));
         }
     }
-
-    /**
-     * 화자 분리
-     */
-//    @PostMapping("/separate/speakers")
-//    public ResponseEntity<?> separateSpeakers() {
-//        try {
-//            PreviewResponseDTO response = audioProcessingService.separateSpeakers(subscriptionCode);
-//            return ResponseEntity.ok(response);
-//        } catch (Exception e) {
-//            return ResponseEntity.internalServerError().body("화자 분리 처리 중 오류 발생: " + e.getMessage());
-//        }
-//    }
 
     /**
      * 오디오 파일 스트리밍(미리 듣기)

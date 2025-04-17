@@ -6,7 +6,7 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 MODEL_LLMS = {
     "openai": ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-4.1-nano",
         temperature=0.5,
         verbose=True # For LangChain callbacks
     ),
@@ -20,6 +20,13 @@ MODEL_LLMS = {
         temperature=0.4,
         # max_tokens=1024, 
     )
+}
+
+# 모델 이름과 버전 매핑 딕셔너리
+MODEL_NAMES = {
+    "openai": "gpt-4.1-nano",
+    "claude": "claude-3-7-sonnet-20250219",
+    "sonar": "sonar"
 }
 
 prompt = ChatPromptTemplate.from_messages([
@@ -37,10 +44,12 @@ def get_llm_and_prompt(model_choice: str):
     llm = MODEL_LLMS.get(model_choice.lower())
     if not llm:
         raise ValueError(f"Unsupported model choice: {model_choice}. Choose from {list(MODEL_LLMS.keys())}")
+    
+    model_name_version = MODEL_NAMES.get(model_choice.lower())
 
     # 모델에 따라서 다른 prompt 로 갈아 끼워 주고 있지 않다
     # 추후 모델 맞춤 prompt 가 작성되면 수정하도록 하자
-    return llm, prompt
+    return llm, model_name_version, prompt
 
 ## 남준님 코드
 
