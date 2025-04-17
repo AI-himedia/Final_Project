@@ -123,9 +123,6 @@ public class SubscriptionService {
         }
 
         ExceptionCaseResponse response = subscriptionMapper.getSubscriptedWithNoDeceasedData(userCode);
-        System.out.println("----------------------------------------");
-        System.out.println(response.getSubscriptionCode());
-        System.out.println(response.getServiceCode());
 
         return response;
     }
