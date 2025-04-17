@@ -26,10 +26,14 @@ import SuccessPage from '../pages/payment/SuccessPage';
 
 // 테스트 페이지
 import ConnectionTestPage from '../test/ConnectionTestPage';
-import AudioSender from '../test/AudioSender';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
-import CallService from '../test/CallService';
+import CallService from '../test/call/CallService';
 import ChatTestPage from '../test/ChatTestPage';
+
+import DeceasedName from '../pages/DeceasedProfile/DeceasedName';
+import SuccessPage from '../pages/payment/SuccessPage';
+
+import AudioSender from '../test/AudioSender';
 
 export const AppRoutes = () => (
   <Routes>
@@ -61,7 +65,6 @@ export const AppRoutes = () => (
 
     {/* 테스트용 라우트 */}
     <Route path="/test" element={<ConnectionTestPage />} />
-    <Route path="/wstest" element={<AudioSender />} />
     <Route path="/ttstest" element={<TTSAudioPlayer />} />
     <Route path="/call" element={<CallService />} />
     <Route path="/chattest" element={<ChatTestPage />} />
@@ -71,5 +74,11 @@ export const AppRoutes = () => (
       path="/fail"
       element={<Navigate to="/service/terms/product" replace />}
     />
+
+    {/* 공개 테스트용 라우트 */}
+    <Route path="/test" element={<ConnectionTestPage />} />
+    <Route path="/ttstest" element={<TTSAudioPlayer />} />
+    <Route path="/call" element={<CallService />} />
+    <Route path="/chattest" element={<ChatTestPage />} />
   </Routes>
 );
