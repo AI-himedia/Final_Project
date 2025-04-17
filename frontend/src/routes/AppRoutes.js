@@ -17,18 +17,23 @@ import ConnectionTestPage from '../test/ConnectionTestPage';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import CallService from '../test/CallService';
 import ChatTestPage from '../test/ChatTestPage';
-// import PrivateRoute from './PrivateRoute';
+
+import DeceasedName from '../pages/DeceasedProfile/DeceasedName';
+import SuccessPage from '../pages/payment/SuccessPage';
+
 import AudioSender from '../test/AudioSender';
 
 export const AppRoutes = () => (
   <Routes>
+    {/* 공개 접근 라우트 */}
     <Route path="/" element={<MainPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignUpPage />} />
 
-    {/* 공개 접근 라우트 */}
     <Route path="/service" element={<ApplyPage />} />
     <Route path="/service/terms" element={<TermsOfServicePage />} />
+
+    <Route path="/deceased/profile/name" element={<DeceasedName />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>
@@ -46,10 +51,11 @@ export const AppRoutes = () => (
     <Route path="/chattest" element={<ChatTestPage />} />
 
     {/* 리디렉션 */}
-    <Route
+    <Route path="/success" element={<SuccessPage />} />
+    {/* <Route
       path="/success"
-      element={<Navigate to="/service/terms/product" replace />}
-    />
+      element={<Navigate to="/deceased-profile" replace />}
+    /> */}
     <Route
       path="/fail"
       element={<Navigate to="/service/terms/product" replace />}
