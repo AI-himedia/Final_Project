@@ -11,7 +11,7 @@ client = openai.OpenAI()
 
 def run_analysis(messages: list) -> str:
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1-nano",
         messages=messages,
         temperature=0.7
     )

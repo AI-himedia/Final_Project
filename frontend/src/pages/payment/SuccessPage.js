@@ -34,7 +34,7 @@ const SuccessPage = () => {
   }, [location]);
 
   const handleConfirm = () => {
-    navigate('/deceased/profile/name');
+    navigate('/deceased/profile/step1');
   };
 
   return (
