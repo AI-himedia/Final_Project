@@ -17,6 +17,9 @@ import ServiceCheck from '../pages/service-apply/ServiceCheck/ServiceCheck';
 import Step1_Name from '../pages/DeceasedProfile/Step1_BasicInfo';
 import Step2_Nicknames from '../pages/DeceasedProfile/Step2_Nicknames';
 import Step3_Relationship from '../pages/DeceasedProfile/Step3_Relationshop';
+import Step4_Personality from '../pages/DeceasedProfile/Step4_Personality';
+import Step5_SpeakingTone from '../pages/DeceasedProfile/Step5_SpeckingTone';
+import Step6_Upload from '../pages/DeceasedProfile/Step6_Upload';
 
 // 결제
 import SuccessPage from '../pages/payment/SuccessPage';
@@ -43,6 +46,9 @@ export const AppRoutes = () => (
     <Route path="/deceased/profile/step1" element={<Step1_Name />} />
     <Route path="/deceased/profile/step2" element={<Step2_Nicknames />} />
     <Route path="/deceased/profile/step3" element={<Step3_Relationship />} />
+    <Route path="/deceased/profile/step4" element={<Step4_Personality />} />
+    <Route path="/deceased/profile/step5" element={<Step5_SpeakingTone />} />
+    <Route path="/deceased/profile/step6" element={<Step6_Upload />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>

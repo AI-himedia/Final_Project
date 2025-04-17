@@ -140,7 +140,7 @@ export default function Step1_BasicInfo() {
         onClick={handleSubmit}
         disabled={!name.trim() || !gender || !age}
       >
-        확인
+        다음
       </button>
     </div>
   );

@@ -156,7 +156,7 @@ export default function ServiceCheck() {
         <div className={styles.ServiceTypeButton}>
           <button
             className={styles.AddButton}
-            onClick={() => navigate('/service/terms/product')}
+            onClick={() => navigate('/service/terms/product?deceasedCode=null')}
           >
             + 고인 프로필 추가하기
           </button>

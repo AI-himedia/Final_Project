@@ -101,7 +101,7 @@ export default function Step2_Nicknames() {
         onClick={handleSubmit}
         disabled={!deceasedNickname.trim() || !userNickname.trim()}
       >
-        확인
+        다음
       </button>
     </div>
   );

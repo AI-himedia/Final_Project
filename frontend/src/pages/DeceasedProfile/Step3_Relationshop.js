@@ -98,7 +98,7 @@ export default function Step3_Relationship() {
           * 고인과의 관계를 자유롭게 입력하거나 아래에서 선택할 수 있어요.
         </p>
 
-        {/* 카테고리: 가족 관계 */}
+        {/* 가족 관계 */}
         <button
           type="button"
           className={styles.dropdownToggle}
@@ -106,8 +106,11 @@ export default function Step3_Relationship() {
         >
           가족 관계 {showFamily ? <FaChevronUp /> : <FaChevronDown />}
         </button>
-
-        {showFamily && (
+        <div
+          className={`${styles.optionWrapper} ${
+            showFamily ? styles.visible : ''
+          }`}
+        >
           <div className={styles.optionGroup}>
             {familyOptions.map((option) => (
               <button
@@ -122,9 +125,9 @@ export default function Step3_Relationship() {
               </button>
             ))}
           </div>
-        )}
+        </div>
 
-        {/* 카테고리: 사회적 관계 */}
+        {/* 사회적 관계 */}
         <button
           type="button"
           className={styles.dropdownToggle}
@@ -132,8 +135,11 @@ export default function Step3_Relationship() {
         >
           사회적 관계 {showSocial ? <FaChevronUp /> : <FaChevronDown />}
         </button>
-
-        {showSocial && (
+        <div
+          className={`${styles.optionWrapper} ${
+            showSocial ? styles.visible : ''
+          }`}
+        >
           <div className={styles.optionGroup}>
             {socialOptions.map((option) => (
               <button
@@ -148,7 +154,7 @@ export default function Step3_Relationship() {
               </button>
             ))}
           </div>
-        )}
+        </div>
       </div>
 
       <button
@@ -156,7 +162,7 @@ export default function Step3_Relationship() {
         onClick={handleSubmit}
         disabled={!relationship.trim()}
       >
-        확인
+        다음
       </button>
     </div>
   );

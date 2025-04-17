@@ -1,46 +1,115 @@
-// src/pages/payment/SuccessPage.js
-
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SuccessPage.module.css';
+import { axiosInstance } from '../../api/AxiosInstance';
+import { useSelector } from 'react-redux';
 
 const SuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Redux - userId
+  const userCode = useSelector((state) => state.user.user?.userCode);
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const orderId = queryParams.get('orderId')?.replace('order-', '');
-    const paymentKey = queryParams.get('paymentKey');
-    const amount = queryParams.get('amount');
+    const processPayment = async () => {
+      try {
+        const queryParams = new URLSearchParams(location.search);
+        const orderId = queryParams.get('orderId')?.replace('order-', '');
+        const paymentKey = queryParams.get('paymentKey');
+        const amount = queryParams.get('amount');
 
-    const now = new Date();
-    const formattedDate = `${now.getFullYear()}-${
-      now.getMonth() + 1
-    }-${now.getDate()} ${now.toLocaleTimeString()}`;
+        if (!paymentKey || !orderId || !amount) {
+          setError('결제 정보가 올바르지 않습니다.');
+          setLoading(false);
+          return;
+        }
 
-    setReceipt({
-      vaccine: '결제',
-      manufacturer: '카드',
-      lotNumber: paymentKey.slice(-6),
-      date: formattedDate,
-      orderId,
-      country: '대한민국',
-      agency: 'TossPayments',
-      status: '결제완료',
-      amount,
-    });
-  }, [location]);
+        const deceasedCode = localStorage.getItem('@againhello/deceased-code');
+        const serviceCode = localStorage.getItem('@againhello/service-code');
+
+        if (!deceasedCode || !serviceCode) {
+          setError('서비스 정보를 찾을 수 없습니다.');
+          setLoading(false);
+          return;
+        }
+
+        const now = new Date();
+        const formattedDate = `${now.getFullYear()}-${
+          now.getMonth() + 1
+        }-${now.getDate()} ${now.toLocaleTimeString()}`;
+
+        const receiptData = {
+          vaccine: '결제',
+          manufacturer: '카드',
+          lotNumber: paymentKey?.slice(-6),
+          date: formattedDate,
+          orderId,
+          country: '대한민국',
+          agency: 'TossPayments',
+          status: '결제완료',
+          amount,
+        };
+
+        setReceipt(receiptData);
+
+        // 구독 처리 요청
+        await axiosInstance.post('/subscription/subscribe', null, {
+          params: {
+            userCode,
+            deceasedCode,
+            serviceCode,
+          },
+        });
+
+        // 영수증 정보 요청
+        const deceasedResponse = await axiosInstance.get(
+          '/subscription/deceased',
+          {
+            params: {
+              userCode,
+              deceasedCode,
+            },
+          }
+        );
+
+        console.log('신청된 고인 서비스 정보:', deceasedResponse.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('결제 처리 오류', error);
+        setError('결제 처리 중 문제가 발생했습니다.');
+        setLoading(false);
+      }
+    };
+
+    processPayment();
+  }, [location, userCode]);
 
   const handleConfirm = () => {
     navigate('/deceased/profile/step1');
   };
 
+  if (loading) {
+    return <div className={styles.container}>결제 처리 중입니다...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.errorMessage}>{error}</div>
+        <button className={styles.confirmButton} onClick={handleConfirm}>
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <img src="/assets/payments.png" alt="체크" className={styles.checkIcon} />
-      {/* <h2 className={styles.title}>OO 서비스가 신청되었습니다.</h2> */}
 
       <div className={styles.receiptBox}>
         <div className={styles.row}>
