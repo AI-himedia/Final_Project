@@ -1,17 +1,16 @@
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "cli"))
-import subprocess
 from huggingface_hub import snapshot_download
 from pydub import AudioSegment
 from pathlib import Path
 import torch
 from cli.SparkTTS import SparkTTS
-from scipy.io.wavfile import write
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 import boto3
 from io import BytesIO
+import numpy as np
 
 load_dotenv()
 
@@ -26,14 +25,14 @@ MODEL_SAVE_DIR = os.path.join(project_root, "pretrained_models", "Spark-TTS-0.5B
 OUTPUT_DIR = os.path.join(current_dir, "results")
 
 
-# 🔧 S3 URL 파싱
+# S3 URL 파싱
 def parse_s3_url(s3_url: str):
     parsed = urlparse(s3_url)
     bucket = parsed.netloc.split('.')[0]
     key = parsed.path.lstrip('/')
     return bucket, key
 
-# 🔧 boto3를 이용한 S3 다운로드
+# boto3를 이용한 S3 다운로드
 def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> BytesIO:
     print(f"S3 오디오 메모리로 다운로드 중... s3://{bucket_name}/{object_key}")
     s3 = boto3.client(
@@ -53,7 +52,6 @@ def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> Bytes
 
 # 캐시용 전역 변수
 spark_model = None
-
 cached_global_token_ids = None
 
 # 모델 및 프롬프트 준비
@@ -95,12 +93,27 @@ def Ready_S3File(s3_url: str) -> BytesIO:
         raise
 
 
-# TTS 스트리밍
-def stream_tts(text: str, s3_url: str):
+# PCM to WebM 변환
 
+def pcm_to_webm_chunk(pcm_chunk: np.ndarray, sample_rate=16000):
+    audio = AudioSegment(
+        pcm_chunk.tobytes(),
+        frame_rate=sample_rate,
+        sample_width=2,
+        channels=1
+    )
+    buffer = BytesIO()
+    audio.export(buffer, format="webm", codec="libopus")
+    buffer.seek(0)
+    return buffer.read()
+
+
+# TTS 스트리밍 (WebM binary)
+def stream_tts(text: str):
+    
     global spark_model, cached_global_token_ids
-
-    processed_audio_buffer = Ready_S3File(s3_url)
+    
+    ensure_environment_ready()
 
     if spark_model is None:
         print("Spark-TTS 모델 초기화")
@@ -108,16 +121,15 @@ def stream_tts(text: str, s3_url: str):
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
 
     if cached_global_token_ids is None:
-        print("Voice cloning 최초 임베딩 생성 중")
-        with open("temp_prompt.wav", "wb") as f:
-            f.write(processed_audio_buffer.read())
-        processed_audio_buffer.seek(0)
-        _, cached_global_token_ids = spark_model.process_prompt(
-            text="임베딩 생성용 텍스트",
-            prompt_speech_path=Path("temp_prompt.wav")
-        )
-        print("Global token 캐싱 완료")
+        print("더미 임베딩 값 사용 중")
+        embedding_data = [[[3199,253,1592,4042,290,1733,1056,2665,3594,3475,672,3142,738,3628,3253,3101,1084,3088,3227,1261,541,2425,2271,1461,1602,204,3531,3143,3780,2572,2946,135]]]
+        cached_global_token_ids = torch.tensor(embedding_data, dtype=torch.long)
 
-    print("실시간 TTS 생성 중...")
+    print("실시간 TTS 생성 중 (raw binary)")
     for audio_chunk in spark_model.stream_inference(text=text, global_token_ids=cached_global_token_ids):
-        yield audio_chunk  # PCM (np.ndarray) 또는 bytes
+        if isinstance(audio_chunk, np.ndarray):
+            yield pcm_to_webm_chunk(audio_chunk)
+        elif isinstance(audio_chunk, bytes):
+            yield audio_chunk
+        else:
+            raise TypeError("지원되지 않는 audio_chunk 타입")
