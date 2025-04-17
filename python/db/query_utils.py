@@ -42,6 +42,7 @@ def fetch_prompt_data(subscription_code: int) -> dict:
         "deceased_age": row[5],
         "personality": row[6],
         "deceased_nickname": row[7],
+        "speaking_tone": "반말" if row[8] else "존댓말",
         "tone_style": row[9],
         "common_phrases": row[10],
         "example_lines": row[11]
