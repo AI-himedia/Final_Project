@@ -11,9 +11,9 @@ export default function Step3_Relationship() {
   const relationship = useDeceasedProfile((state) => state.relationship);
   const setRelationship = useDeceasedProfile((state) => state.setRelationship);
 
-  const [focused, setFocused] = useState(false);
-  const [showFamily, setShowFamily] = useState(false);
-  const [showSocial, setShowSocial] = useState(false);
+  const [showFamily, setShowFamily] = useState(true);
+  const [showSocial, setShowSocial] = useState(true);
+  const [focusedField, setFocusedField] = useState(null);
 
   const handleSubmit = () => {
     if (relationship.trim()) {
@@ -66,28 +66,29 @@ export default function Step3_Relationship() {
           고인과의
           <br />
           관계를 알려주세요.
+          <p className={styles.helperText}>
+            이 관계는 고인과의 대화 방식에 반영돼요.
+          </p>
         </h2>
 
         {/* 입력창 */}
         <div className={styles.inputGroup}>
-          <label
-            className={`${styles.floatingLabel} ${
-              focused || relationship ? styles.visible : styles.hidden
-            }`}
-          >
-            관계
-          </label>
+          {(focusedField === 'relationship' || relationship) && (
+            <label className={styles.floatingLabel}>관계</label>
+          )}
+
           <input
             type="text"
             value={relationship}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
+            onFocus={() => setFocusedField('relationship')}
+            onBlur={() => setFocusedField(null)}
             onChange={(e) => setRelationship(e.target.value)}
             className={styles.input}
             placeholder={
-              !focused && !relationship ? '예: 어머니, 친구, 선배' : ''
+              focusedField !== 'relationship' && !relationship ? '관계' : ''
             }
           />
+
           {relationship && (
             <button
               className={styles.clearButton}
@@ -99,7 +100,7 @@ export default function Step3_Relationship() {
         </div>
 
         <p className={styles.helperText}>
-          * 고인과의 관계를 자유롭게 입력하거나 아래에서 선택할 수 있어요.
+          * 고인과의 관계를 직접 입력하거나 아래 항목에서 선택할 수 있어요.
         </p>
 
         {/* 가족 관계 */}

@@ -28,14 +28,14 @@ export default function Step5_SpeakingTone() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <h2 className={styles.title}>
+        <h2 className={styles.title} style={{ marginBottom: '-0.1rem' }}>
           고인의 말은
           <br />
           어떤 스타일이었나요?
         </h2>
 
         <p className={styles.helperText}>
-          * 반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
+          반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
         </p>
 
         <div className={styles.optionGroup}>
