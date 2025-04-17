@@ -1,12 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDeceasedProfile from '../../redux/Store/useDeceasedProfile';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import styles from './Deceased.module.css';
 
 export default function Step2_Nicknames() {
-  const [deceasedNickname, setDeceasedNicknameLocal] = useState('');
-  const [userNickname, setUserNicknameLocal] = useState('');
-  const [focusedField, setFocusedField] = useState(null);
+  const navigate = useNavigate();
 
   const profile = useDeceasedProfile();
   console.log('[Zustand] Step2 전체 상태:', profile);
@@ -16,7 +14,17 @@ export default function Step2_Nicknames() {
   );
   const setUserNickname = useDeceasedProfile((state) => state.setUserNickname);
 
-  const navigate = useNavigate();
+  const [deceasedNickname, setDeceasedNicknameLocal] = useState('');
+  const [userNickname, setUserNicknameLocal] = useState('');
+  const [focusedField, setFocusedField] = useState(null);
+
+  // 프로필에서 값 초기 세팅
+  useEffect(() => {
+    if (profile) {
+      setDeceasedNicknameLocal(profile.deceasedNickname || '');
+      setUserNicknameLocal(profile.userNickname || '');
+    }
+  }, [profile]);
 
   const handleSubmit = () => {
     if (deceasedNickname.trim() && userNickname.trim()) {
