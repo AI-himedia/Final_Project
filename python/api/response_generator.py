@@ -49,7 +49,7 @@ def generate_response(request: ChatRequest):
         for model in model_choices:
             try:
                 # 4. LLM 모델과 그에 맞는 프롬프트 템플릿
-                selected_llm, selected_prompt = get_llm_and_prompt(model)
+                selected_llm, model_name_version, selected_prompt = get_llm_and_prompt(model)
             
                 # 5. chain 조립
                 base_chain = selected_prompt | selected_llm
@@ -76,7 +76,7 @@ def generate_response(request: ChatRequest):
                     raise ValueError(f"Model {model} returned empty or invalid response.")
                 
                 # 유효한 응답이 있다면 종료
-                chosen_model = model
+                chosen_model = model_name_version
                 break  # 성공적으로 응답을 받았으므로 루프 종료
 
             except (ValueError, Exception) as e:
