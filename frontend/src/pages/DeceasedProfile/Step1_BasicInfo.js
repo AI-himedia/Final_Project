@@ -25,7 +25,7 @@ export default function Step1_BasicInfo() {
       setDeceasedName(name.trim());
       setGenderGlobal(gender);
       setDeceasedAge(Number(age));
-      navigate('/deceased/step2');
+      navigate('/deceased/profile/step2');
     }
   };
 

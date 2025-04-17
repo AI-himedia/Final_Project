@@ -15,6 +15,8 @@ import ServiceCheck from '../pages/service-apply/ServiceCheck/ServiceCheck';
 
 // 고인 프로필
 import Step1_Name from '../pages/DeceasedProfile/Step1_BasicInfo';
+import Step2_Nicknames from '../pages/DeceasedProfile/Step2_Nicknames';
+import Step3_Relationship from '../pages/DeceasedProfile/Step3_Relationshop';
 
 // 결제
 import SuccessPage from '../pages/payment/SuccessPage';
@@ -39,6 +41,8 @@ export const AppRoutes = () => (
 
     {/* 고인 프로필 입력 */}
     <Route path="/deceased/profile/step1" element={<Step1_Name />} />
+    <Route path="/deceased/profile/step2" element={<Step2_Nicknames />} />
+    <Route path="/deceased/profile/step3" element={<Step3_Relationship />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>

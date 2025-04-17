@@ -97,7 +97,7 @@
   }
 
   .helperText {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #7d8590;
     margin-top: 6px;
     margin-left: 2px;
@@ -149,5 +149,48 @@
 
   .content {
     flex-grow: 1;
+  }
+
+  .dropdownToggle {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #3b82f6;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: underline;
+  }
+
+  .optionGroup {
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .optionButton {
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 7.5px;
+    background-color: #f4f4f4;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .optionButton:hover {
+    background-color: #e5eaff;
+    border-color: #3b82f6;
+  }
+
+  .optionButton.selected {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
   }
 }

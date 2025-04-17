@@ -55,4 +55,34 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
+  '/deceased/profile/step2': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
+  '/deceased/profile/step3': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
+  '/deceased/profile/step4': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
+  '/deceased/profile/step5': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
+  '/deceased/profile/step6': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
 };
