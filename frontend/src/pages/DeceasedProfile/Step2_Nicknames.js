@@ -32,19 +32,16 @@ export default function Step2_Nicknames() {
           고인과 당신의
           <br />
           호칭을 알려주세요.
+          <p className={styles.helperText}>
+            호칭은 고인과의 대화에서 직접 사용됩니다.
+          </p>
         </h2>
 
         {/* 고인에게 부르는 호칭 */}
         <div className={styles.inputGroup}>
-          <label
-            className={`${styles.floatingLabel} ${
-              focusedField === 'deceased' || deceased_nickname
-                ? styles.visible
-                : styles.hidden
-            }`}
-          >
-            고인을 부르는 호칭
-          </label>
+          {(focusedField === 'deceased' || deceased_nickname) && (
+            <label className={styles.floatingLabel}>고인을 부르는 호칭</label>
+          )}
           <input
             type="text"
             value={deceased_nickname}
@@ -54,7 +51,7 @@ export default function Step2_Nicknames() {
             className={styles.input}
             placeholder={
               focusedField !== 'deceased' && !deceased_nickname
-                ? '할아버지, 할머니'
+                ? '고인을 부르는 호칭'
                 : ''
             }
           />
@@ -70,15 +67,11 @@ export default function Step2_Nicknames() {
 
         {/* 고인이 나를 부르던 호칭 */}
         <div className={styles.inputGroup}>
-          <label
-            className={`${styles.floatingLabel} ${
-              focusedField === 'user' || user_nickname
-                ? styles.visible
-                : styles.hidden
-            }`}
-          >
-            고인이 나를 부르던 호칭
-          </label>
+          {(focusedField === 'user' || user_nickname) && (
+            <label className={styles.floatingLabel}>
+              고인이 나를 부르던 호칭
+            </label>
+          )}
           <input
             type="text"
             value={user_nickname}
@@ -87,7 +80,9 @@ export default function Step2_Nicknames() {
             onChange={(e) => setUserNickname(e.target.value)}
             className={styles.input}
             placeholder={
-              focusedField !== 'user' && !user_nickname ? '~아, ~누나' : ''
+              focusedField !== 'user' && !user_nickname
+                ? '고인이 나를 부르던 호칭'
+                : ''
             }
           />
           {user_nickname && (
@@ -101,7 +96,7 @@ export default function Step2_Nicknames() {
         </div>
 
         <p className={styles.helperText}>
-          * 서로를 어떻게 불렀는지 기억나는 대로 적어주세요.
+          예: 할아버지, 엄마 / 민수야, 작은누나 등
         </p>
       </div>
 

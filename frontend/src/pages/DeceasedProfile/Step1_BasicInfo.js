@@ -5,27 +5,25 @@ import { FaChevronDown } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step1_BasicInfo() {
-  console.log('[zustand 전체 상태]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
-  // zustand 상태 & setter 통합
-  const {
-    deceased_name: name,
-    gender,
-    deceased_age,
-    setDeceasedName: setName,
-    setGender,
-    setDeceasedAge: setAge,
-  } = useDeceasedProfile();
+  // zustand 상태 + setter
+  const name = useDeceasedProfile((state) => state.deceased_name);
+  const gender = useDeceasedProfile((state) => state.gender);
+  const age = useDeceasedProfile((state) => String(state.deceased_age || ''));
 
-  const age = String(deceased_age || '');
+  const setName = useDeceasedProfile((state) => state.setDeceasedName);
+  const setGender = useDeceasedProfile((state) => state.setGender);
+  const setAge = useDeceasedProfile((state) => state.setDeceasedAge);
 
   const [focusedField, setFocusedField] = useState(null);
   const [showGenderOptions, setShowGenderOptions] = useState(false);
 
   const handleSubmit = () => {
     if (name.trim() && gender && age) {
-      setName(name.trim()); // trim 보정
+      // zustand에 이미 저장되어 있어서 따로 set할 필요는 없지만,
+      // trim은 해주는 게 좋음
+      setName(name.trim());
       navigate('/deceased/profile/step2');
     }
   };
@@ -36,17 +34,16 @@ export default function Step1_BasicInfo() {
         <h2 className={styles.title}>
           당신의 마음 속<br />
           고인을 소개해주세요.
+          <p className={styles.helperText}>
+            고인의 말투와 대화 방식에 영향을 줍니다.
+          </p>
         </h2>
 
         {/* 고인 성함 */}
         <div className={styles.inputGroup}>
-          <label
-            className={`${styles.floatingLabel} ${
-              focusedField === 'name' || name ? styles.visible : styles.hidden
-            }`}
-          >
-            고인 성함
-          </label>
+          {(focusedField === 'name' || name) && (
+            <label className={styles.floatingLabel}>고인 성함</label>
+          )}
           <input
             type="text"
             value={name}
@@ -67,15 +64,9 @@ export default function Step1_BasicInfo() {
         <div className={styles.rowGroup}>
           {/* 성별 */}
           <div className={styles.inputGroup}>
-            <label
-              className={`${styles.floatingLabel} ${
-                focusedField === 'gender' || gender
-                  ? styles.visible
-                  : styles.hidden
-              }`}
-            >
-              성별
-            </label>
+            {(focusedField === 'gender' || gender) && (
+              <label className={styles.floatingLabel}>성별</label>
+            )}
             <input
               type="text"
               value={gender === 'M' ? '남성' : gender === 'F' ? '여성' : ''}
@@ -120,13 +111,9 @@ export default function Step1_BasicInfo() {
 
           {/* 연세 */}
           <div className={styles.inputGroup}>
-            <label
-              className={`${styles.floatingLabel} ${
-                focusedField === 'age' || age ? styles.visible : styles.hidden
-              }`}
-            >
-              별세 연세
-            </label>
+            {(focusedField === 'age' || age) && (
+              <label className={styles.floatingLabel}>별세 연세</label>
+            )}
             <input
               type="number"
               value={age}

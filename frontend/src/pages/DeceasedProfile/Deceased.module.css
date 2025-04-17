@@ -5,7 +5,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 3rem 2rem 0 2rem;
+    padding: 2rem 2rem 0 2rem;
     font-family: 'Toss Product Sans', sans-serif;
     box-sizing: border-box;
   }
@@ -20,6 +20,7 @@
     font-size: 0.8rem;
     font-weight: 500;
     color: #6d6d6d;
+    margin: 5px 0 0 0;
   }
 
   .inputGroup {
@@ -177,13 +178,14 @@
   }
 
   .optionGroup {
-    margin: 1rem 0;
+    margin: 1rem 0 0;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
   }
 
   .optionButton {
+    max-width: 100%;
     padding: 8px 14px;
     font-size: 0.95rem;
     border: 1px solid #ccc;
@@ -207,9 +209,9 @@
   }
 
   .optionWrapper.visible {
-    max-height: 500px; /* 충분한 높이 */
+    max-height: 500px;
     opacity: 1;
-    margin-bottom: 1rem;
+    /* margin-bottom: 1rem; */
   }
 
   .uploadRow {
