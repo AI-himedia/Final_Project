@@ -77,6 +77,6 @@ public class SubscriptionController {
             return ResponseEntity.ok(deceasedCode);
         }
 
-        return ResponseEntity.ok(subscriptionService.getDeceasedData(deceasedCode, userCode));
+        return ResponseEntity.ok(subscriptionService.getDeceasedData(userCode,deceasedCode));
     }
 }

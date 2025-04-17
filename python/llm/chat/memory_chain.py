@@ -1,9 +1,14 @@
 from langchain_core.runnables import RunnableWithMessageHistory
-from llm.chat.postgresql_chat_message_history import YourPostgresChatMessageHistory 
+from llm.chat.redis_chat_message_history import RedisChatMessageHistory
+import redis
 
 class MyChatChain:
-    def __init__(self, base_chain, deceased_code_map: dict):
+    def __init__(self, base_chain, deceased_code_map: dict, redis_client: redis.Redis):
         self.deceased_code_map = deceased_code_map
+        self.redis_client = redis_client  # Redis 클라이언트를 여기서 저장
+        self.chat_history_instance = None      # Redis + DB 저장을 위한 메시지 기록 관리 객체
+        self.session_id_cache = None
+
         self.chain = RunnableWithMessageHistory(
             runnable=base_chain, # 동적으로 생성된 체인을 이곳에 설정
             get_session_history=self.get_memory,
@@ -13,13 +18,17 @@ class MyChatChain:
         )
 
     def get_memory(self, session_id):
+        # 중복 호출 방지
+        if self.chat_history_instance and self.session_id_cache == session_id:
+            return self.chat_history_instance.messages
+
         # session_id를 int로 변환하여 조회하도록 처리, 변환 실패시 예외 처리
         try:
             session_id_int = int(session_id)
         except ValueError:
             raise ValueError(f"Invalid session_id format, expected integer representable string: {session_id}")
 
-        print("session_id in get_memory:", session_id) 
+        print("session_id in get_memory:", session_id)
         deceased_code = self.deceased_code_map.get(session_id_int)
 
         if deceased_code is None: # None에 대한 명시적 확인
@@ -29,11 +38,18 @@ class MyChatChain:
         else:
             print("deceased_code:", deceased_code)
 
-        # YourPostgresChatMessageHistory가 session_id를 문자열로 기대하는 경우 문자열로 전달
-        return YourPostgresChatMessageHistory(
-            session_id=str(session_id),
-            deceased_code=deceased_code
-        )
+        
+        # RedisChatMessageHistory를 사용하여 Redis에서 대화 이력 조회
+        self.chat_history_instance = RedisChatMessageHistory(session_id, deceased_code, self.redis_client)
+        self.session_id_cache = session_id
+        
+        # Redis에서 대화 기록을 조회하여 반환
+        return self.chat_history_instance
+        # # YourPostgresChatMessageHistory가 session_id를 문자열로 기대하는 경우 문자열로 전달
+        # return YourPostgresChatMessageHistory(
+        #     session_id=str(session_id),
+        #     deceased_code=deceased_code
+        # )
 
     def invoke(self, inputs, config=None):
         print(f"Invoking chain with inputs: {inputs.keys()}, config: {config}")

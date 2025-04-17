@@ -5,8 +5,8 @@ from langchain_core.runnables import RunnableConfig
 from llm.chat.prompt_template import SYSTEM_PROMPT_TEMPLATE 
 from llm.chat.chain_config import get_llm_and_prompt
 from llm.chat.memory_chain import MyChatChain
-from llm.chat.postgresql_chat_message_history import YourPostgresChatMessageHistory
-from db.query_utils import fetch_prompt_data, add_messages
+from db.query_utils import fetch_prompt_data
+from config.redis_config import redis_client
 import time
 import traceback # 에러 로깅
 import logging
@@ -34,6 +34,7 @@ def generate_response(request: ChatRequest):
         prompt_data = fetch_prompt_data(subscription_code)
         if not prompt_data:
              raise HTTPException(status_code=404, detail=f"Prompt data not found for subscription code: {subscription_code}")
+        # 조회해온 고인코드 일단 저장
         deceased_code = prompt_data["deceased_code"]
 
         # 2. system prompt 생성
@@ -62,10 +63,13 @@ def generate_response(request: ChatRequest):
 
                 config = RunnableConfig(configurable={"session_id": str(subscription_code)}) 
 
+                  
                 # 동적으로 생성된 base_chain을 사용하여 MyChatChain 인스턴스화
+                # redis_config.py에서 생성한 redis_client는 전역 인스턴스
                 chat_chain = MyChatChain(
                     base_chain=base_chain, # 동적으로 생성된 chain 전달
-                    deceased_code_map={subscription_code: deceased_code}
+                    deceased_code_map={subscription_code: deceased_code},
+                    redis_client=redis_client # 생성한 redis_client 전달
                 )
 
                 # 체인 실행
@@ -88,7 +92,7 @@ def generate_response(request: ChatRequest):
         if ai_response is None or not hasattr(ai_response, 'content') or not ai_response.content:
             raise HTTPException(status_code=500, detail="All models failed to generate a valid response.")
 
-        response_content = ai_response.content
+        ai_response = ai_response.content
 
     except HTTPException as http_exc:
         # HTTP 예외는 직접 다시 발생시킴
@@ -105,23 +109,20 @@ def generate_response(request: ChatRequest):
     print("------------------------------------------")
     print(f"Model Used: {chosen_model}")
     print(f"Time Taken (seconds): {time_taken:.2f}")
-    print(f"AI Response: {response_content}")
+    print(f"AI Response: {ai_response}")
     print("------------------------------------------")
 
 
-    # 6. 메시지를 DB에 저장 (비동기 처리 고려)
+    # 6. 응답 저장 (Redis + DB) (DB INSERT는 비동기 처리 고려)
     try:
-        add_messages(subscription_code, deceased_code,
-                     messages=[
-                         ("user", user_input),
-                         ("ai", response_content)
-                     ])
+        chat_chain.chat_history_instance.store_message(subscription_code, deceased_code, user_input, ai_response)
+
     except Exception as db_e:
         # DB 오류는 로깅만 하고 사용자에게는 응답을 계속 반환
         print(f"ERROR saving messages to DB: {db_e}")
         traceback.print_exc()
 
-    return {"status": "LLM_RESPONSE", "message": response_content, "model_used": model}
+    return {"status": "LLM_RESPONSE", "message": ai_response, "model_used": model}
 
 
 
