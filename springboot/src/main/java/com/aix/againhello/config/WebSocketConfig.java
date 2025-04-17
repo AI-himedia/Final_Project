@@ -18,9 +18,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new AudioWebSocketHandler(), "be/ws/audio")
+        registry.addHandler(new AudioWebSocketHandler(), "be/ws/react")
                 .addInterceptors(jwtCookieInterceptor)
                 .setAllowedOrigins("*");
+
+//        registry.addHandler(new TtsWebSocketHandler, "be/ws/python")
+//                .setAllowedOrigins("*");
     }
 
 }
