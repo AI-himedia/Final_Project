@@ -43,25 +43,13 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
-  '/service/call': {
-    showHeader: true,
-    showFooter: false,
-    showSidebar: false,
-    showUpButton: false,
-  },
-  '/service/sms': {
-    showHeader: true,
-    showFooter: false,
-    showSidebar: false,
-    showUpButton: false,
-  },
-  '/test': {
+  '/success': {
     showHeader: false,
     showFooter: false,
     showSidebar: false,
     showUpButton: false,
   },
-  '/wstest': {
+  '/deceased/profile/step1': {
     showHeader: false,
     showFooter: false,
     showSidebar: false,
