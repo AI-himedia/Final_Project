@@ -3,3 +3,4 @@ export { default as HeaderTerms } from './HeaderTerms';
 export { default as HeaderProduct } from './HeaderProduct';
 export { default as HeaderApply } from './HeaderApply';
 export { default as HeaderCheck } from './HeaderCheck';
+export { default as HeaderDeceased } from './HeaderDeceased';
