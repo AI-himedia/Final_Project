@@ -30,11 +30,6 @@ import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import CallService from '../test/call/CallService';
 import ChatTestPage from '../test/ChatTestPage';
 
-import DeceasedName from '../pages/DeceasedProfile/DeceasedName';
-import SuccessPage from '../pages/payment/SuccessPage';
-
-import AudioSender from '../test/AudioSender';
-
 export const AppRoutes = () => (
   <Routes>
     {/* 공개 접근 라우트 */}

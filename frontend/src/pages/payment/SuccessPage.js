@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SuccessPage.module.css';
 import { axiosInstance } from '../../api/AxiosInstance';
 import { useSelector } from 'react-redux';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 
 const SuccessPage = () => {
   const location = useLocation();
@@ -11,8 +12,12 @@ const SuccessPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Redux - userId
   const userCode = useSelector((state) => state.user.user?.userCode);
+
+  // zustand에서 setter 가져오기
+  const setDeceasedProfile = useDeceasedProfile(
+    (state) => state.setDeceasedProfile
+  );
 
   useEffect(() => {
     const processPayment = async () => {
@@ -31,7 +36,7 @@ const SuccessPage = () => {
         const deceasedCode = localStorage.getItem('@againhello/deceased-code');
         const serviceCode = localStorage.getItem('@againhello/service-code');
 
-        if (!deceasedCode || !serviceCode) {
+        if (!serviceCode) {
           setError('서비스 정보를 찾을 수 없습니다.');
           setLoading(false);
           return;
@@ -56,25 +61,36 @@ const SuccessPage = () => {
 
         setReceipt(receiptData);
 
-        // 구독 처리 요청
+        const requestParams = {
+          userCode,
+          serviceCode,
+        };
+
+        if (deceasedCode && deceasedCode !== 'null') {
+          requestParams.deceasedCode = deceasedCode;
+        }
+
         await axiosInstance.post('/subscription/subscribe', null, {
-          params: {
-            userCode,
-            deceasedCode,
-            serviceCode,
-          },
+          params: requestParams,
         });
 
-        // 영수증 정보 요청
+        const receiptRequestParams = {
+          userCode,
+        };
+
+        if (deceasedCode && deceasedCode !== 'null') {
+          receiptRequestParams.deceasedCode = deceasedCode;
+        }
+
         const deceasedResponse = await axiosInstance.get(
           '/subscription/deceased',
           {
-            params: {
-              userCode,
-              deceasedCode,
-            },
+            params: receiptRequestParams,
           }
         );
+
+        // zustand에 고인 프로필 저장
+        setDeceasedProfile(deceasedResponse.data);
 
         console.log('신청된 고인 서비스 정보:', deceasedResponse.data);
         setLoading(false);
@@ -86,15 +102,11 @@ const SuccessPage = () => {
     };
 
     processPayment();
-  }, [location, userCode]);
+  }, [location, userCode, setDeceasedProfile]);
 
   const handleConfirm = () => {
     navigate('/deceased/profile/step1');
   };
-
-  if (loading) {
-    return <div className={styles.container}>결제 처리 중입니다...</div>;
-  }
 
   if (error) {
     return (

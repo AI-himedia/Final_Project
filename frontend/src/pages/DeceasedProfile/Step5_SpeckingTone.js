@@ -1,15 +1,23 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDeceasedProfile from '../../redux/Store/useDeceasedProfile';
-import styles from './Deceased.module.css';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
+import './Deceased.module.css';
 
 export default function Step5_SpeakingTone() {
-  const [selectedTone, setSelectedTone] = useState(null);
-  const setSpeakingTone = useDeceasedProfile((state) => state.setSpeakingTone);
-  const profile = useDeceasedProfile();
-  console.log('[Zustand] Step5 상태:', profile);
-
   const navigate = useNavigate();
+
+  const speakingTone = useDeceasedProfile((state) => state.speaking_tone);
+  const setSpeakingTone = useDeceasedProfile((state) => state.setSpeakingTone);
+
+  const [selectedTone, setSelectedTone] = useState(
+    typeof speakingTone === 'boolean' ? speakingTone : null
+  );
+
+  const handleClick = (tone) => {
+    if (selectedTone !== tone) {
+      setSelectedTone(tone);
+    }
+  };
 
   const handleSubmit = () => {
     if (selectedTone !== null) {
@@ -19,34 +27,33 @@ export default function Step5_SpeakingTone() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <h2 className={styles.title}>
+    <div className="container">
+      <div className="content">
+        <h2 className="title">
           고인의 말은
           <br />
           어떤 스타일이었나요?
+          <div className="helperText">
+            반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
+          </div>
         </h2>
 
-        <p className={styles.helperText}>
-          * 반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
-        </p>
-
-        <div className={styles.optionGroup}>
+        <div className="optionGroup">
           <button
             type="button"
-            className={`${styles.optionButton} ${
-              selectedTone === true ? styles.selected : ''
+            className={`optionButton ${
+              selectedTone === true ? 'selected' : ''
             }`}
-            onClick={() => setSelectedTone(true)}
+            onClick={() => handleClick(true)}
           >
             반말
           </button>
           <button
             type="button"
-            className={`${styles.optionButton} ${
-              selectedTone === false ? styles.selected : ''
+            className={`optionButton ${
+              selectedTone === false ? 'selected' : ''
             }`}
-            onClick={() => setSelectedTone(false)}
+            onClick={() => handleClick(false)}
           >
             존댓말
           </button>
@@ -54,7 +61,7 @@ export default function Step5_SpeakingTone() {
       </div>
 
       <button
-        className={styles.confirmButton}
+        className="confirmButton"
         onClick={handleSubmit}
         disabled={selectedTone === null}
       >

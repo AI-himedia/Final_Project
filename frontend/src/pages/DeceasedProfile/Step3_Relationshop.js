@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDeceasedProfile from '../../redux/Store/useDeceasedProfile';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step3_Relationship() {
-  const [relationship, setRelationshipLocal] = useState('');
-  const [focused, setFocused] = useState(false);
-  const [showFamily, setShowFamily] = useState(false);
-  const [showSocial, setShowSocial] = useState(false);
-
-  const setRelationship = useDeceasedProfile((state) => state.setRelationship);
-  const profile = useDeceasedProfile();
-  console.log('[Zustand] Step3 상태:', profile);
-
+  console.log('[zustand 전체 상태]', useDeceasedProfile.getState());
   const navigate = useNavigate();
+
+  const relationship = useDeceasedProfile((state) => state.relationship);
+  const setRelationship = useDeceasedProfile((state) => state.setRelationship);
+
+  const [showFamily, setShowFamily] = useState(true);
+  const [showSocial, setShowSocial] = useState(true);
+  const [focusedField, setFocusedField] = useState(null);
 
   const handleSubmit = () => {
     if (relationship.trim()) {
@@ -67,35 +66,41 @@ export default function Step3_Relationship() {
           고인과의
           <br />
           관계를 알려주세요.
+          <p className={styles.helperText}>
+            이 관계는 고인과의 대화 방식에 반영돼요.
+          </p>
         </h2>
 
         {/* 입력창 */}
         <div className={styles.inputGroup}>
-          {(focused || relationship) && (
+          {(focusedField === 'relationship' || relationship) && (
             <label className={styles.floatingLabel}>관계</label>
           )}
+
           <input
             type="text"
             value={relationship}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            onChange={(e) => setRelationshipLocal(e.target.value)}
+            onFocus={() => setFocusedField('relationship')}
+            onBlur={() => setFocusedField(null)}
+            onChange={(e) => setRelationship(e.target.value)}
             className={styles.input}
             placeholder={
-              !focused && !relationship ? '예: 어머니, 친구, 선배' : ''
+              focusedField !== 'relationship' && !relationship ? '관계' : ''
             }
           />
+
           {relationship && (
             <button
               className={styles.clearButton}
-              onClick={() => setRelationshipLocal('')}
+              onClick={() => setRelationship('')}
             >
               ✕
             </button>
           )}
         </div>
+
         <p className={styles.helperText}>
-          * 고인과의 관계를 자유롭게 입력하거나 아래에서 선택할 수 있어요.
+          * 고인과의 관계를 직접 입력하거나 아래 항목에서 선택할 수 있어요.
         </p>
 
         {/* 가족 관계 */}
@@ -119,7 +124,7 @@ export default function Step3_Relationship() {
                 className={`${styles.optionButton} ${
                   relationship === option ? styles.selected : ''
                 }`}
-                onClick={() => setRelationshipLocal(option)}
+                onClick={() => setRelationship(option)}
               >
                 {option}
               </button>
@@ -148,7 +153,7 @@ export default function Step3_Relationship() {
                 className={`${styles.optionButton} ${
                   relationship === option ? styles.selected : ''
                 }`}
-                onClick={() => setRelationshipLocal(option)}
+                onClick={() => setRelationship(option)}
               >
                 {option}
               </button>

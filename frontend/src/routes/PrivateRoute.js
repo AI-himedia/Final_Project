@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 
 export default function PrivateRoute() {
   const user = useSelector((state) => state.user.user);
-  const isLoading = useSelector((state) => state.user.isLoading); // useAuth에서 세팅해줘야 함
+  const isLoading = useSelector((state) => state.user.isLoading);
   const location = useLocation();
   const hasShownAlert = useRef(false);
 
