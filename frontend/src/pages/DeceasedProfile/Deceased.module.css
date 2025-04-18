@@ -22,6 +22,10 @@
     color: #6d6d6d;
     margin: 5px 0 0 0;
   }
+  .Description {
+    font-size: 1rem;
+    margin-top: -3rem;
+  }
 
   .inputGroup {
     position: relative;
@@ -178,7 +182,7 @@
   }
 
   .optionGroup {
-    margin: 1rem 0 0;
+    margin: 2rem 0 0;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -201,6 +205,35 @@
     border-color: #3b82f6;
   }
 
+  .toneGroup {
+    margin: 5rem 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .toneButton {
+    width: 120px;
+    height: 120px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid #ccc;
+    border-radius: 15px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .toneButton.selected {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+
   .optionWrapper {
     max-height: 0;
     opacity: 0;
@@ -216,13 +249,25 @@
 
   .uploadRow {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(100px, max-content));
+    justify-items: start;
+    gap: 12px;
+    margin-top: -3rem;
     /* margin-right: 1.5rem; */
   }
 
+  .Warning {
+    font-size: 0.75rem;
+    text-align: center;
+    color: #ff6363;
+  }
+
+  .singleUploadRow {
+    /* padding-left: 50px; */
+  }
+
   .uploadBox {
-    width: 100%;
+    width: 105px;
     max-width: 120px;
     aspect-ratio: 1 / 1;
     border: 2px dashed #d3d3d3;
@@ -244,17 +289,27 @@
     color: #2e80ff;
   }
 
+  .singleFileWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .fileThumb {
-    width: 100%;
+    width: 100px;
+    padding: 0 6px 0 10px;
     text-align: center;
     box-sizing: border-box;
   }
 
   .thumbImage {
-    width: 100%;
+    width: 120%;
+    max-width: 120px;
     height: auto;
     border-radius: 8px;
     object-fit: contain;
+    max-height: 120px;
+    border: 2px dashed #d3d3d3;
   }
 
   .thumbText {
@@ -267,12 +322,14 @@
   }
 
   .uploadGuideBox {
-    margin: 2rem 0 1rem 0;
+    margin: clamp(2rem, 5vw, 4rem) 0 clamp(1rem, 2vw, 2rem) 0;
     background-color: #f1f4f8;
-    padding: 1.25rem;
+    padding: clamp(1rem, 4vw, 1.5rem);
     border-radius: 12px;
     font-size: 0.95rem;
     color: #333;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .uploadGuideTitle {
