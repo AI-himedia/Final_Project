@@ -76,9 +76,18 @@ const SuccessPage = () => {
         const subscriptionCode = subscribeRes.data;
         setDeceasedProfile({ subscriptionCode });
 
-        if (deceasedCode && userCode) {
+        if (userCode) {
+          const profileParams = {
+            userCode,
+            serviceCode,
+          };
+
+          if (deceasedCode && deceasedCode !== 'null') {
+            profileParams.deceasedCode = deceasedCode;
+          }
+
           const profileRes = await axiosInstance.get('/subscription/deceased', {
-            params: { userCode, deceasedCode },
+            params: profileParams,
           });
 
           if (profileRes.data) {

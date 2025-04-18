@@ -164,12 +164,14 @@ export default function Step6_FileUpload() {
 
       const requestData = {
         subscriptionCode: Number(subscription_Code),
-        userCode,
+        // userCode,
         deceasedData: {
           deceasedName: deceased_name,
           gender,
           deceasedAge: deceased_age,
-          personality,
+          personality: Array.isArray(personality)
+            ? personality.join(', ')
+            : personality,
           deceasedNickname: deceased_nickname,
           userNickname: user_nickname,
           relationship,
