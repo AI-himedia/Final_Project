@@ -136,17 +136,19 @@ public class SmsService {
         // 3. file S3에 저장
         List<String> uploadedUrls = new ArrayList<>();
         List<String> presignedUrls = new ArrayList<>();
-        if(chatFile != null || !chatFile.isEmpty()) {
+        if (chatFile != null && !chatFile.isEmpty()) {
             // file 검증
             fileValidationService.validateFiles(chatFile);
             for (MultipartFile file : chatFile) {
-                String url = s3Service.uploadFile(file);
-                uploadedUrls.add(url);
-                // 4. 이미지 파일만 preSignedUrl 로 관리
-                if(url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")){
-                    String key = s3Service.extractKeyFromUrl(url);
-                    String presignedUrl = s3Service.generatePresignedUrl(key);
-                    presignedUrls.add(presignedUrl);
+                if (file != null && !file.isEmpty()) { // 이중 체크
+                    String url = s3Service.uploadFile(file);
+                    uploadedUrls.add(url);
+                    // 4. 이미지 파일만 preSignedUrl 로 관리
+                    if (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")) {
+                        String key = s3Service.extractKeyFromUrl(url);
+                        String presignedUrl = s3Service.generatePresignedUrl(key);
+                        presignedUrls.add(presignedUrl);
+                    }
                 }
             }
         }

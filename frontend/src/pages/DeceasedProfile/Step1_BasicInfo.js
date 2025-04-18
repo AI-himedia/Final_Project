@@ -5,6 +5,7 @@ import { FaChevronDown } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step1_BasicInfo() {
+  console.log('[zustand 전체 상태1]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
   // zustand 상태 + setter

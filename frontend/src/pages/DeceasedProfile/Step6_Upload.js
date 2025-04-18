@@ -2,44 +2,203 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Deceased.module.css';
 import { MdOutlineFileUpload } from 'react-icons/md';
+import useDeceasedProfile from '../../zustand/useDeceasedProfile';
+import { axiosInstance } from '../../api/AxiosInstance';
+import { useSelector } from 'react-redux';
 
-const allowedExtensions = [
+const audioVideoExtensions = [
   'mp3',
   'aac',
   'ac3',
   'ogg',
   'flac',
   'wav',
-  'm4a', // audio
+  'm4a',
   'avi',
   'mp4',
   'mov',
   'wmv',
   'flv',
-  'mkv', // video
+  'mkv',
 ];
+
+const imageTextExtensions = ['png', 'jpg', 'jpeg', 'txt'];
+const MAX_AUDIO_COUNT = 3;
+const MAX_TXT_SIZE_MB = 10;
 
 export default function Step6_FileUpload() {
   const [files, setFiles] = useState([]);
   const navigate = useNavigate();
+  const serviceCode = localStorage.getItem('@againhello/service-code');
+
+  const userCode = useSelector((state) => state.user.userCode);
+  const {
+    subscription_Code,
+    deceased_name,
+    gender,
+    deceased_age,
+    personality,
+    deceased_nickname,
+    user_nickname,
+    relationship,
+    speaking_tone,
+  } = useDeceasedProfile();
+
+  const allowedExtensions =
+    serviceCode === '2' ? audioVideoExtensions : imageTextExtensions;
 
   const handleFileChange = (e) => {
     const uploaded = e.target.files[0];
     if (!uploaded) return;
 
     const ext = uploaded.name.split('.').pop().toLowerCase();
-    if (allowedExtensions.includes(ext)) {
-      setFiles((prev) => [...prev, uploaded]);
-    } else {
+    if (!allowedExtensions.includes(ext)) {
       alert('지원하지 않는 파일 형식입니다.');
+      return;
     }
+
+    if (ext === 'txt') {
+      const sizeInMB = uploaded.size / (1024 * 1024);
+      if (sizeInMB > MAX_TXT_SIZE_MB) {
+        alert(`텍스트 파일은 ${MAX_TXT_SIZE_MB}MB 이하만 업로드 가능합니다.`);
+        return;
+      }
+    }
+
+    const isAudio = ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'wav', 'm4a'].includes(
+      ext
+    );
+    if (isAudio) {
+      const currentAudioCount = files.filter((f) =>
+        ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'wav', 'm4a'].includes(
+          f.name.split('.').pop().toLowerCase()
+        )
+      ).length;
+      if (currentAudioCount >= MAX_AUDIO_COUNT) {
+        alert(`오디오 파일은 최대 ${MAX_AUDIO_COUNT}개까지 등록 가능합니다.`);
+        return;
+      }
+    }
+
+    setFiles((prev) => [...prev, uploaded]);
   };
 
-  const handleSubmit = () => {
-    if (files.length > 0) {
-      console.log('업로드된 파일들:', files);
-      // TODO: 서버 업로드 처리
+  const handleSubmit = async () => {
+    if (files.length === 0) return;
+
+    const formData = new FormData();
+
+    if (serviceCode === '1') {
+      const validFile = files.find((file) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        return imageTextExtensions.includes(ext);
+      });
+
+      if (!validFile) {
+        alert('png, jpg, jpeg, txt 중 하나 이상의 파일이 필요합니다.');
+        return;
+      }
+
+      formData.append('subscriptionCode', subscription_Code);
+
+      // formData에는 txt만 넣고 싶을 때
+      const chatFile = files.find((file) => file.name.endsWith('.txt'));
+      if (chatFile) {
+        formData.append('chatFile', chatFile);
+      }
+
+      const deceasedCode = localStorage.getItem('@againhello/deceased-code');
+
+      const deceasedData = {
+        deceasedName: deceased_name,
+        gender,
+        deceasedAge: deceased_age,
+        personality,
+        deceasedNickname: deceased_nickname,
+        userNickname: user_nickname,
+        relationship,
+        speakingTone: speaking_tone,
+      };
+
+      if (deceasedCode) {
+        deceasedData.deceasedCode = Number(deceasedCode);
+      }
+
+      const postBody = {
+        subscriptionCode: Number(subscription_Code),
+        deceasedData,
+      };
+
+      console.log('🟢 POST Body:', postBody);
+
+      formData.append('subscriptionCode', subscription_Code);
+      formData.append('chatFile', chatFile);
+      formData.append(
+        'deceasedData',
+        new Blob(
+          [
+            JSON.stringify({
+              deceasedName: deceased_name,
+              gender,
+              deceasedAge: deceased_age,
+              personality: Array.isArray(personality)
+                ? personality.join(', ')
+                : personality,
+              deceasedNickname: deceased_nickname,
+              userNickname: user_nickname,
+              relationship,
+              speakingTone: speaking_tone,
+            }),
+          ],
+          { type: 'application/json' }
+        )
+      );
+    }
+
+    if (serviceCode === '2') {
+      const audioFiles = files.filter((file) =>
+        ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'wav', 'm4a'].includes(
+          file.name.split('.').pop().toLowerCase()
+        )
+      );
+
+      const requestData = {
+        subscriptionCode: Number(subscription_Code),
+        // userCode,
+        deceasedData: {
+          deceasedName: deceased_name,
+          gender,
+          deceasedAge: deceased_age,
+          personality: Array.isArray(personality)
+            ? personality.join(', ')
+            : personality,
+          deceasedNickname: deceased_nickname,
+          userNickname: user_nickname,
+          relationship,
+          speakingTone: speaking_tone,
+        },
+      };
+
+      console.log('🟢 POST Body:', requestData);
+
+      audioFiles.forEach((file) => formData.append('audioFiles', file));
+      formData.append(
+        'request',
+        new Blob([JSON.stringify(requestData)], {
+          type: 'application/json',
+        })
+      );
+    }
+
+    try {
+      if (serviceCode === '1') {
+        await axiosInstance.post('/sms/service/start', formData);
+      } else if (serviceCode === '2') {
+        await axiosInstance.post('/call/service/start-and-separate', formData);
+      }
       navigate('/deceased/profile/step7');
+    } catch (err) {
+      alert('서버 요청 중 오류가 발생했습니다.');
     }
   };
 
@@ -50,22 +209,40 @@ export default function Step6_FileUpload() {
           고인과 관련된
           <br />
           파일을 첨부해주세요.
+          {serviceCode === '2' ? (
+            <p className={styles.helperText}>
+              업로드 가능한 파일 형식:
+              <br />
+              오디오/비디오 파일(mp3, mp4 등)
+              <br />* 오디오 파일은 최대 3개까지만 등록할 수 있어요
+            </p>
+          ) : (
+            <p className={styles.helperText}>
+              업로드 가능한 파일 형식:
+              <br />
+              이미지 또는 텍스트 파일(png, jpg, txt 등)
+              <br />* 텍스트(txt)는 10MB 이하만 가능해요
+            </p>
+          )}
         </h2>
 
-        <div className={styles.uploadRow}>
-          {/* 서류첨부 박스 */}
+        <div
+          className={`${styles.uploadRow} ${
+            files.length === 1 ? styles.singleUploadRow : ''
+          }`}
+        >
           <label className={styles.uploadBox}>
             <MdOutlineFileUpload className={styles.uploadIcon} />
-            <span>서류첨부</span>
+            <span>파일 첨부</span>
             <input
               type="file"
               accept={allowedExtensions.map((ext) => '.' + ext).join(',')}
+              multiple
               onChange={handleFileChange}
               hidden
             />
           </label>
 
-          {/* 업로드된 파일들 */}
           {files.map((file, index) => {
             const ext = file.name.split('.').pop().toLowerCase();
             const isAudio = [
@@ -78,8 +255,18 @@ export default function Step6_FileUpload() {
               'm4a',
             ].includes(ext);
 
+            const handleDelete = () => {
+              setFiles((prev) => prev.filter((_, i) => i !== index));
+            };
+
             return (
-              <div key={index} className={styles.fileThumb}>
+              <div
+                key={index}
+                className={styles.fileThumb}
+                onClick={handleDelete}
+                style={{ cursor: 'pointer' }}
+                title="클릭하면 삭제됩니다"
+              >
                 <img
                   src={
                     isAudio
@@ -96,17 +283,19 @@ export default function Step6_FileUpload() {
             );
           })}
         </div>
+      </div>
 
-        <div className={styles.uploadGuideBox}>
-          <p className={styles.uploadGuideTitle}>
-            어떤 파일을 첨부해야 할지 모르시겠나요?
-          </p>
-          <p className={styles.uploadGuideSub}>
-            자주 쓰이는 예시들을 확인해보세요 👇
-          </p>
-          <div className={styles.guideItem}>- 통화 녹음 파일</div>
-          <div className={styles.guideItem}>- 메시지 대화 내용 (카카오톡)</div>
-        </div>
+      <p className={styles.Warning}>* 파일을 터치하면 삭제 됩니다 !</p>
+
+      <div className={styles.uploadGuideBox}>
+        <p className={styles.uploadGuideTitle}>
+          어떤 파일을 첨부해야 할지 모르시겠나요?
+        </p>
+        <p className={styles.uploadGuideSub}>
+          자주 쓰이는 예시들을 확인해보세요 👇
+        </p>
+        <div className={styles.guideItem}>- 통화 녹음 파일</div>
+        <div className={styles.guideItem}>- 메시지 대화 내용 (카카오톡)</div>
       </div>
 
       <button
@@ -114,7 +303,7 @@ export default function Step6_FileUpload() {
         onClick={handleSubmit}
         disabled={files.length === 0}
       >
-        다음
+        프로필 저장하기
       </button>
     </div>
   );

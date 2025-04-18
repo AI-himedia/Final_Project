@@ -1,23 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
-import './Deceased.module.css';
+import styles from './Deceased.module.css';
 
 export default function Step5_SpeakingTone() {
+  console.log('[zustand 전체 상태5]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
   const speakingTone = useDeceasedProfile((state) => state.speaking_tone);
   const setSpeakingTone = useDeceasedProfile((state) => state.setSpeakingTone);
 
-  const [selectedTone, setSelectedTone] = useState(
-    typeof speakingTone === 'boolean' ? speakingTone : null
-  );
+  const [selectedTone, setSelectedTone] = useState(null);
 
-  const handleClick = (tone) => {
-    if (selectedTone !== tone) {
-      setSelectedTone(tone);
+  // 초기 zustand 값 반영
+  useEffect(() => {
+    if (typeof speakingTone === 'boolean') {
+      setSelectedTone(speakingTone);
     }
-  };
+  }, [speakingTone]);
 
   const handleSubmit = () => {
     if (selectedTone !== null) {
@@ -27,33 +27,33 @@ export default function Step5_SpeakingTone() {
   };
 
   return (
-    <div className="container">
-      <div className="content">
-        <h2 className="title">
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <h2 className={styles.title} style={{ marginBottom: '-0.1rem' }}>
           고인의 말은
           <br />
           어떤 스타일이었나요?
-          <div className="helperText">
+          <p className={styles.helperText}>
             반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
-          </div>
+          </p>
         </h2>
 
-        <div className="optionGroup">
+        <div className={styles.toneGroup}>
           <button
             type="button"
-            className={`optionButton ${
-              selectedTone === true ? 'selected' : ''
+            className={`${styles.toneButton} ${
+              selectedTone === true ? styles.selected : ''
             }`}
-            onClick={() => handleClick(true)}
+            onClick={() => setSelectedTone(true)}
           >
             반말
           </button>
           <button
             type="button"
-            className={`optionButton ${
-              selectedTone === false ? 'selected' : ''
+            className={`${styles.toneButton} ${
+              selectedTone === false ? styles.selected : ''
             }`}
-            onClick={() => handleClick(false)}
+            onClick={() => setSelectedTone(false)}
           >
             존댓말
           </button>
@@ -61,7 +61,7 @@ export default function Step5_SpeakingTone() {
       </div>
 
       <button
-        className="confirmButton"
+        className={styles.confirmButton}
         onClick={handleSubmit}
         disabled={selectedTone === null}
       >

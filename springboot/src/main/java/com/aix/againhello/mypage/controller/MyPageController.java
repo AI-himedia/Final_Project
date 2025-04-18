@@ -66,15 +66,25 @@ public class MyPageController {
             if (sub.getServiceCode() == 1) {
                 smsService.startService(sub.getSubscriptionCode(), deceasedDataDto, smsFiles);
             } else if (sub.getServiceCode() == 2) {
-                callService.processSubscription(sub.getSubscriptionCode(), deceasedDataDto, callFiles);
+                // call 서비스 분기
+                if (callFiles != null && !callFiles.isEmpty()) {
+                    // 오디오 파일이 있으면 기존대로 전체 로직 실행
+                    callService.processSubscription(sub.getSubscriptionCode(), deceasedDataDto, callFiles);
 
-                try {
-                    PreviewResponseDTO response = audioProcessingService.separateSpeakers(sub.getSubscriptionCode());
+                    try {
+                        PreviewResponseDTO response = audioProcessingService.separateSpeakers(sub.getSubscriptionCode());
+                        result.put("subscriptionCode", sub.getSubscriptionCode());
+                        result.put("preview", response);
+                    } catch (Exception e) {
+                        return ResponseEntity.internalServerError()
+                                .body(Map.of("error", "화자 분리 중 오류 발생: " + e.getMessage()));
+                    }
+                } else {
+                    // 오디오 파일이 없으면 고인 데이터만 업데이트
+                    Integer deceasedCode = deceasedDataDto.getDeceasedCode();
+                    callService.updateDeceasedData(deceasedCode, deceasedDataDto);
                     result.put("subscriptionCode", sub.getSubscriptionCode());
-                    result.put("preview", response);
-                } catch (Exception e) {
-                    return ResponseEntity.internalServerError()
-                            .body(Map.of("error", "화자 분리 중 오류 발생: " + e.getMessage()));
+                    result.put("message", "고인 정보만 수정되었습니다.");
                 }
             }
         }

@@ -5,7 +5,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step3_Relationship() {
-  console.log('[zustand 전체 상태]', useDeceasedProfile.getState());
+  console.log('[zustand 전체 상태3]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
   const relationship = useDeceasedProfile((state) => state.relationship);
