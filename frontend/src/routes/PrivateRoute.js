@@ -1,15 +1,18 @@
-// src/routes/PrivateRoute.js
-import { Outlet } from 'react-router-dom';
-import { useAuthenticate } from '../hooks/useAuthenticate';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { useEffect, useRef } from 'react';
 
 export default function PrivateRoute() {
-  const isAuthenticated = useAuthenticate();
+  const user = useSelector((state) => state.user.user);
+  const isLoading = useSelector((state) => state.user.isLoading);
+  const location = useLocation();
   const hasShownAlert = useRef(false);
 
+  const isAuthenticated = !!user?.userCode;
+
   useEffect(() => {
-    if (!isAuthenticated && !hasShownAlert.current) {
+    if (!isLoading && !isAuthenticated && !hasShownAlert.current) {
       hasShownAlert.current = true;
       Swal.fire({
         toast: true,
@@ -21,10 +24,12 @@ export default function PrivateRoute() {
         timerProgressBar: true,
       });
     }
-  }, [isAuthenticated]);
+  }, [isLoading, isAuthenticated]);
+
+  if (isLoading) return null;
 
   if (!isAuthenticated) {
-    return null;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   return <Outlet />;

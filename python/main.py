@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware import Middleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from dotenv import load_dotenv
 from api import routers
 import psycopg2
@@ -8,6 +10,7 @@ import os
 
 
 app = FastAPI()
+
 
 # CORS 설정
 app.add_middleware(

@@ -1,11 +1,13 @@
 package com.aix.againhello.subscription;
 
-import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.common.DeceasedDataDTO;
+import com.aix.againhello.common.DeceasedDetailDTO;
 import com.aix.againhello.common.SubscriptionDTO;
+import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
 import com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse;
 import com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,14 +93,26 @@ public class SubscriptionService {
 
     }
 
-    public DeceasedDataDTO getDeceasedData(int deceasedCode) {
-
+    public DeceasedDetailDTO getDeceasedData(int userCode, int deceasedCode) {
         // 1. 고인 코드 존재 여부 확인
         if(!subscriptionMapper.existsByDeceasedCode(deceasedCode)){
             throw new ServiceException("고인 코드가 존재하지 않습니다.");
         }
 
-        return subscriptionMapper.getDeceasedData(deceasedCode);
+        // 2. 고인 정보 조회
+        DeceasedDataDTO deceasedData = subscriptionMapper.getDeceasedData(deceasedCode);
+        if (deceasedData == null) throw new ServiceException("고인 정보 없음");
+
+        // 3. 서비스별 구독 정보 조회
+        List<SubscriptionDTO> serviceSubscriptions =
+                subscriptionMapper.findServiceSubscriptionsByUserAndDeceased(userCode, deceasedCode);
+
+        // 4. 조립
+        DeceasedDetailDTO result = new DeceasedDetailDTO();
+        BeanUtils.copyProperties(deceasedData, result);
+        result.setServiceSubscriptions(serviceSubscriptions);
+
+        return result;
     }
 
     public ExceptionCaseResponse getSubscriptedWithNoDeceasedData(int userCode) {
@@ -109,9 +123,6 @@ public class SubscriptionService {
         }
 
         ExceptionCaseResponse response = subscriptionMapper.getSubscriptedWithNoDeceasedData(userCode);
-        System.out.println("----------------------------------------");
-        System.out.println(response.getSubscriptionCode());
-        System.out.println(response.getServiceCode());
 
         return response;
     }

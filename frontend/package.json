@@ -29,7 +29,8 @@
     "redux-persist": "^6.0.0",
     "sweetalert2": "^11.18.0",
     "swiper": "^11.2.6",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "zustand": "^5.0.3"
   },
   "scripts": {
     "start": "react-scripts start",

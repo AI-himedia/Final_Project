@@ -44,6 +44,8 @@ out/
 .env.test.local
 .env.production.local
 
+dump.rdb
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -91,6 +93,7 @@ python/.mypy_cache/
 python/.pytorch_model/
 python/.coverage
 **/__pycache__/
+python/dump.rdb
 python/received_files/
 
 # Google Cloud 인증키

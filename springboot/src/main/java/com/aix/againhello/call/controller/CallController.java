@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,28 +27,33 @@ public class CallController {
     private AudioProcessingService audioProcessingService;
 
     /**
-     * 전화 서비스 신청
+     * 전화 서비스 신청 및 화자 분리
      */
-    @PostMapping("/service/start")
-    public ResponseEntity<?> startService(
+    @PostMapping("/service/start-and-separate")
+    public ResponseEntity<?> startServiceAndSeparateSpeakers(
             @RequestPart("request") SubscriptionRequestDTO request,
             @RequestPart(value = "audioFiles", required = false) List<MultipartFile> audioFiles) {
 
-        callService.processSubscription(request.getSubscriptionCode(), request.getDeceasedData(), audioFiles);
+        int subscriptionCode = request.getSubscriptionCode();
 
-        return ResponseEntity.ok(Map.of("message", "Service processing initiated successfully."));
-    }
-
-    /**
-     * 화자 분리
-     */
-    @PostMapping("/separate/speakers")
-    public ResponseEntity<?> separateSpeakers() {
         try {
-            PreviewResponseDTO response = audioProcessingService.separateSpeakers();
-            return ResponseEntity.ok(response);
+            // 1. 전화 서비스 신청 처리
+            callService.processSubscription(subscriptionCode, request.getDeceasedData(), audioFiles);
+
+            // 2. 화자 분리 처리
+            PreviewResponseDTO response = audioProcessingService.separateSpeakers(subscriptionCode);
+
+            // 3. 결과 반환
+            Map<String, Object> result = new HashMap<>();
+            result.put("subscriptionCode", request.getSubscriptionCode());
+            result.put("message", "Service processing and speaker separation completed successfully.");
+            result.put("preview", response);
+
+            return ResponseEntity.ok(result);
+
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("화자 분리 처리 중 오류 발생: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "처리 중 오류 발생: " + e.getMessage()));
         }
     }
 
@@ -55,9 +61,11 @@ public class CallController {
      * 오디오 파일 스트리밍(미리 듣기)
      */
     @GetMapping("/audio/{filename:.+}")
-    public ResponseEntity<Resource> getAudio(@PathVariable String filename) {
+    public ResponseEntity<Resource> getAudio(
+            @PathVariable String filename,
+            @RequestParam("subscriptionCode") int subscriptionCode) {
         try {
-            ResourceResponseDTO resourceResponse = audioProcessingService.getAudioResource(filename);
+            ResourceResponseDTO resourceResponse = audioProcessingService.getAudioResource(filename, subscriptionCode);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(resourceResponse.getContentType()))

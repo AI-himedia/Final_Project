@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { Pagination } from 'swiper/modules';
@@ -73,6 +72,9 @@ export default function ApplyPage() {
             pagination={{ clickable: true }}
             spaceBetween={50}
             slidesPerView={1}
+            simulateTouch={true}
+            allowTouchMove={true}
+            grabCursor={true}
           >
             <SwiperSlide>
               <img

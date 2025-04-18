@@ -16,9 +16,11 @@ class YourPostgresChatMessageHistory(BaseChatMessageHistory):
                     SELECT role, content
                     FROM contents
                     WHERE deceased_code = %s
-                    ORDER BY message_time ASC
+                    ORDER BY message_time DESC
+                    LIMIT 10
                 """, (self.deceased_code,))
                 rows = cur.fetchall()
+                rows.reverse()  # 시간순 정렬로 되될리기
 
         message_objs = []
         for role, content in rows:

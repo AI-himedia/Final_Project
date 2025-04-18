@@ -105,4 +105,58 @@
         WHERE subscription_code = #{subscriptionCode}
     </update>
 
+    <!-- 구독 중인 서비스 코드 리스트 조회 -->
+    <select id="findServiceSubscriptionsByUserAndDeceased" resultType="com.aix.againhello.common.SubscriptionDTO">
+        SELECT *
+        FROM subscription
+        WHERE user_code = #{userCode}
+        AND deceased_code = #{deceasedCode}
+    </select>
+
+    <select id="findByUserCode" resultType="com.aix.againhello.common.SubscriptionDTO">
+        SELECT subscription_code, service_code, user_code, deceased_code
+        FROM subscription
+        WHERE user_code = #{userCode}
+    </select>
+
+    <resultMap id="DeceasedDetailMap" type="com.aix.againhello.common.DeceasedDetailDTO">
+        <id property="deceasedCode" column="deceased_code"/>
+        <result property="deceasedName" column="deceased_name"/>
+        <result property="gender" column="gender"/>
+        <result property="deceasedAge" column="deceased_age"/>
+        <result property="personality" column="personality"/>
+        <result property="deceasedNickname" column="deceased_nickname"/>
+        <result property="userNickname" column="user_nickname"/>
+        <result property="relationship" column="relationship"/>
+        <result property="speakingTone" column="speaking_tone"/>
+        <collection property="serviceSubscriptions" ofType="com.aix.againhello.common.SubscriptionDTO">
+            <id property="subscriptionCode" column="subscription_code"/>
+            <result property="serviceCode" column="service_code"/>
+            <result property="userCode" column="user_code"/>
+            <result property="deceasedCode" column="deceased_code"/>
+        </collection>
+    </resultMap>
+
+    <select id="getDeceasedDetailWithSubscriptions" resultMap="DeceasedDetailMap">
+        SELECT
+        d.deceased_code,
+        d.deceased_name,
+        d.gender,
+        d.deceased_age,
+        d.personality,
+        d.deceased_nickname,
+        d.user_nickname,
+        d.relationship,
+        d.speaking_tone,
+        s.subscription_code,
+        s.service_code,
+        s.user_code,
+        s.deceased_code
+        FROM deceased_data d
+        LEFT JOIN subscription s
+        ON d.deceased_code = s.deceased_code
+        AND s.user_code = #{userCode}
+        WHERE d.deceased_code = #{deceasedCode}
+    </select>
+
 </mapper>

@@ -8,8 +8,7 @@ import AppLayout from './components/MainLayout';
 import { useAuth } from './hooks/useAuth';
 
 function App() {
-  useAuth();
-
+  const { isLoading } = useAuth();
   const location = useLocation();
 
   // 메타 정보 설정
@@ -25,6 +24,7 @@ function App() {
   }, [location.pathname]);
 
   // 사용자 정보 로딩이 완료된 후 앱 렌더링
+  if (isLoading) return null;
   return (
     <div className={`App ${meta.showFooter ? 'hasFooter' : ''}`}>
       <AppLayout meta={meta}>

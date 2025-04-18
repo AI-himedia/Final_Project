@@ -115,7 +115,7 @@ public class CallService {
     /**
      * 기존 고인 데이터 Update
      */
-    private void updateDeceasedData(int deceasedCode, DeceasedDataDTO deceasedDataDto) {
+    public void updateDeceasedData(int deceasedCode, DeceasedDataDTO deceasedDataDto) {
 
         deceasedDataDto.setDeceasedCode(deceasedCode);
         int updatedRows = callMapper.updateDeceasedData(deceasedDataDto);
@@ -155,7 +155,7 @@ public class CallService {
                 List<String> audioFilePaths = new ArrayList<>();
                 for (MultipartFile file : audioFiles) {
                     if (!file.isEmpty()) {
-                        String filePath = fileStorageService.storeFile(file, "audio", deceasedCode);
+                        String filePath = fileStorageService.storeFile(file, "audio", subscriptionCode, deceasedCode);
                         audioFilePaths.add(filePath);
                     }
                 }
@@ -164,6 +164,8 @@ public class CallService {
             } catch (Exception e) {
                 throw new ServiceException("파일 처리 중 오류가 발생했습니다: " + e.getMessage());
             }
+        } else {
+            System.out.println("파일이 존재하지 않습니다.");
         }
     }
 
