@@ -10,7 +10,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,9 +41,12 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
         connectedReactSessions.add(session);
         System.out.println("React 세션 등록됨: " + session.getId() + " (총 세션 수: " + connectedReactSessions.size() + ")");
 
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Origin", "http://localhost:8080");
+
         try {
             if (fastApiClient == null || !fastApiClient.isOpen()) {
-                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"));
+                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"), headers);
                 fastApiClient.setMessageRelayCallback(this::relayToReactClients);
                 fastApiClient.setBinaryRelayCallback(this::relayBinaryToReactClients);
                 fastApiClient.connectBlocking();
@@ -97,16 +102,14 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
                 signal = root.path("event").asText();  // fallback
             }
 
-            System.out.println("[event]: " + signal + " / [type]: " + signal);
-
             if ("end".equals(signal)) {
-                System.out.println("클라이언트가 STT 종료 요청");
                 fastApiClient.send("{\"event\":\"end\"}");
+                System.out.println(" 'end' 메시지 FastAPI로 전송");
             }
 
             if ("stt_end".equals(signal)) {
-                System.out.println("React로 STT 종료 알림 전송");
                 session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
+                System.out.println("React로 STT 종료 알림 전송");
             }
 
             if ("tts_start".equals(signal)) {
@@ -134,15 +137,12 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
 
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-        if (fastApiClient == null || !fastApiClient.isOpen()) {
-            System.out.println("FastAPI가 아직 연결되지 않음 → 오디오 버림!");
-        }
 
         ByteBuffer buffer = message.getPayload();
         byte[] audioBytes = new byte[buffer.remaining()];
         buffer.get(audioBytes);
 
-        if (session.getUri().toString().contains("be/ws/react")) {
+        if (Objects.requireNonNull(session.getUri()).toString().contains("be/ws/react")) {
             if (fastApiClient != null && fastApiClient.isOpen()) {
                 fastApiClient.send(audioBytes);
             }

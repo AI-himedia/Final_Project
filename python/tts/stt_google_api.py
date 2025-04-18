@@ -55,11 +55,10 @@ def stt_streaming_generator(audio_chunks):
 
 # 비동기 wrapper 함수
 async def run_streaming_stt(audio_queue: asyncio.Queue):
+    print("[STT 내부] 오디오 수신 대기 시작")
     loop = asyncio.get_event_loop()
     audio_chunks = []
     
-    print("[STT] 오디오 큐 시작")
-
     while True:
         chunk = await audio_queue.get()
         
