@@ -200,6 +200,14 @@ public class AudioProcessingService {
         for (SelectedSpeakerDTO selection : request.getSelections()) {
             String originalFilename = selection.getOriginalFilename();
             String selectedSpeakerId = selection.getSelectedSpeakerId();
+
+            // selectedSpeakerId이 "해당 없음" 또는 originalFilename이 null/빈값이면 건너뜀
+            if (selectedSpeakerId == null || "none".equals(selectedSpeakerId)
+                    || originalFilename == null || originalFilename.trim().isEmpty()) {
+                log.info("파일/화자 정보가 없거나 '해당 없음' 선택됨: originalFilename={}, speakerId={}", originalFilename, selectedSpeakerId);
+                continue;
+            }
+
             String selectionKey = originalFilename + "_" + selectedSpeakerId;
 
             if (!uniqueSelections.add(selectionKey)) {
