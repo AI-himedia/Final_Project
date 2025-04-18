@@ -32,7 +32,7 @@ const SignupForm = ({ kakaoUserData }) => {
       dispatch(setLogin(res.data.email));
       alert('회원가입이 완료되었습니다!');
     } catch (err) {
-      console.error('[DEBUG] 회원가입 실패:', err);
+      // console.error('[DEBUG] 회원가입 실패:', err);
       alert('회원가입에 실패했습니다. 다시 시도해주세요.');
     }
   };
