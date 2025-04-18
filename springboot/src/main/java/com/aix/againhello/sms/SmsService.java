@@ -136,7 +136,7 @@ public class SmsService {
         // 3. file S3에 저장
         List<String> uploadedUrls = new ArrayList<>();
         List<String> presignedUrls = new ArrayList<>();
-        if(chatFile != null || !chatFile.isEmpty()) {
+        if(chatFile != null && !chatFile.isEmpty()) {
             // file 검증
             fileValidationService.validateFiles(chatFile);
             for (MultipartFile file : chatFile) {
