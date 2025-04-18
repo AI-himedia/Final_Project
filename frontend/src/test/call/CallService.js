@@ -39,6 +39,8 @@ const CallService = () => {
     
     // WebSocket 수신 처리
     socketRef.current.onmessage = async (event) => {
+      console.log("[React 수신 원본]:", event.data);
+
       if (typeof event.data === "string") {
         const msg = JSON.parse(event.data);
         

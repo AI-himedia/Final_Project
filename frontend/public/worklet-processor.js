@@ -2,10 +2,6 @@ let lastSilent = false;
 
 class PCMProcessor extends AudioWorkletProcessor {
 
-  constructor() {
-    super();
-  }
-
   process(inputs) {
     const input = inputs[0];
 
@@ -14,7 +10,7 @@ class PCMProcessor extends AudioWorkletProcessor {
     
       // 1. 무음 감지
       const avg = channelData.reduce((sum, val) => sum + Math.abs(val), 0) / channelData.length;
-      const isSilent = avg < 0.01;
+      const isSilent = avg < 0.03;
 
       // 상태 변경 시 무음 여부 포스트
       if (isSilent !== lastSilent) {

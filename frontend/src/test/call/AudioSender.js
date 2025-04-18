@@ -8,6 +8,7 @@ const AudioSender = () => {
   const streamRef = useRef(null);
   const silenceStartRef = useRef(null);
   const SILENCE_TIMEOUT_MS = 2000
+  const hasStartedTalking = useRef(false);
 
     // const webSocketUrl = "ws://localhost:8080/be/ws/react"
 
@@ -88,12 +89,15 @@ const AudioSender = () => {
     // 오디오 전송
     workletNodeRef.current.port.onmessage = (event) => {
       const { type, silent, buffer } = event.data;
-
+      
       if (type === "silence") {
         if (silent && !silenceStartRef.current) {
           silenceStartRef.current = Date.now();
+          hasStartedTalking.current = false;
+          console.log("사용자 말 끝남")
         } else if (!silent) {
-          silenceStartRef.current = null;
+          hasStartedTalking.current = true;
+          console.log("사용자 말하는 중")
         }
     
         // 2초 이상 무음 지속 → STT 종료 요청
