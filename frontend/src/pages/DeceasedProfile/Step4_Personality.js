@@ -5,6 +5,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import styles from './Deceased.module.css';
 
 export default function Step4_Personality() {
+  console.log('[zustand 전체 상태4]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
   const personality = useDeceasedProfile((state) => state.personality);
@@ -13,7 +14,6 @@ export default function Step4_Personality() {
   const contentRef = useRef(null);
   const optionGroupRef = useRef(null);
 
-  // const [focused, setFocused] = useState(false); // 이 상태는 현재 사용되지 않는 것 같습니다. 제거해도 될 수 있습니다.
   const [custom, setCustom] = useState('');
   const [selected, setSelected] = useState([]);
   const [focusedField, setFocusedField] = useState(null);
@@ -44,50 +44,12 @@ export default function Step4_Personality() {
 
   // 최초 로딩 시 personality 데이터 처리
   useEffect(() => {
-    console.log('[Step4] 최초 personality 값:', personality);
-
-    if (typeof personality === 'string' && personality.trim() !== '') {
-      if (keywords.includes(personality)) {
-        setSelected([personality]);
-      } else {
-        setCustom(personality);
-      }
-    } else if (Array.isArray(personality) && personality.length > 0) {
-      const keywordItems = personality.filter((p) => keywords.includes(p));
-      setSelected(keywordItems);
-      const nonKeywordItem = personality.find((p) => !keywords.includes(p));
-      if (nonKeywordItem) {
-        setCustom(nonKeywordItem);
-      }
+    if (custom.trim() !== '') {
+      setPersonality(custom.trim());
+    } else {
+      setPersonality(selected);
     }
-  }, []); // 최초 마운트 시에만 실행되도록 빈 배열 전달
-
-  // 상태 변경 시 로그 출력 및 Zustand 업데이트 로직 통합
-  useEffect(() => {
-    const merged = custom.trim() ? [...selected, custom.trim()] : [...selected];
-    // personality 상태가 실제로 변경되었을 때만 zustand 업데이트 호출 (무한 루프 방지)
-    const currentPersonality = useDeceasedProfile.getState().personality;
-    if (JSON.stringify(merged) !== JSON.stringify(currentPersonality)) {
-      console.log('[Step4] Zustand 상태 업데이트:', merged);
-      setPersonality(merged);
-    }
-
-    // 요소 크기 로깅 (요소가 렌더링 된 후)
-    if (contentRef.current) {
-      console.log(
-        `[Step4] contentRef 크기: width=${contentRef.current.offsetWidth}, height=${contentRef.current.offsetHeight}, scrollWidth=${contentRef.current.scrollWidth}, scrollHeight=${contentRef.current.scrollHeight}`
-      );
-    }
-    if (optionGroupRef.current) {
-      console.log(
-        `[Step4] optionGroupRef 크기: width=${optionGroupRef.current.offsetWidth}, height=${optionGroupRef.current.offsetHeight}, scrollWidth=${optionGroupRef.current.scrollWidth}, scrollHeight=${optionGroupRef.current.scrollHeight}`
-      );
-    }
-    // window 크기도 함께 로깅하면 비교에 도움됨
-    console.log(
-      `[Step4] Window 크기: width=${window.innerWidth}, height=${window.innerHeight}`
-    );
-  }, [selected, custom, showKeywords, setPersonality]); // selected, custom, showKeywords 변경 시 로그 재실행 및 상태 업데이트
+  }, [custom, selected]);
 
   const toggleKeyword = (word) => {
     if (isKeywordDisabled) return;
