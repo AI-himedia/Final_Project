@@ -1,5 +1,6 @@
 import redis
 import os
+from fastapi import HTTPException
 
 try:
     # Redis 클라이언트 연결

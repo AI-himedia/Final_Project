@@ -22,6 +22,7 @@ public class SmsController {
     public ResponseEntity<?> startSubscription(
             @RequestParam("subscriptionCode") int subscriptionCode,
             @RequestPart(value = "deceasedData", required = false) DeceasedDataDTO deceasedDataDTO,
+//            @RequestPart(value = "deceasedData", required = false) DeceasedDataDTO deceasedDataDTO,
             @RequestPart(value = "chatFile", required = false) List<MultipartFile> chatFile
     ) {
 
