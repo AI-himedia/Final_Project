@@ -1,5 +1,5 @@
 from typing import List
-from models.request_models import DeceasedData, DeceasedHint
+from llm.models.request_models import DeceasedData, DeceasedHint
 
 def build_analysis_messages(combined_text: str, base64_images: List[str]) -> List[dict]:
     content_list = []
