@@ -121,7 +121,7 @@ public class SmsService {
     }
 
 
-    public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, List<MultipartFile> chatFile) {
+    public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, DeceasedHintDTO deceasedHintDTO, List<MultipartFile> chatFile) {
 
         System.out.println("subscriptionCode : " + subscriptionCode);
         System.out.println("deceasedDataDTO : " + deceasedDataDTO);
@@ -157,6 +157,7 @@ public class SmsService {
         ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
                 subscriptionCode,
                 deceasedDataDTO,
+                deceasedHintDTO,
                 uploadedUrls,
                 presignedUrls
         );
