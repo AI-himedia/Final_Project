@@ -4,6 +4,8 @@ import com.aix.againhello.call.dto.*;
 import com.aix.againhello.call.service.AudioProcessingService;
 import com.aix.againhello.call.service.CallService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +31,9 @@ public class CallController {
 
     @Autowired
     private AudioProcessingService audioProcessingService;
+
+    @Value("${file.call}")
+    private String baseDirectory;
 
     /**
      * 전화 서비스 신청 및 화자 분리
@@ -100,5 +109,41 @@ public class CallController {
         return ResponseEntity.ok(deceasedList);
 
     }
+
+    @GetMapping("/audio-direct")
+    public ResponseEntity<Resource> streamAudioDirect(@RequestParam String path, @RequestParam int subscriptionCode) {
+        try {
+            // 경로 디코딩
+            String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+            System.out.println("Decoded path: " + decodedPath);  // 디버깅용
+
+            // decodedPath에서 "/be/call/audio/" 부분 제거
+            String cleanPath = decodedPath.replace("/be/call/audio", "");
+
+            // subscriptionCode로 폴더 경로 설정
+            String fullPath = baseDirectory + "/" + subscriptionCode + "/long" + cleanPath;
+
+            // 디버깅: 경로 확인
+            System.out.println("Full path to file: " + fullPath);
+
+            File file = new File(fullPath);
+            if (!file.exists()) {
+                System.out.println("파일이 존재하지 않습니다: " + fullPath);
+                return ResponseEntity.notFound().build();  // 파일이 존재하지 않으면 404 반환
+            }
+
+            // 파일이 존재하면 스트리밍
+            Resource resource = new InputStreamResource(new FileInputStream(file));
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("audio/wav")) // 파일 타입에 맞게 조정
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();  // 예외 처리
+        }
+    }
+
 
 }

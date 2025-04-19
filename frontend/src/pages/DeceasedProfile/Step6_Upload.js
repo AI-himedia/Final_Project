@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Deceased.module.css';
 import { MdOutlineFileUpload } from 'react-icons/md';
@@ -21,17 +20,15 @@ const audioVideoExtensions = [
   'flv',
   'mkv',
 ];
-
 const imageTextExtensions = ['png', 'jpg', 'jpeg', 'txt'];
 const MAX_AUDIO_COUNT = 3;
 const MAX_TXT_SIZE_MB = 10;
 
 export default function Step6_FileUpload() {
-  const [files, setFiles] = useState([]);
+  console.log('[zustand 전체 상태6]', useDeceasedProfile.getState());
   const navigate = useNavigate();
   const serviceCode = localStorage.getItem('@againhello/service-code');
 
-  const userCode = useSelector((state) => state.user.userCode);
   const {
     subscription_Code,
     deceased_name,
@@ -42,6 +39,9 @@ export default function Step6_FileUpload() {
     user_nickname,
     relationship,
     speaking_tone,
+    files,
+    addFile,
+    removeFile,
   } = useDeceasedProfile();
 
   const allowedExtensions =
@@ -80,7 +80,7 @@ export default function Step6_FileUpload() {
       }
     }
 
-    setFiles((prev) => [...prev, uploaded]);
+    addFile(uploaded);
   };
 
   const handleSubmit = async () => {
@@ -99,59 +99,29 @@ export default function Step6_FileUpload() {
         return;
       }
 
-      formData.append('subscriptionCode', subscription_Code);
-
-      // formData에는 txt만 넣고 싶을 때
       const chatFile = files.find((file) => file.name.endsWith('.txt'));
-      if (chatFile) {
-        formData.append('chatFile', chatFile);
-      }
-
       const deceasedCode = localStorage.getItem('@againhello/deceased-code');
+
+      formData.append('subscriptionCode', subscription_Code);
+      if (chatFile) formData.append('chatFile', chatFile);
 
       const deceasedData = {
         deceasedName: deceased_name,
         gender,
         deceasedAge: deceased_age,
-        personality,
+        personality: Array.isArray(personality)
+          ? personality.join(', ')
+          : personality,
         deceasedNickname: deceased_nickname,
         userNickname: user_nickname,
         relationship,
         speakingTone: speaking_tone,
+        ...(deceasedCode && { deceasedCode: Number(deceasedCode) }),
       };
 
-      if (deceasedCode) {
-        deceasedData.deceasedCode = Number(deceasedCode);
-      }
-
-      const postBody = {
-        subscriptionCode: Number(subscription_Code),
-        deceasedData,
-      };
-
-      console.log('🟢 POST Body:', postBody);
-
-      formData.append('subscriptionCode', subscription_Code);
-      formData.append('chatFile', chatFile);
       formData.append(
         'deceasedData',
-        new Blob(
-          [
-            JSON.stringify({
-              deceasedName: deceased_name,
-              gender,
-              deceasedAge: deceased_age,
-              personality: Array.isArray(personality)
-                ? personality.join(', ')
-                : personality,
-              deceasedNickname: deceased_nickname,
-              userNickname: user_nickname,
-              relationship,
-              speakingTone: speaking_tone,
-            }),
-          ],
-          { type: 'application/json' }
-        )
+        new Blob([JSON.stringify(deceasedData)], { type: 'application/json' })
       );
     }
 
@@ -164,7 +134,6 @@ export default function Step6_FileUpload() {
 
       const requestData = {
         subscriptionCode: Number(subscription_Code),
-        // userCode,
         deceasedData: {
           deceasedName: deceased_name,
           gender,
@@ -179,24 +148,26 @@ export default function Step6_FileUpload() {
         },
       };
 
-      console.log('🟢 POST Body:', requestData);
-
       audioFiles.forEach((file) => formData.append('audioFiles', file));
       formData.append(
         'request',
-        new Blob([JSON.stringify(requestData)], {
-          type: 'application/json',
-        })
+        new Blob([JSON.stringify(requestData)], { type: 'application/json' })
       );
     }
 
     try {
       if (serviceCode === '1') {
         await axiosInstance.post('/sms/service/start', formData);
+        navigate('/deceased/profile/step7-sms');
       } else if (serviceCode === '2') {
-        await axiosInstance.post('/call/service/start-and-separate', formData);
+        const response = await axiosInstance.post(
+          '/call/service/start-and-separate',
+          formData
+        );
+        navigate('/deceased/profile/step7-call', {
+          state: { previewData: response.data.preview },
+        });
       }
-      navigate('/deceased/profile/step7');
     } catch (err) {
       alert('서버 요청 중 오류가 발생했습니다.');
     }
@@ -237,7 +208,6 @@ export default function Step6_FileUpload() {
             <input
               type="file"
               accept={allowedExtensions.map((ext) => '.' + ext).join(',')}
-              multiple
               onChange={handleFileChange}
               hidden
             />
@@ -255,15 +225,11 @@ export default function Step6_FileUpload() {
               'm4a',
             ].includes(ext);
 
-            const handleDelete = () => {
-              setFiles((prev) => prev.filter((_, i) => i !== index));
-            };
-
             return (
               <div
                 key={index}
                 className={styles.fileThumb}
-                onClick={handleDelete}
+                onClick={() => removeFile(index)}
                 style={{ cursor: 'pointer' }}
                 title="클릭하면 삭제됩니다"
               >

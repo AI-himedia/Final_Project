@@ -29,6 +29,7 @@ import ConnectionTestPage from '../test/ConnectionTestPage';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import CallService from '../test/call/CallService';
 import ChatTestPage from '../test/ChatTestPage';
+import Step7_AudioPreview from '../pages/DeceasedProfile/Step7_AudioPreview';
 
 export const AppRoutes = () => (
   <Routes>
@@ -48,6 +49,13 @@ export const AppRoutes = () => (
     <Route path="/deceased/profile/step4" element={<Step4_Personality />} />
     <Route path="/deceased/profile/step5" element={<Step5_SpeakingTone />} />
     <Route path="/deceased/profile/step6" element={<Step6_Upload />} />
+    <Route
+      path="/deceased/profile/step7-call"
+      element={<Step7_AudioPreview />}
+    />
+
+    {/* 통화서비스 */}
+    <Route path="/chat" element={<ChatTestPage />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>
@@ -62,18 +70,11 @@ export const AppRoutes = () => (
     <Route path="/test" element={<ConnectionTestPage />} />
     <Route path="/ttstest" element={<TTSAudioPlayer />} />
     <Route path="/call" element={<CallService />} />
-    <Route path="/chattest" element={<ChatTestPage />} />
 
     {/* 실패 시 리디렉션 */}
     <Route
       path="/fail"
       element={<Navigate to="/service/terms/product" replace />}
     />
-
-    {/* 공개 테스트용 라우트 */}
-    <Route path="/test" element={<ConnectionTestPage />} />
-    <Route path="/ttstest" element={<TTSAudioPlayer />} />
-    <Route path="/call" element={<CallService />} />
-    <Route path="/chattest" element={<ChatTestPage />} />
   </Routes>
 );

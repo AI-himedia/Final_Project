@@ -1,12 +1,19 @@
+// src/pages/SuccessPage.jsx
+
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SuccessPage.module.css';
-import { axiosInstance } from '../../api/AxiosInstance';
 import { useSelector } from 'react-redux';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 
+import { getPostSubscribe } from '../../api/ServiceApi';
+import { getDeceasedProfile } from '../../api/ServiceApi';
+import { useAuth } from '../../hooks/useAuth';
+
 const SuccessPage = () => {
+  const { isLoading } = useAuth();
   console.log('[zustand 결제 성공]', useDeceasedProfile.getState());
+
   const location = useLocation();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState({});
@@ -58,40 +65,23 @@ const SuccessPage = () => {
           amount,
         });
 
-        const subscribeParams = {
+        const subscriptionCode = await getPostSubscribe({
           userCode,
           serviceCode,
-        };
+          deceasedCode,
+        });
 
-        if (deceasedCode && deceasedCode !== 'null') {
-          subscribeParams.deceasedCode = deceasedCode;
-        }
-
-        const subscribeRes = await axiosInstance.post(
-          '/subscription/subscribe',
-          null,
-          { params: subscribeParams }
-        );
-
-        const subscriptionCode = subscribeRes.data;
         setDeceasedProfile({ subscriptionCode });
 
         if (userCode) {
-          const profileParams = {
+          const profileData = await getDeceasedProfile({
             userCode,
             serviceCode,
-          };
-
-          if (deceasedCode && deceasedCode !== 'null') {
-            profileParams.deceasedCode = deceasedCode;
-          }
-
-          const profileRes = await axiosInstance.get('/subscription/deceased', {
-            params: profileParams,
+            deceasedCode,
           });
 
-          if (profileRes.data) {
-            setDeceasedProfile(profileRes.data);
+          if (profileData) {
+            setDeceasedProfile(profileData);
           }
         }
 
@@ -110,11 +100,19 @@ const SuccessPage = () => {
     navigate('/deceased/profile/step1');
   };
 
+  const errorConfirm = () => {
+    navigate('/');
+  };
+
+  if (isLoading || loading) {
+    return null;
+  }
+
   if (error) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>{error}</div>
-        <button className={styles.confirmButton} onClick={handleConfirm}>
+        <button className={styles.confirmButton} onClick={errorConfirm}>
           다시 시도
         </button>
       </div>
