@@ -3,7 +3,6 @@ package com.aix.againhello.call.controller;
 import com.aix.againhello.call.dto.*;
 import com.aix.againhello.call.service.AudioProcessingService;
 import com.aix.againhello.call.service.CallService;
-import com.aix.againhello.common.SubscriptionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/be/call")
@@ -26,28 +27,33 @@ public class CallController {
     private AudioProcessingService audioProcessingService;
 
     /**
-     * 전화 서비스 신청
+     * 전화 서비스 신청 및 화자 분리
      */
-    @PostMapping("/service/start")
-    public ResponseEntity<?> startService(
-            @RequestParam("userCode") int userCode,
-            @RequestPart("serviceRequest") ServiceRequestDTO serviceRequestDto,
+    @PostMapping("/service/start-and-separate")
+    public ResponseEntity<?> startServiceAndSeparateSpeakers(
+            @RequestPart("request") SubscriptionRequestDTO request,
             @RequestPart(value = "audioFiles", required = false) List<MultipartFile> audioFiles) {
 
-        SubscriptionDTO subscription = callService.startService(userCode, serviceRequestDto, audioFiles);
-        return ResponseEntity.ok(subscription);
-    }
+        int subscriptionCode = request.getSubscriptionCode();
 
-    /**
-     * 화자 분리
-     */
-    @PostMapping("/separate/speakers")
-    public ResponseEntity<?> separateSpeakers() {
         try {
-            PreviewResponseDTO response = audioProcessingService.separateSpeakers();
-            return ResponseEntity.ok(response);
+            // 1. 전화 서비스 신청 처리
+            callService.processSubscription(subscriptionCode, request.getDeceasedData(), audioFiles);
+
+            // 2. 화자 분리 처리
+            PreviewResponseDTO response = audioProcessingService.separateSpeakers(subscriptionCode);
+
+            // 3. 결과 반환
+            Map<String, Object> result = new HashMap<>();
+            result.put("subscriptionCode", request.getSubscriptionCode());
+            result.put("message", "Service processing and speaker separation completed successfully.");
+            result.put("preview", response);
+
+            return ResponseEntity.ok(result);
+
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("화자 분리 처리 중 오류 발생: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "처리 중 오류 발생: " + e.getMessage()));
         }
     }
 
@@ -55,9 +61,11 @@ public class CallController {
      * 오디오 파일 스트리밍(미리 듣기)
      */
     @GetMapping("/audio/{filename:.+}")
-    public ResponseEntity<Resource> getAudio(@PathVariable String filename) {
+    public ResponseEntity<Resource> getAudio(
+            @PathVariable String filename,
+            @RequestParam("subscriptionCode") int subscriptionCode) {
         try {
-            ResourceResponseDTO resourceResponse = audioProcessingService.getAudioResource(filename);
+            ResourceResponseDTO resourceResponse = audioProcessingService.getAudioResource(filename, subscriptionCode);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(resourceResponse.getContentType()))
@@ -81,4 +89,16 @@ public class CallController {
             return ResponseEntity.internalServerError().body("화자 파일 저장 중 오류 발생: " + e.getMessage());
         }
     }
+
+    /**
+     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     */
+    @GetMapping("/user/{userCode}/deceased-list")
+    public ResponseEntity<List<CallDeceasedInfoDTO>> getDeceasedListForUser(@PathVariable int userCode) {
+
+        List<CallDeceasedInfoDTO> deceasedList = callService.getCallServiceDeceasedListByUser(userCode);
+        return ResponseEntity.ok(deceasedList);
+
+    }
+
 }

@@ -8,7 +8,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { GoHomeFill } from 'react-icons/go';
 import { PiPhoneCallLight } from 'react-icons/pi';
 import { IoChatbubblesOutline } from 'react-icons/io5';
-import { RxFilePlus } from 'react-icons/rx';
+import { CgAddR } from 'react-icons/cg';
 import { GoPerson } from 'react-icons/go';
 
 export default function Footer() {
@@ -21,7 +21,7 @@ export default function Footer() {
         className={`Footer_Item ${location.pathname === '/' ? 'active' : ''}`}
       >
         <GoHomeFill />
-        <span>홈</span>
+        {/* <span>홈</span> */}
       </Link>
       <Link
         to="/call"
@@ -30,7 +30,7 @@ export default function Footer() {
         }`}
       >
         <PiPhoneCallLight />
-        <span>통화</span>
+        {/* <span>통화</span> */}
       </Link>
       <Link
         to="/chat"
@@ -39,7 +39,7 @@ export default function Footer() {
         }`}
       >
         <IoChatbubblesOutline />
-        <span>채팅</span>
+        {/* <span>채팅</span> */}
       </Link>
       <Link
         to="/service"
@@ -47,8 +47,8 @@ export default function Footer() {
           location.pathname === '/service' ? 'active' : ''
         }`}
       >
-        <RxFilePlus />
-        <span>서비스 신청</span>
+        <CgAddR />
+        {/* <span>서비스 신청</span> */}
       </Link>
       <Link
         to="/sms"
@@ -57,7 +57,7 @@ export default function Footer() {
         }`}
       >
         <GoPerson />
-        <span>테스트</span>
+        {/* <span>테스트</span> */}
       </Link>
     </footer>
   );

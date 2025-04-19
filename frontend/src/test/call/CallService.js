@@ -1,0 +1,150 @@
+import React, { useRef, useState, useEffect } from "react";
+import AudioSender from "./AudioSender";
+import { setupMediaSource } from "./TTSStreamPlayer"
+
+
+
+const CallService = () => {
+  const { startAudioCapture, stopAudioCapture } = AudioSender();
+  const [isCalling, setIsCalling] = useState(false);
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+  const [manualPlayRequired, setManualPlayRequired] = useState(false);
+
+  const socketRef = useRef(null);
+  const audioRef = useRef(null);
+  const mediaSourceRef = useRef(null);
+  const sourceBufferRef = useRef(null);
+
+  const webSocketUrl = "ws://localhost:8080/be/ws/react";
+
+  useEffect(() => {
+    if (isCalling && audioRef.current) {
+      audioRef.current.play().catch((err) => {
+        console.warn("자동 재생 실패! 수동 재생 필요:", err);
+        alert("브라우저 보안 설정으로 인해 수동 재생이 필요합니다.");
+        setManualPlayRequired(true);
+      });
+    }
+  }, [isCalling]);
+
+  const startCall = async () => {
+    const appendQueue = [];
+    socketRef.current = new WebSocket(webSocketUrl);
+    socketRef.current.binaryType = "arraybuffer";
+    
+    // TTS 실행 -> 사용자 Audio 다시 받기
+    mediaSourceRef.current = setupMediaSource(audioRef, (sourceBufferRefFromSetup) => {
+      sourceBufferRef.current = sourceBufferRefFromSetup.current;
+      
+      // appendBuffer 큐 처리
+      function tryAppendBuffer() {
+        if (!sourceBufferRef.current || sourceBufferRef.current.updating) return;
+        if (appendQueue.length > 0) {
+          const nextBuffer = appendQueue.shift();
+          sourceBufferRef.current.appendBuffer(nextBuffer);
+        }
+      }
+
+      sourceBufferRef.current.addEventListener("updateend", tryAppendBuffer);
+      sourceBufferRef.current.addEventListener("error", (e) =>
+        console.error("SourceBuffer 에러 발생:", e)
+      );
+
+      audioRef.current.onended = () => {
+        console.log("오디오 재생 완료됨");
+  
+        setIsTTSPlaying(false);
+  
+        if (mediaSourceRef.current && mediaSourceRef.current.readyState === "open") {
+          mediaSourceRef.current.endOfStream();
+          console.log("MediaSource 정상 종료됨");
+        }
+  
+        setTimeout(() => startAudioCapture(socketRef, false), 800);
+      };
+  
+      // 마이크 시작 (TTS 이후)
+      startAudioCapture(socketRef, false);
+    });
+
+    // WebSocket 수신 처리
+    socketRef.current.onmessage = async (event) => {
+      console.log("[React 수신 원본]:", event.data);
+
+      if (typeof event.data === "string") {
+        const msg = JSON.parse(event.data);
+        
+        if (msg.type === "tts_start" || msg.type === "stt_end") {
+          console.log("TTS 시작 - 마이크 중단");
+          await stopAudioCapture();
+          setIsTTSPlaying(true);
+        } else if (msg.type === "tts_end") {
+          console.log("TTS 수신 완료. 곧 재생");
+        }
+      }else if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
+        // ArrayBuffer로 변환해서 appendBuffer에 추가
+        const buffer = event.data instanceof Blob
+          ? await event.data.arrayBuffer()
+          : event.data;
+        
+        // if (sourceBufferRef.current && !sourceBufferRef.current.updating) {
+        //   try {
+        //     sourceBufferRef.current.appendBuffer(buffer);
+        //     console.log("appendBuffer 완료 (chunk 크기):", buffer.byteLength);
+        //   } catch (e) {
+        //     console.error("appendBuffer 오류:", e);
+        //   }
+        appendQueue.push(buffer);
+        if (sourceBufferRef.current && !sourceBufferRef.current.updating) {
+          const nextBuffer = appendQueue.shift();
+          if (nextBuffer) sourceBufferRef.current.appendBuffer(nextBuffer);
+        }
+      }
+    };
+    setIsCalling(true);
+  };
+
+  // 통화 종료 - 마이크/AudioContext 정지, WebSocket 닫기
+  const endCall = async () => {
+    await stopAudioCapture();
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.close();
+    }
+    setIsCalling(false);
+  };
+
+  const handleToggleCall = () => {
+    if (!isCalling) {
+      startCall();
+    } else {
+      endCall();
+    }
+  };
+
+  // 수동 재생 버튼
+  const handleManualPlay = async () => {
+    try {
+      await audioRef.current?.play();
+      setManualPlayRequired(false); // 성공 시 버튼 숨김
+      console.log("수동 재생 성공");
+    } catch (err) {
+      console.error("수동 재생도 실패:", err);
+    }
+  };
+  
+
+  return (
+    <div>
+      <h2>전화 서비스</h2>
+      <button onClick={handleToggleCall}>{isCalling ? "통화 종료" : "통화 시작"}</button>
+      <audio ref={audioRef} autoPlay />
+      {manualPlayRequired && (
+        <button onClick={handleManualPlay}>
+          오디오 수동 재생
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default CallService;

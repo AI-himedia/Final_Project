@@ -4,10 +4,11 @@ import './App.css';
 import { useLocation } from 'react-router-dom';
 import { routeMeta } from './routes/RouteMeta';
 import { AppRoutes } from './routes/AppRoutes';
-import AppLayout from './layout/Main/MainLayout';
-import EnvLogger from './components/Logger/EnvLogger';
+import AppLayout from './components/MainLayout';
+import { useAuth } from './hooks/useAuth';
 
-export default function App() {
+function App() {
+  const { isLoading } = useAuth();
   const location = useLocation();
 
   // 메타 정보 설정
@@ -23,12 +24,15 @@ export default function App() {
   }, [location.pathname]);
 
   // 사용자 정보 로딩이 완료된 후 앱 렌더링
+  if (isLoading) return null;
   return (
     <div className={`App ${meta.showFooter ? 'hasFooter' : ''}`}>
       <AppLayout meta={meta}>
         <AppRoutes />
-        <EnvLogger />
+        {/* <EnvLogger /> */}
       </AppLayout>
     </div>
   );
 }
+
+export default App;

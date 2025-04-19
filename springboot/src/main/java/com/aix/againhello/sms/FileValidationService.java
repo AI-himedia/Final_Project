@@ -27,8 +27,8 @@ public class FileValidationService {
     @Value("${file.upload.max-audio-size}")
     private long maxAudioSize;
 
-    @Value("${file.upload.max-video-size}")
-    private long maxVideoSize;
+    @Value("${file.upload.max-text-size}")
+    private long maxTextSize;
 
     @Value("${file.upload.max-count}")
     private int maxFileCount;
@@ -72,8 +72,8 @@ public class FileValidationService {
                 throw new RuntimeException("음성 파일은 최대 5MB까지 업로드할 수 있습니다.");
             }
 
-            if (isTextFile && file.getSize() > maxVideoSize) {
-                throw new RuntimeException("영상 파일은 최대 300MB까지 업로드할 수 있습니다.");
+            if (isTextFile && file.getSize() > maxTextSize) {
+                throw new RuntimeException("텍스트 파일은 최대 300MB까지 업로드할 수 있습니다.");
             }
         }
     }

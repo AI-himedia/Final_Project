@@ -123,30 +123,44 @@ public class SmsService {
 
     public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, List<MultipartFile> chatFile) {
 
+        System.out.println("subscriptionCode : " + subscriptionCode);
+        System.out.println("deceasedDataDTO : " + deceasedDataDTO);
+//        System.out.println("chatFile : " + chatFile.size());
+
         // 1. subscriptionCode 존재여부 확인
         if (!subscriptionMapper.existsBySubscriptionCode(subscriptionCode)) {
             throw new ServiceException("구독(결제) 정보가 없습니다.");
         }
 
         // 2. file 검증
-        fileValidationService.validateFiles(chatFile);
-
         // 3. file S3에 저장
         List<String> uploadedUrls = new ArrayList<>();
-        for (MultipartFile file : chatFile) {
-            String url = s3Service.uploadFile(file);
-            uploadedUrls.add(url);
+        List<String> presignedUrls = new ArrayList<>();
+        if(chatFile != null || !chatFile.isEmpty()) {
+            // file 검증
+            fileValidationService.validateFiles(chatFile);
+            for (MultipartFile file : chatFile) {
+                String url = s3Service.uploadFile(file);
+                uploadedUrls.add(url);
+                // 4. 이미지 파일만 preSignedUrl 로 관리
+                if(url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")){
+                    String key = s3Service.extractKeyFromUrl(url);
+                    String presignedUrl = s3Service.generatePresignedUrl(key);
+                    presignedUrls.add(presignedUrl);
+                }
+            }
         }
 
         // Python 요청용 DTO 구성
         ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
                 subscriptionCode,
                 deceasedDataDTO,
-                uploadedUrls
+                uploadedUrls,
+                presignedUrls
         );
 
         // 4. python 전달
-        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "service/start";
+        String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "sms/service/start";
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

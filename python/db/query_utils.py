@@ -1,9 +1,10 @@
 from db.postgresql_connector import get_db_connection
-from typing import List, Literal, Tuple
-from psycopg2.extras import execute_values
+from typing import List, Literal, Tuple, Optional
+from psycopg2.extras import execute_values, Json
 from datetime import datetime
+from llm.models.request_models import DeceasedData
 
-
+# system_prompt_template에 필요한 data
 def fetch_prompt_data(subscription_code: int) -> dict:
 
     with get_db_connection() as conn:
@@ -41,13 +42,14 @@ def fetch_prompt_data(subscription_code: int) -> dict:
         "deceased_age": row[5],
         "personality": row[6],
         "deceased_nickname": row[7],
+        "speaking_tone": "반말" if row[8] else "존댓말",
         "tone_style": row[9],
         "common_phrases": row[10],
         "example_lines": row[11]
     }
 
 
-
+# 문자응답시 input, output bulk INSERT
 def add_messages(
     subscription_code: int,
     deceased_code: int,
@@ -87,3 +89,133 @@ def add_messages(
 
             conn.commit()
 
+
+# 고인 정보 INSERT
+def insert_deceased_data(deceased_data: DeceasedData) -> int:
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO deceased_data (
+                    deceased_name, gender, deceased_age, personality,
+                    deceased_nickname, user_nickname, relationship,
+                    speaking_tone, tone_style, common_phrases, example_lines
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING deceased_code
+            """, (
+                deceased_data.deceasedName,
+                deceased_data.gender,
+                deceased_data.deceasedAge,
+                deceased_data.personality,
+                deceased_data.deceasedNickname,
+                deceased_data.userNickname,
+                deceased_data.relationship,
+                deceased_data.speakingTone,
+                deceased_data.toneStyle,
+                deceased_data.commonPhrases,
+                deceased_data.exampleLines,
+            ))
+            new_id = cur.fetchone()[0]
+            conn.commit()
+            return new_id
+
+
+# 고인 정보 UPDATE
+# tone_style, common_phrases, example_lines 는 required=false
+def update_deceased_data(deceased_data: DeceasedData) -> None:
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            fields = []
+            values = []
+
+            # 기본 필드
+            field_map = {
+                "deceasedName": "deceased_name",
+                "gender": "gender",
+                "deceasedAge": "deceased_age",
+                "personality": "personality",
+                "deceasedNickname": "deceased_nickname",
+                "userNickname": "user_nickname",
+                "relationship": "relationship",
+                "speakingTone": "speaking_tone",
+                # 선택적 필드
+                "toneStyle": "tone_style",
+                "commonPhrases": "common_phrases",
+                "exampleLines": "example_lines"
+            }
+
+            for attr, column in field_map.items():
+                value = getattr(deceased_data, attr)
+                if value is not None:
+                    fields.append(f"{column} = %s")
+                    values.append(value)
+
+            if not fields:
+                print("업데이트할 필드가 없습니다.")
+                return
+
+            # 마지막 WHERE 조건에 deceasedCode 사용
+            values.append(deceased_data.deceasedCode)
+            query = f"""
+                UPDATE deceased_data
+                SET {', '.join(fields)}
+                WHERE deceased_code = %s
+            """
+            cur.execute(query, values)
+            conn.commit()
+
+
+
+# subscription 테이블 UPDATE
+def update_subscription(subscription_code: int, deceased_code: int):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE subscription
+                SET deceased_code = %s
+                WHERE subscription_code = %s
+            """, (deceased_code, subscription_code))
+        conn.commit()
+
+
+# raw_file 테이블 INSERT
+def insert_raw_file(subscription_code: int, chat_urls: list[str]):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO raw_file (subscription_code, sms_file_paths)
+                VALUES (%s, %s)
+            """, (subscription_code, chat_urls))
+        conn.commit()
+
+def voice_raw_file(conn, subscription_code: int, s3_url: str, embedding_data: dict, sms_paths: Optional[List[str]] = None):
+    with conn.cursor() as cur:
+        query = """
+        INSERT INTO raw_file (subscription_code, audio_file_paths, embedding, sms_file_paths)
+        VALUES (%s, %s, %s, %s)
+        RETURNING Code;
+        """
+        try:
+            cur.execute(query, (
+                subscription_code,
+                s3_url,
+                Json(embedding_data),         # embedding 값을 JSONB로 저장
+                sms_paths if sms_paths else None
+            ))
+            code = cur.fetchone()[0]
+            conn.commit()
+            return code
+        except Exception as e:
+            print("DB 저장 중 오류:", str(e))
+            raise
+
+def get_latest_embedding(conn, subscription_code: int):
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT embedding
+            FROM raw_file
+            WHERE subscription_code = %s
+            ORDER BY update_date DESC
+            LIMIT 1
+        """, (subscription_code,))
+        result = cur.fetchone()
+        return result[0] if result else None

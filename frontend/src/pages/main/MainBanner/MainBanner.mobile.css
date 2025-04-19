@@ -1,0 +1,28 @@
+@keyframes scroll-up {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(12px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .Main_Text_Title {
+    margin-top: -150px;
+  }
+
+  .Main_AOS_Icon {
+    border-radius: 5px;
+  }
+
+  .Main_AOS_Icon_ScrollIndicator {
+    bottom: 20rem;
+  }
+
+  .Main_AOS_Icon::before {
+    animation-name: scroll-up;
+  }
+}

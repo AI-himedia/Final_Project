@@ -3,10 +3,14 @@ package com.aix.againhello.oauth.kakao.service;
 
 import com.aix.againhello.oauth.kakao.dto.User;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserMapper userMapper;
 
     public UserServiceImpl(UserMapper userMapper) {
@@ -21,16 +25,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         userMapper.save(user);
+        logger.info("User saved with email: {}", user.getEmail());
     }
 
     @Override
     public void updateRefreshToken(String email, String refreshToken) {
         userMapper.updateRefreshToken(email, refreshToken);
-    }
 
-    @Override
-    public void deactivate(String email) {
-        userMapper.deactivate(email);
     }
 
     @Override
@@ -41,6 +42,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void withdraw(String email) {
         userMapper.deactivate(email);
+        logger.info("User deactivated with email: {}", email);
     }
-
 }

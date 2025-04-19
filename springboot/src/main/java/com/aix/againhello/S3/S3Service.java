@@ -4,14 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 
 @Service
@@ -19,6 +26,8 @@ import java.util.UUID;
 public class S3Service {
 
     private final S3Client s3Client;
+
+    private final S3Presigner s3Presigner;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -30,11 +39,9 @@ public class S3Service {
 
         String originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null ||
-                (!originalFilename.endsWith(".mp3") &&
-                        !originalFilename.endsWith(".wav") &&
-                        !originalFilename.endsWith(".m4a") &&
-                        !originalFilename.endsWith(".txt") &&
+                (!originalFilename.endsWith(".txt") &&
                         !originalFilename.endsWith(".jpg") &&
+                        !originalFilename.endsWith(".jpeg") &&
                         !originalFilename.endsWith(".png"))) {
             throw new IllegalArgumentException("지원하지 않는 파일 형식입니다. (지원 형식: mp3, wav, m4a, txt, jpg, png)");
         }
@@ -44,7 +51,13 @@ public class S3Service {
             File file = convertMultiPartToFile(multipartFile);
 
             // 업로드 경로 설정 (txt 파일은 다른 폴더에 넣을 수도 있음)
-            String folder = originalFilename.endsWith(".txt") ? "text/" : "voice/";
+            String lowerCaseName = originalFilename.toLowerCase(); // 확장자 대소문자 구분 방지
+
+            String folder = (lowerCaseName.endsWith(".txt") ||
+                    lowerCaseName.endsWith(".jpg") ||
+                    lowerCaseName.endsWith(".jpeg") ||
+                    lowerCaseName.endsWith(".png"))
+                    ? "text/" : "voice/";
             String fileName = folder + UUID.randomUUID() + "_" + originalFilename;
 
             // S3 업로드 요청 생성
@@ -78,4 +91,33 @@ public class S3Service {
         file.transferTo(convFile);
         return convFile;
     }
+
+
+    public String generatePresignedUrl(String key) {
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(5)) // 유효시간
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+
+        return presignedRequest.url().toString();
+    }
+
+
+    public String extractKeyFromUrl(String url) {
+        String prefix = "https://" + bucketName + ".s3.amazonaws.com/";
+        if (url.startsWith(prefix)) {
+            return url.substring(prefix.length());
+        } else {
+            throw new IllegalArgumentException("URL이 예상 형식이 아닙니다.");
+        }
+    }
+
 }

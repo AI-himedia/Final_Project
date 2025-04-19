@@ -10,7 +10,7 @@ class AudioProcessResponse(BaseModel):
     message: str
     file_info: dict = None
 
-@audio_router.post("/process-audio", response_model=AudioProcessResponse)
+@audio_router.post("/ai/process-audio", response_model=AudioProcessResponse)
 async def process_audio(
     file: UploadFile = File(...),
     subscription_code: int = Form(...)

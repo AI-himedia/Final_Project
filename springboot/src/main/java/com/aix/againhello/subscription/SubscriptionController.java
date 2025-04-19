@@ -1,10 +1,6 @@
 package com.aix.againhello.subscription;
 
 
-import com.aix.againhello.common.DeceasedDataDTO;
-import com.aix.againhello.common.SubscriptionDTO;
-import com.aix.againhello.subscription.responseWrapper.ExceptionCaseResponse;
-import com.aix.againhello.subscription.responseWrapper.SubscriptionInfoResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,16 +65,18 @@ public class SubscriptionController {
      * 고인 데이터 조회시
      *
      * @param deceasedCode 고인 코드 Nullable
+     * @param userCode 사용자 코드
      * @return  DeceasedDataDTO 고인정보
      */
     @GetMapping("/deceased")
     public ResponseEntity<?> getDeceasedInfo(
-            @RequestParam(required = false) Integer deceasedCode
+            @RequestParam(required = false) Integer deceasedCode,
+            @RequestParam int userCode
     ) {
         if (deceasedCode == null) {
             return ResponseEntity.ok(deceasedCode);
         }
 
-        return ResponseEntity.ok(subscriptionService.getDeceasedData(deceasedCode));
+        return ResponseEntity.ok(subscriptionService.getDeceasedData(userCode,deceasedCode));
     }
 }

@@ -1,43 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-  email: null,
-  oauth: null,
-  gender: null,
-  fullName: null,
-  number: null,
-  admin: false,
-  status: false,
-  fetched: false, // 추가된 필드
-};
+const savedUser = localStorage.getItem('user');
 
+const initialState = savedUser
+  ? { isLoggedIn: true, user: JSON.parse(savedUser) }
+  : { isLoggedIn: false, user: null };
+
+// userSlice.js
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser(state, action) {
-      const {
-        email,
-        oauth,
-        gender,
-        fullName,
-        number,
-        admin,
-        status,
-        fetched = true,
-      } = action.payload;
-
-      state.email = email;
-      state.oauth = oauth;
-      state.gender = gender;
-      state.fullName = fullName;
-      state.number = number;
-      state.admin = admin;
-      state.status = status;
-      state.fetched = fetched; // 사용자 정보를 가져왔음을 표시
+    setUser: (state, action) => {
+      const userData = action.payload;
+      // console.log('[DEBUG] setUser 실행됨:', userData);
+      state.isLoggedIn = true;
+      state.user = userData;
+      // setTimeout(() => {
+      //   localStorage.setItem('user', JSON.stringify(userData));
+      // }, 0);
     },
-    clearUser(state) {
-      Object.assign(state, initialState);
+
+    clearUser: (state) => {
+      state.isLoggedIn = false;
+      state.user = null;
+      // localStorage.removeItem('user');
     },
   },
 });

@@ -4,7 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.aix.againhello.oauth.kakao.mapper.UserMapper">
-
     <select id="findByEmail" resultType="com.aix.againhello.oauth.kakao.dto.User">
         SELECT * FROM users WHERE email = #{email}
     </select>
@@ -28,4 +27,7 @@
         WHERE code = #{code}
     </select>
 
+    <select id="findById" resultType="com.aix.againhello.oauth.kakao.dto.User">
+        SELECT * FROM users WHERE ㅊ = #{email}
+    </select>
 </mapper>

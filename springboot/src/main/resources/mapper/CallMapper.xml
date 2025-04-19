@@ -5,20 +5,7 @@
 
 <mapper namespace="com.aix.againhello.call.mapper.CallMapper">
 
-    <select id="findActiveSubscription" resultType="com.aix.againhello.common.SubscriptionDTO">
-        SELECT subscription_code as subscriptionCode,
-               user_code as userCode,
-               service_code as serviceCode,
-               deceased_code as deceasedCode,
-               start_date as startDate,
-               end_date as endDate,
-               cancel_date as cancelDate
-        FROM subscription
-        WHERE user_code = #{userCode}
-          AND service_code = #{serviceCode}
-          AND end_date IS NULL
-    </select>
-
+    <!-- 고인 데이터 Insert -->
     <insert id="insertDeceasedData" parameterType="com.aix.againhello.common.DeceasedDataDTO" useGeneratedKeys="true" keyProperty="deceasedCode">
         INSERT INTO deceased_data (
             deceased_name,
@@ -29,9 +16,7 @@
             user_nickname,
             relationship,
             speaking_tone,
-            tone_style,
-            common_phrases,
-            example_lines
+            tone_style
         ) VALUES (
                      #{deceasedName},
                      #{gender},
@@ -41,26 +26,11 @@
                      #{userNickname},
                      #{relationship},
                      #{speakingTone},
-                     #{toneStyle},
-                     #{commonPhrases},
-                     #{exampleLines}
+                     #{toneStyle}
                  )
     </insert>
 
-    <insert id="insertSubscription" parameterType="com.aix.againhello.common.SubscriptionDTO" useGeneratedKeys="true" keyProperty="subscriptionCode">
-        INSERT INTO subscription (
-            user_code,
-            service_code,
-            deceased_code,
-            start_date
-        ) VALUES (
-                     #{userCode},
-                     #{serviceCode},
-                     #{deceasedCode},
-                     CURRENT_TIMESTAMP
-                 )
-    </insert>
-
+    <!-- 음성 파일 Insert -->
     <insert id="insertRawFile" parameterType="com.aix.againhello.common.RawFileDTO" useGeneratedKeys="true" keyProperty="code">
         INSERT INTO raw_file (
             subscription_code,
@@ -70,5 +40,47 @@
                      #{audioFilePaths}
                  )
     </insert>
+
+    <!-- 고인 데이터 Update -->
+    <update id="updateDeceasedData" parameterType="com.aix.againhello.common.DeceasedDataDTO">
+        UPDATE deceased_data
+        <set>
+            <if test="deceasedName != null">deceased_name = #{deceasedName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="deceasedAge != null">deceased_age = #{deceasedAge},</if>
+            <if test="personality != null">personality = #{personality},</if>
+            <if test="deceasedNickname != null">deceased_nickname = #{deceasedNickname},</if>
+            <if test="userNickname != null">user_nickname = #{userNickname},</if>
+            <if test="relationship != null">relationship = #{relationship},</if>
+            <if test="speakingTone != null">speaking_tone = #{speakingTone},</if>
+            <if test="toneStyle != null">tone_style = #{toneStyle},</if>
+        </set>
+        WHERE deceased_code = #{deceasedCode}
+    </update>
+
+    <!-- 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회 -->
+    <select id="findDeceasedListForCallServiceByUser" parameterType="int" resultType="com.aix.againhello.call.dto.CallDeceasedInfoDTO">
+        SELECT
+            dd.deceased_code      AS deceasedCode,
+            dd.deceased_name      AS deceasedName,
+            dd.deceased_nickname  AS deceasedNickname,
+            MAX(c.message_time)   AS latestCallTime
+        FROM
+            deceased_data dd
+                JOIN
+            subscription s ON dd.deceased_code = s.deceased_code
+                LEFT JOIN
+            contents c ON s.subscription_code = c.subscription_code
+                AND c.service_type = 'call'
+        WHERE
+            s.user_code = #{userCode}
+          AND s.service_code = 2
+        GROUP BY
+            dd.deceased_code,
+            dd.deceased_name,
+            dd.deceased_nickname
+        ORDER BY
+            latestCallTime DESC NULLS LAST
+    </select>
 
 </mapper>

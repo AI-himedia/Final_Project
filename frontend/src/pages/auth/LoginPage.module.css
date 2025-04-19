@@ -1,0 +1,123 @@
+@keyframes glowText {
+  0%,
+  100% {
+    color: #efefef;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@media (max-width: 480px) {
+  .Container {
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    padding: 0 20px;
+
+    background-image: url('https://cdn.imweb.me/thumbnail/20250204/e2a9b186be915.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 배경 흐리게 */
+  .Container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(71, 71, 71, 0.4);
+    backdrop-filter: blur(3px);
+    z-index: -1;
+  }
+
+  .Title {
+    padding-top: 13.25rem;
+    text-align: center;
+  }
+
+  .Top_Title {
+    font-size: 2.5rem;
+  }
+
+  .Sub_Title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: white;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  }
+
+  .Top_Title,
+  .Sub_Title {
+    display: block;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    text-shadow: none;
+  }
+
+  .Sub_Title {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    line-height: 1.6;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ----------------------------------------- */
+
+  .Social_Login {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 20rem;
+  }
+
+  .Social_Login_Button {
+    margin-bottom: 8px;
+
+    border: 1px solid #d3d3d3;
+
+    border-radius: 10px;
+    color: #222;
+    position: relative;
+
+    font-size: 16px;
+    font-weight: 700;
+    height: 52px;
+    letter-spacing: -0.16px;
+    width: 100%;
+
+    align-items: center;
+    background-color: #fff;
+
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .Social_Login_Description {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: #efefef;
+    text-align: center;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    animation: glowText 1.8s ease-in-out infinite;
+  }
+
+  .Social_Login_Logo {
+    height: 24px;
+    left: 15px;
+    position: absolute;
+    top: 13px;
+    width: 24px;
+  }
+}

@@ -37,7 +37,9 @@ fastapi = "*"
 websocket-server = "*"
 python-multipart = "*"
 websockets = "*"
-
+aiofiles = "*"
+aioboto3 = "*"
+redis = "*"
 
 [dev-packages]
 

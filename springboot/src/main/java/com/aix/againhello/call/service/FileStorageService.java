@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,34 +78,66 @@ public class FileStorageService {
         }
     }
 
-    public String storeFile(MultipartFile file, String type, int deceasedCode) {
+//    public String storeFile(MultipartFile file, String type, int deceasedCode) {
+//        try {
+//            // 파일 확장자 확인
+//            String originalFilename = file.getOriginalFilename();
+//            if (originalFilename == null) {
+//                throw new RuntimeException("파일명이 없습니다.");
+//            }
+//
+//            String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+//            List<String> audioExtList = Arrays.asList(allowedAudioExtensions.split(","));
+//            List<String> videoExtList = Arrays.asList(allowedVideoExtensions.split(","));
+//
+//            // 파일 저장 디렉토리 생성
+//            Path uploadPath = Paths.get(uploadDir);
+//            if (!Files.exists(uploadPath)) {
+//                Files.createDirectories(uploadPath);
+//            }
+//
+//            // 파일명 생성
+//            String newFilename = deceasedCode + "_" + originalFilename;
+//
+//            Path targetLocation = uploadPath.resolve(newFilename);
+//
+//            // 파일 저장 (기존 같은 파일이 있으면 덮어쓰기)
+//            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+//
+//            return targetLocation.toString();
+//        } catch (IOException ex) {
+//            throw new RuntimeException("파일 저장 중 오류가 발생했습니다: " + ex.getMessage());
+//        }
+//    }
+
+    public String storeFile(MultipartFile file, String type, int subscriptionCode, int deceasedCode) {
         try {
-            // 파일 확장자 확인
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null) {
                 throw new RuntimeException("파일명이 없습니다.");
             }
 
+            // 파일 확장자 추출
             String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
-            List<String> audioExtList = Arrays.asList(allowedAudioExtensions.split(","));
-            List<String> videoExtList = Arrays.asList(allowedVideoExtensions.split(","));
 
-            // 파일 저장 디렉토리 생성
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            // 구독코드별 하위 폴더 생성
+            Path userUploadPath = Paths.get(uploadDir, String.valueOf(subscriptionCode));
+            if (!Files.exists(userUploadPath)) {
+                Files.createDirectories(userUploadPath);
             }
 
-            // 파일명 생성
+            // 고인코드를 포함한 파일명 생성
             String newFilename = deceasedCode + "_" + originalFilename;
+            Path targetLocation = userUploadPath.resolve(newFilename);
 
-            // 파일 저장
-            Path targetLocation = uploadPath.resolve(newFilename);
-            Files.copy(file.getInputStream(), targetLocation);
+            // 파일 저장 (기존 같은 파일이 있으면 덮어쓰기)
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             return targetLocation.toString();
         } catch (IOException ex) {
             throw new RuntimeException("파일 저장 중 오류가 발생했습니다: " + ex.getMessage());
         }
     }
+
+
 }
