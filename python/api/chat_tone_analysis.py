@@ -30,7 +30,7 @@ async def start_service(req: ServiceStartRequest):
 
             # 동적으로 prompt 생성
             # prompt = llm_prompt.build_analysis_messages(combined_text, base64_images)
-            prompt = llm_prompt.build_analysis_messages_with_presigned_urls(combined_text, req.presignedUrls)
+            prompt = llm_prompt.build_analysis_messages_with_presigned_urls(combined_text, req.presignedUrls, req.deceasedHint, req.deceasedData)
             print("------------------------------------------")
             # print('prompt:', prompt)
 
@@ -74,3 +74,6 @@ async def start_service(req: ServiceStartRequest):
     except Exception as e:
         print(" 에러 발생:", e)
         return {"status": "error", "message": str(e)}
+
+# 201 return {"status": "success", "message": "대화록 캡쳐본을 올려주세요"}
+
