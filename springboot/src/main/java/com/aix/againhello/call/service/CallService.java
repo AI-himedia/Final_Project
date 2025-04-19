@@ -115,7 +115,7 @@ public class CallService {
     /**
      * 기존 고인 데이터 Update
      */
-    private void updateDeceasedData(int deceasedCode, DeceasedDataDTO deceasedDataDto) {
+    public void updateDeceasedData(int deceasedCode, DeceasedDataDTO deceasedDataDto) {
 
         deceasedDataDto.setDeceasedCode(deceasedCode);
         int updatedRows = callMapper.updateDeceasedData(deceasedDataDto);

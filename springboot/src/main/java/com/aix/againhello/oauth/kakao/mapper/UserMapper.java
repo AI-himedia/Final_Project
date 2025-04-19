@@ -11,4 +11,5 @@ public interface UserMapper {
     void updateRefreshToken(String email, String refreshToken);
     void deactivate(String email);
     boolean existsById(int userCode);
+    User findById(int userCode);
 }

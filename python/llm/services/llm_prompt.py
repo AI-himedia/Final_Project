@@ -1,4 +1,5 @@
 from typing import List
+from llm.models.request_models import DeceasedData, DeceasedHint
 
 def build_analysis_messages(combined_text: str, base64_images: List[str]) -> List[dict]:
     content_list = []
@@ -54,7 +55,12 @@ def build_analysis_messages(combined_text: str, base64_images: List[str]) -> Lis
     return messages
 
 
-def build_analysis_messages_with_presigned_urls(combined_text: str, presignedUrls: List[str]) -> List[dict]:
+def build_analysis_messages_with_presigned_urls(
+        combined_text: str, 
+        presignedUrls: List[str],
+        deceased_hint: DeceasedHint,
+        deceased_data: DeceasedData,
+    ) -> List[dict]:
     content_list = []
 
     # 텍스트가 있을 경우

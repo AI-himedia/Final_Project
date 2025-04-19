@@ -32,16 +32,15 @@ export default function Step5_SpeakingTone() {
           고인의 말은
           <br />
           어떤 스타일이었나요?
+          <p className={styles.helperText}>
+            반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
+          </p>
         </h2>
 
-        <p className={styles.helperText}>
-          반말은 친근한 느낌, 존댓말은 예의를 담은 표현이에요.
-        </p>
-
-        <div className={styles.optionGroup}>
+        <div className={styles.toneGroup}>
           <button
             type="button"
-            className={`${styles.optionButton} ${
+            className={`${styles.toneButton} ${
               selectedTone === true ? styles.selected : ''
             }`}
             onClick={() => setSelectedTone(true)}
@@ -50,7 +49,7 @@ export default function Step5_SpeakingTone() {
           </button>
           <button
             type="button"
-            className={`${styles.optionButton} ${
+            className={`${styles.toneButton} ${
               selectedTone === false ? styles.selected : ''
             }`}
             onClick={() => setSelectedTone(false)}

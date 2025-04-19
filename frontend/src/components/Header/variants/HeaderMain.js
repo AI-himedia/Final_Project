@@ -23,7 +23,7 @@ export default function HeaderMain({ isMainPage }) {
     axiosInstance
       .post('/member/logout', {}, { withCredentials: true })
       .catch((err) => {
-        console.error('[DEBUG] 로그아웃 실패:', err);
+        // console.error('[DEBUG] 로그아웃 실패:', err);
       })
       .finally(() => {
         dispatch(clearUser());
