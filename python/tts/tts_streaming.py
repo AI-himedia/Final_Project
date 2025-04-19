@@ -210,30 +210,29 @@ def stream_tts(text: str):
     else:
         audio_array = audio_tensor
 
-    #  오디오 디버깅용 저장
-    output_dir = Path("results")
-    output_dir.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    debug_path = output_dir / f"debug_tts_{timestamp}.wav"
-    write(debug_path, 16000, (audio_array * 32767).astype(np.int16))
-    print(f"[TTS DEBUG] WAV 파일 저장됨: {debug_path}")
+    # #  오디오 디버깅용 저장
+    # output_dir = Path("results")
+    # output_dir.mkdir(exist_ok=True)
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # debug_path = output_dir / f"debug_tts_{timestamp}.wav"
+    # write(debug_path, 16000, (audio_array * 32767).astype(np.int16))
+    # print(f"[TTS DEBUG] WAV 파일 저장됨: {debug_path}")
 
     # WebM 형식 청크로 변환해서 스트리밍
-    # chunk = pcm_to_webm_chunk(audio_array)
     audio_array_48k = resample_audio(audio_array, orig_sr=16000, target_sr=48000)
     chunk = pcm_to_webm_chunk(audio_array_48k, sample_rate=48000)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path("results")
-    output_dir.mkdir(exist_ok=True)
-    webm_path = output_dir / f"debug_tts_{timestamp}.webm"
-    with open(webm_path, "wb") as f:
-        f.write(chunk)
-        print(f"[TTS DEBUG] WebM 파일 저장됨: {webm_path}")
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # output_dir = Path("results")
+    # output_dir.mkdir(exist_ok=True)
+    # webm_path = output_dir / f"debug_tts_{timestamp}.webm"
+    # with open(webm_path, "wb") as f:
+    #     f.write(chunk)
+    #     print(f"[TTS DEBUG] WebM 파일 저장됨: {webm_path}")
 
-    print("[DEBUG] audio_tensor max:", np.max(audio_tensor))
-    print("[DEBUG] audio_tensor min:", np.min(audio_tensor))
-    print("[DEBUG] audio_tensor mean:", np.mean(audio_tensor))
+    # print("[DEBUG] audio_tensor max:", np.max(audio_tensor))
+    # print("[DEBUG] audio_tensor min:", np.min(audio_tensor))
+    # print("[DEBUG] audio_tensor mean:", np.mean(audio_tensor))
 
     print(f"[TTS DEBUG] WebM chunk 크기: {len(chunk)} bytes")
     yield chunk

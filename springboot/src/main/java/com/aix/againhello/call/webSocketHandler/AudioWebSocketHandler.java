@@ -118,12 +118,12 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
                 session.sendMessage(new TextMessage("{\"type\": \"tts_start\"}"));
             }
 
-            if ("tts_end".equals(signal)) {
-                System.out.println("TTS 종료 → 오디오 클립 React로 전송");
-                ByteArrayOutputStream audioStream = sessionAudioBuffers.remove(session.getId());
-                byte[] fullAudio = audioStream.toByteArray();
-                sendToReactClient(session, fullAudio);
-            }
+//            if ("tts_end".equals(signal)) {
+//                System.out.println("TTS 종료 → 오디오 클립 React로 전송");
+//                ByteArrayOutputStream audioStream = sessionAudioBuffers.remove(session.getId());
+//                byte[] fullAudio = audioStream.toByteArray();
+//                sendToReactClient(session, fullAudio);
+//            }
 
         } catch (Exception e) {
             System.err.println("JSON 파싱 실패: " + e.getMessage());

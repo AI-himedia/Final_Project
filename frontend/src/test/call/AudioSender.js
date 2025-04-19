@@ -6,14 +6,20 @@ const AudioSender = () => {
   const streamRef = useRef(null);
   const silenceStartRef = useRef(null);
   const SILENCE_TIMEOUT_MS = 2000
-  const endSentRef = useRef(false);
 
   const startAudioCapture = async (socketRef, isTTSPlaying) => {
 
     if (!audioContextRef.current || audioContextRef.current.state === "closed"
     ) {
-      audioContextRef.current = new AudioContext({ sampleRate: 16000 });
-      await audioContextRef.current.audioWorklet.addModule("/worklet-processor.js");
+
+      if (audioContextRef.current?.state === "closed") {
+        audioContextRef.current = null;
+      }
+
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+        await audioContextRef.current.audioWorklet.addModule("/worklet-processor.js");
+      }
     }
 
     // 마이크 접근 권한 요청
@@ -33,7 +39,6 @@ const AudioSender = () => {
     // 오디오 전송
     workletNodeRef.current.port.onmessage = (event) => {
       const { type, silent, buffer } = event.data;
-      console.log(`endSentRef 상태 확인: ${endSentRef.current}`);
 
       if (type === "silence") {
         if (silent && !silenceStartRef.current) {
@@ -45,7 +50,7 @@ const AudioSender = () => {
     
         // 2초 이상 무음 지속 → STT 종료 요청
         if ( silenceStartRef.current && Date.now() - silenceStartRef.current > SILENCE_TIMEOUT_MS) {
-          console.log("[React] 무음 감지: 마이크 자동 종료");
+          console.log("무음 감지: 마이크 자동 종료");
           socketRef.current.send(JSON.stringify({ event: "end" }));
           silenceStartRef.current = null;
         }
@@ -78,6 +83,7 @@ const AudioSender = () => {
       try {
         await audioContextRef.current.close();
         console.log("AudioContext 닫힘");
+        console.log("닫은 후 상태:", audioContextRef.current.state);
       } catch (e) {
         console.warn("AudioContext 닫기 실패:", e);
       }
