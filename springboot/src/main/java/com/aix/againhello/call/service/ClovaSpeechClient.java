@@ -310,7 +310,19 @@ public class ClovaSpeechClient {
      * @param baseOutputDir 기본 출력 디렉토리
      * @throws Exception 파일 처리 오류
      */
+    /**
+     * 화자별로 오디오 세그먼트를 추출하는 메소드
+     *
+     * @param responseJson API 응답 데이터 (JSON 문자열)
+     * @param audioFile 오디오 파일
+     * @param baseOutputDir 기본 출력 디렉토리
+     * @throws Exception 파일 처리 오류
+     */
     public void extractSpeakerSegmentsIndividually(String responseJson, File audioFile, Path baseOutputDir) throws Exception {
+        // 🔵 전체 응답 로그 출력
+        System.out.println("🔵 Clova 응답 원문:");
+        System.out.println(responseJson);
+
         // 출력 디렉토리 생성
         Path outputDir = baseOutputDir.resolve(audioFile.getName().replaceFirst("[.][^.]+$", ""));
         Files.createDirectories(outputDir);
@@ -324,13 +336,15 @@ public class ClovaSpeechClient {
 
         // 세그먼트 데이터 가져오기
         if (!responseData.has("segments")) {
-            System.out.println("세그먼트 데이터를 찾을 수 없습니다.");
+            System.out.println("🟡 segments 필드를 찾을 수 없습니다.");
             return;
         }
 
         JsonArray segments = responseData.getAsJsonArray("segments");
+        System.out.println("🟢 segments 배열 크기: " + segments.size());
+
         if (segments.size() == 0) {
-            System.out.println("세그먼트가 없습니다.");
+            System.out.println("🟠 segments 배열은 존재하지만, 항목이 0개입니다.");
             return;
         }
 
@@ -402,6 +416,7 @@ public class ClovaSpeechClient {
             }
         }
     }
+
 
     public File combineAudioFiles(List<File> files) throws IOException, UnsupportedAudioFileException {
         // ByteArrayOutputStream 생성

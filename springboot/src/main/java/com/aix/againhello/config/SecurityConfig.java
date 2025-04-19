@@ -29,20 +29,27 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/be/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+                        // ✅ 오디오 리소스 무조건 허용
+                        .requestMatchers("/audio/test/**").permitAll()
+
+                        // ✅ 기본 페이지 관련
+                        .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
+
+                        // ✅ API 관련
+                        .requestMatchers("/be/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // ✅ 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
 }

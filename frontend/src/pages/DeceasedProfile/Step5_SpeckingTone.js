@@ -4,7 +4,6 @@ import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import styles from './Deceased.module.css';
 
 export default function Step5_SpeakingTone() {
-  console.log('[zustand 전체 상태5]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
   const speakingTone = useDeceasedProfile((state) => state.speaking_tone);

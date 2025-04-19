@@ -1,5 +1,3 @@
-// src/zustand/useDeceasedProfile.js
-
 import { create } from 'zustand';
 
 const useDeceasedProfile = create((set) => ({
@@ -20,6 +18,9 @@ const useDeceasedProfile = create((set) => ({
   personality: '',
   subscription_Code: '',
 
+  // 업로드 파일들
+  files: [],
+
   // Setter 함수들
   setDeceasedName: (val) => set({ deceased_name: val }),
   setGender: (val) => set({ gender: val }),
@@ -30,6 +31,16 @@ const useDeceasedProfile = create((set) => ({
   setSpeakingTone: (val) => set({ speaking_tone: val }),
   setPersonality: (val) => set({ personality: val }),
   setSubscriptionCode: (val) => set({ subscription_Code: val }),
+
+  // 파일 관련
+  setFiles: (fileList) => set({ files: fileList }),
+  addFile: (file) => set((state) => ({ files: [...state.files, file] })),
+  removeFile: (index) =>
+    set((state) => {
+      const newFiles = [...state.files];
+      newFiles.splice(index, 1);
+      return { files: newFiles };
+    }),
 
   // 전체 프로필 일괄 저장
   setDeceasedProfile: (profile) =>
@@ -60,6 +71,7 @@ const useDeceasedProfile = create((set) => ({
       speaking_tone: false,
       personality: '',
       subscription_Code: '',
+      files: [],
     }),
 }));
 
