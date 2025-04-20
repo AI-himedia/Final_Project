@@ -56,7 +56,6 @@ async def run_streaming_stt(audio_queue: asyncio.Queue):
             print("[STT] 오디오 큐 종료 신호 수신 (None)")
             audio_chunks.append(None)
             break
-        
         audio_chunks.append(chunk)
 
     def _call_google_stt():

@@ -16,6 +16,7 @@ import subprocess
 from datetime import datetime
 from scipy.io.wavfile import write
 from scipy.signal import resample
+import time
 
 load_dotenv()
 
@@ -130,28 +131,6 @@ def save_debug_audio(audio_array: np.ndarray, sample_rate: int = 16000) -> str:
 #     return buffer.read()
 
 
-# def pcm_to_webm_chunk(audio_array: np.ndarray, sample_rate: int):
-    
-#     process = subprocess.Popen(
-#         [
-#             'ffmpeg',
-#             '-f', 's16le',
-#             '-ar', str(sample_rate),
-#             '-ac', '1',
-#             '-i', 'pipe:0',
-#             '-f', 'webm',
-#             '-c:a', 'libopus',
-#             '-b:a', '64k',
-#             '-loglevel', 'quiet',
-#             'pipe:1'
-#         ],
-#         stdin=subprocess.PIPE,
-#         stdout=subprocess.PIPE
-#     )
-
-#     webm_data, _ = process.communicate(audio_array.tobytes())
-#     return webm_data
-
 
 def pcm_to_webm_chunk(audio_array: np.ndarray, sample_rate: int):
     audio_array = np.clip(audio_array, -1.0, 1.0)
@@ -189,20 +168,30 @@ def stream_tts(text: str):
     ensure_environment_ready()
 
     if spark_model is None:
-        print("Spark-TTS 모델 초기화")
+        print("[TTS]Spark-TTS 모델 초기화")
+        t0 = time.perf_counter()
+
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
 
+        t1 = time.perf_counter()
+        print(f"[TTS] 모델 초기화 완료 (소요 시간: {t1 - t0:.2f}초)")
+
+
     if cached_global_token_ids is None:
-        print("더미 임베딩 값 사용 중")
-        embedding_data = [[[3199,253,1592,4042,290,1733,1056,2665,3594,3475,672,3142,738,3628,3253,3101,1084,3088,3227,1261,541,2425,2271,1461,1602,204,3531,3143,3780,2572,2946,135]]]
+        print("[TTS]더미 임베딩 값 사용 중")
+        embedding_data = [[[3079, 3762, 3451, 3950, 2621, 3911, 209, 94, 2743, 3601, 2497, 4023, 2008, 3608, 3316, 343, 3963, 923, 1380, 3121, 153, 3600, 3554, 2359, 1809, 3842, 4015, 583, 2337, 332, 1934, 3682]]]
         cached_global_token_ids = torch.tensor(embedding_data, dtype=torch.long)
 
-    print("TTS 음성 생성 중 (전체 생성 후 1회 전송)")
+    print("[TTS] TTS 음성 생성 시작")
+    t2 = time.perf_counter()
 
     audio_tensor = spark_model.inference(text=text, global_token_ids=cached_global_token_ids)
-    print(f"[TTS DEBUG] 오디오 Tensor shape: {audio_tensor.shape}")
-    print(f"[TTS DEBUG] WebM chunk 변환 시작")
+    
+    t3 = time.perf_counter()
+    print(f"[TTS] TTS 음성 생성 완료 (소요 시간: {t3 - t2:.2f}초)")
+    
+    print(f"[TTS] WebM chunk 변환 시작")
 
     # torch.Tensor → np.ndarray
     if isinstance(audio_tensor, torch.Tensor):
@@ -210,17 +199,22 @@ def stream_tts(text: str):
     else:
         audio_array = audio_tensor
 
-    # #  오디오 디버깅용 저장
+    t4 = time.perf_counter()
+
+    # WebM 형식 청크로 변환해서 스트리밍
+    audio_array_48k = resample_audio(audio_array, orig_sr=16000, target_sr=48000)
+    chunk = pcm_to_webm_chunk(audio_array_48k, sample_rate=48000)
+
+    t5 = time.perf_counter()
+    print(f"[TTS] WebM chunk 변환 완료 (소요 시간: {t5 - t4:.2f}초)")
+
+    # 오디오 디버깅용 저장
     # output_dir = Path("results")
     # output_dir.mkdir(exist_ok=True)
     # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     # debug_path = output_dir / f"debug_tts_{timestamp}.wav"
     # write(debug_path, 16000, (audio_array * 32767).astype(np.int16))
     # print(f"[TTS DEBUG] WAV 파일 저장됨: {debug_path}")
-
-    # WebM 형식 청크로 변환해서 스트리밍
-    audio_array_48k = resample_audio(audio_array, orig_sr=16000, target_sr=48000)
-    chunk = pcm_to_webm_chunk(audio_array_48k, sample_rate=48000)
 
     # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     # output_dir = Path("results")
@@ -233,6 +227,5 @@ def stream_tts(text: str):
     # print("[DEBUG] audio_tensor max:", np.max(audio_tensor))
     # print("[DEBUG] audio_tensor min:", np.min(audio_tensor))
     # print("[DEBUG] audio_tensor mean:", np.mean(audio_tensor))
-
-    print(f"[TTS DEBUG] WebM chunk 크기: {len(chunk)} bytes")
+    # print(f"[DEBUG] WebM chunk 크기: {len(chunk)} bytes")
     yield chunk
