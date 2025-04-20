@@ -64,9 +64,6 @@ const CallService = () => {
       sourceBufferRef.current.addEventListener("error", (e) =>
         console.error("SourceBuffer 에러 발생:", e)
       );
-  
-      //TTS 이후 마이크 다시 시작
-      startAudioCapture(socketRef, false);
     });
   };
   
@@ -76,10 +73,11 @@ const CallService = () => {
       audioRef.current.onended = () => {
         console.log("오디오 재생 완료됨");
         setIsTTSPlaying(false);
+        
         setTimeout(() => {
-          console.log("startAudioCapture 재호출됨");
+          console.log("발화 재시작");
           startAudioCapture(socketRef, false);
-        }, 800);
+        }, 500);
       };
     }
   }, [audioRef.current]);
@@ -102,7 +100,7 @@ const CallService = () => {
       if (typeof event.data === "string") {
         const msg = JSON.parse(event.data);
         
-        if (msg.type === "tts_start" || msg.type === "stt_end") {
+        if (msg.type === "stt_start") {
           console.log("마이크 중단");
           
           await stopAudioCapture();
@@ -118,7 +116,7 @@ const CallService = () => {
           
           initMediaSource();
           
-        } else if (msg.type === "tts_end") {
+        } else if(msg.type === "tts_end") {
           console.log("TTS 수신 완료. 곧 재생");
         }
       }else if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
