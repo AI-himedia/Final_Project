@@ -15,8 +15,7 @@ export default function Step7_Call() {
 
   const [playingStatus, setPlayingStatus] = useState({});
   const [progress, setProgress] = useState({});
-  const [selectedSpeakerIndex, setSelectedSpeakerIndex] = useState(null);
-  const [selectedSpeakers, setSelectedSpeakers] = useState([]); // 선택된 화자 관리
+  const [selectedSpeakers, setSelectedSpeakers] = useState([]);
   const audioRefs = useRef([]);
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export default function Step7_Call() {
   }, [previewData]);
 
   const handlePlayPause = (index, e) => {
-    e.stopPropagation(); // 버튼 클릭 시 부모 클릭 이벤트 전파 방지
+    e.stopPropagation();
     if (audioRefs.current[index].paused) {
       audioRefs.current[index].play();
       setPlayingStatus((prevState) => ({
@@ -110,7 +109,7 @@ export default function Step7_Call() {
       );
       // 성공적으로 요청을 보낸 후
       console.log('대화 만들기 성공:', response.data);
-      navigate('/deceased/chat/setup'); // 대화 설정 페이지로 이동
+      // navigate('/deceased/chat/setup');
     } catch (error) {
       console.error('오류 발생:', error);
       alert('서버 요청 중 오류가 발생했습니다.');
