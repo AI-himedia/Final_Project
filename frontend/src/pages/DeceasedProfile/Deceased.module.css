@@ -13,7 +13,7 @@
   .title {
     font-size: 1.7rem;
     font-weight: bold;
-    margin: 1rem 0 5rem 0;
+    margin: 1rem 0 3rem 0;
   }
 
   .title .helperText {
@@ -203,13 +203,13 @@
     transition: all 0.2s ease;
   }
 
-  .audioItem.selected {
+  .selected {
     background-color: #cce5ff;
-    border: 2px solid #2e80ff;
+    border: 2px dashed #2e80ff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
-  .audioItem.selected .audioLabel {
+  .selected .audioLabel {
     font-weight: bold;
     color: #2e80ff;
   }
@@ -261,7 +261,7 @@
     grid-template-columns: repeat(auto-fill, minmax(100px, max-content));
     justify-items: start;
     gap: 12px;
-    margin-top: -3rem;
+    margin-top: 3rem;
     /* margin-right: 1.5rem; */
   }
 
@@ -271,12 +271,18 @@
     color: #ff6363;
   }
 
+  .Reference {
+    font-size: 0.75rem;
+    text-align: center;
+    color: #6eb035;
+  }
+
   .singleUploadRow {
     /* padding-left: 50px; */
   }
 
   .uploadBox {
-    width: 105px;
+    width: 110%;
     max-width: 120px;
     aspect-ratio: 1 / 1;
     border: 2px dashed #d3d3d3;
@@ -305,14 +311,14 @@
   }
 
   .fileThumb {
-    width: 100px;
+    width: 110%;
     padding: 0 6px 0 10px;
     text-align: center;
     box-sizing: border-box;
   }
 
   .thumbImage {
-    width: 120%;
+    width: 110%;
     max-width: 120px;
     height: auto;
     border-radius: 8px;
@@ -328,6 +334,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-left: 10px;
   }
 
   .uploadGuideBox {
@@ -512,5 +519,109 @@
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
+  }
+
+  /* 모달 배경 스타일 */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* 모달 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  /* 모달 콘텐츠 */
+  .modalContent {
+    position: relative;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 80vw;
+    max-width: 800px;
+    height: 80vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+  }
+
+  .modalContent.select {
+    width: 90vw;
+    max-width: 480px;
+    height: auto;
+    min-height: 280px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .conversationWrapper {
+    display: none;
+  }
+
+  .modalText {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #333;
+    height: 100%;
+    overflow-y: auto;
+    max-height: 70vh;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* 이미지 모달 스타일 */
+  .modalImage {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .modalContent {
+    cursor: pointer;
+  }
+
+  .confirmButtonSplitWrapper {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+  }
+
+  .splitLeft,
+  .splitRight {
+    width: 50%;
+    border-radius: 0;
+    border-radius: 12px;
+  }
+
+  .disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  .fileThumb .selected {
+    background-color: #cce5ff;
+    border: 2px dashed #2e80ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .separation {
+    text-align: center;
   }
 }
