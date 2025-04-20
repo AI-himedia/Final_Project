@@ -22,11 +22,11 @@ public class SmsController {
     public ResponseEntity<?> startSubscription(
             @RequestParam("subscriptionCode") int subscriptionCode,
             @RequestPart(value = "deceasedData", required = false) DeceasedDataDTO deceasedDataDTO,
-            @RequestPart(value = "deceasedHint", required = false) DeceasedHintDTO deceasedHintDTO,
-            @RequestPart(value = "chatFile", required = false) List<MultipartFile> chatFile
+            @RequestPart(value = "deceasedHint", required = false) List<DeceasedHintDTO> deceasedHintList,
+            @RequestPart(value = "chatFile", required = false) List<MultipartFile> chatFiles
     ) {
 
-        SmsResponse result = smsService.startService(subscriptionCode, deceasedDataDTO, deceasedHintDTO, chatFile);
+        SmsResponse result = smsService.startService(subscriptionCode, deceasedDataDTO, deceasedHintList, chatFiles);
 
         return ResponseEntity.ok(result);
     }

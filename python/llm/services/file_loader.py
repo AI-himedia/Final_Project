@@ -78,7 +78,7 @@ def load_text(chat_urls: List[str]) -> Tuple[str, List[str]]:
 
     for url in chat_urls:
         ext = get_file_extension(url)
-        if ext == "txt":
+        if ext in ["txt", "csv"]:
             text = get_text_from_s3_url(url)
             texts.append(text)
         # else:

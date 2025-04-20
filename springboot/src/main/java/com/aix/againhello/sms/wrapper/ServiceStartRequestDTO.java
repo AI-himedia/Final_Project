@@ -13,7 +13,5 @@ import java.util.List;
 public class ServiceStartRequestDTO {
     private int subscriptionCode;
     private DeceasedDataDTO deceasedData;
-    private DeceasedHintDTO deceasedHintDTO;
-    private List<String> chatFileUrls;
-    private List<String> presignedUrls;
+    private List<AnalyzableFileDTO> analyzableFiles;
 }

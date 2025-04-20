@@ -30,7 +30,7 @@ public class FileValidationService {
     @Value("${file.upload.max-text-size}")
     private long maxTextSize;
 
-    @Value("${file.upload.max-count}")
+    @Value("${file.upload.max-count-text}")
     private int maxFileCount;
 
     public void validateFiles(List<MultipartFile> files) {

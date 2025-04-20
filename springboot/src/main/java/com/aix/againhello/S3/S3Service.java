@@ -39,6 +39,7 @@ public class S3Service {
                 (!originalFilename.endsWith(".mp3") &&
                         !originalFilename.endsWith(".wav") &&
                         !originalFilename.endsWith(".txt") &&
+                        !originalFilename.endsWith(".csv") &&
                         !originalFilename.endsWith(".jpg") &&
                         !originalFilename.endsWith(".jpeg") &&
                         !originalFilename.endsWith(".png"))) {
@@ -53,6 +54,7 @@ public class S3Service {
             String lowerCaseName = originalFilename.toLowerCase(); // 확장자 대소문자 구분 방지
 
             String folder = (lowerCaseName.endsWith(".txt") ||
+                    lowerCaseName.endsWith(".csv") ||
                     lowerCaseName.endsWith(".jpg") ||
                     lowerCaseName.endsWith(".jpeg") ||
                     lowerCaseName.endsWith(".png"))
