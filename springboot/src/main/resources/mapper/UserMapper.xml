@@ -28,10 +28,6 @@
     </select>
 
     <select id="findById" resultType="com.aix.againhello.oauth.kakao.dto.User">
-<<<<<<< HEAD
-        SELECT * FROM users WHERE ㅊ = #{email}
-=======
         SELECT * FROM users WHERE code = #{userCode}
->>>>>>> c23b37ed7bf5d48d5fe7de89889a6543ea9790a3
     </select>
 </mapper>

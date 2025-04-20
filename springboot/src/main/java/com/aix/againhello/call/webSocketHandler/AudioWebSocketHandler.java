@@ -108,14 +108,9 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
                 System.out.println(" 'end' 메시지 FastAPI로 전송");
             }
 
-            if ("stt_end".equals(signal)) {
-                session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
+            if ("stt_start".equals(signal)) {
+                session.sendMessage(new TextMessage("{\"type\": \"stt_start\"}"));
                 System.out.println("React로 STT 종료 알림 전송");
-            }
-
-            if ("tts_start".equals(signal)) {
-                System.out.println("TTS 시작");
-                session.sendMessage(new TextMessage("{\"type\": \"tts_start\"}"));
             }
 
 //            if ("tts_end".equals(signal)) {
