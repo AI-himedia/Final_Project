@@ -20,9 +20,12 @@ class DeceasedHint(BaseModel):
     nickname: Optional[str] = None
     smsBubbleSide: Optional[str] = None
 
+class AnalyzableFile(BaseModel):
+    fileUrl: str
+    presignedUrl: Optional[str]
+    deceasedHint: DeceasedHint
+
 class ServiceStartRequest(BaseModel):
     subscriptionCode: int
     deceasedData: DeceasedData
-    deceasedHint: DeceasedHint
-    chatFileUrls: List[str]
-    presignedUrls: List[str]
+    analyzableFiles: List[AnalyzableFile]
