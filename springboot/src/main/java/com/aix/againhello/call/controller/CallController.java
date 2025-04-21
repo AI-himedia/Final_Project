@@ -136,8 +136,9 @@ public class CallController {
             Resource resource = new InputStreamResource(new FileInputStream(file));
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("audio/wav")) // 파일 타입에 맞게 조정
+                    .contentType(MediaType.parseMediaType("audio/wav"))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()))
                     .body(resource);
         } catch (Exception e) {
             e.printStackTrace();
