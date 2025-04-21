@@ -15,8 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,9 @@ public class CallController {
 
     @Value("${file.call}")
     private String baseDirectory;
+
+    @Value("${file.output.dir}")
+    private String outputDir;
 
     /**
      * 전화 서비스 신청 및 화자 분리
@@ -84,6 +90,16 @@ public class CallController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    /**
+     * 사용자가 화자 선택 전 뒤로가기 했을 경우
+     * */
+    @PostMapping("/audio/cleanup")
+    public ResponseEntity<?> cleanupAudio(@RequestParam int subscriptionCode) throws IOException {
+        Path outputPath = Paths.get(outputDir, String.valueOf(subscriptionCode));
+        audioProcessingService.deleteDirectoryRecursively(outputPath);
+        return ResponseEntity.ok("임시 작업 폴더 삭제 완료");
     }
 
     /**
