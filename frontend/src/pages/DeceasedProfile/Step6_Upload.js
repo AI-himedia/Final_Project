@@ -3,6 +3,7 @@ import styles from './Deceased.module.css';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { axiosInstance } from '../../api/AxiosInstance';
+import { useRef } from 'react';
 
 const audioVideoExtensions = [
   'mp3',
@@ -25,6 +26,7 @@ const MAX_TXT_SIZE_MB = 10;
 
 export default function Step6_FileUpload() {
   console.log('[zustand 전체 상태6]', useDeceasedProfile.getState());
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const serviceCode = localStorage.getItem('@againhello/service-code');
 
@@ -80,6 +82,9 @@ export default function Step6_FileUpload() {
     }
 
     addFile(uploaded);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null; // input 값 초기화
+    }
   };
 
   const handleSubmit = async () => {
@@ -154,7 +159,7 @@ export default function Step6_FileUpload() {
         },
       };
 
-      audioFiles.forEach((file) => formData.append('audioFiles', file));
+      audioFiles.forEach((file) => formData.append('audioFiles', file)); // 모든 오디오 파일 추가
       formData.append(
         'request',
         new Blob([JSON.stringify(requestData)], { type: 'application/json' })
@@ -216,6 +221,7 @@ export default function Step6_FileUpload() {
               accept={allowedExtensions.map((ext) => '.' + ext).join(',')}
               onChange={handleFileChange}
               hidden
+              ref={fileInputRef}
             />
           </label>
 
