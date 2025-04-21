@@ -1,38 +1,41 @@
 import asyncio
 import uvicorn
 import json
+import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from tts.stt_google_api import run_streaming_stt
 from api.response_generator import generate_response, ChatRequest
-from tts.tts_streaming import stream_tts
 import time
 import base64
 from dotenv import load_dotenv
+import websockets
+import websockets.legacy.client
+import requests
+from tts.elevenlabs.generate_tts import generate_tts_audio
 
 router = APIRouter()
 
 load_dotenv()
-API_KEY = os.getenv("ELEVENLABS_API_KEY")
-VOICE_ID = os.getenv("VOICE_ID")  # 클론된 voice_id
+
 
 CHUNK_SIZE = 4096
-MIN_AUDIO_CHUNKS = 1
+MIN_AUDIO_CHUNKS = 5
 
 
 @router.websocket("/be/ws/python")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print("[전화 서비스 handler] Spring boot 연결됨")
-    
-    audio_queue = asyncio.Queue()
+    print("[new 전화 서비스 handler] Spring boot 연결됨")
+
     stt_done = asyncio.Event()
-    received_chunks = [0]
 
     try:
         while websocket.client_state.name == "CONNECTED":
+            audio_queue = asyncio.Queue()
             audio_received = asyncio.Event()
+            received_chunks = [0]
 
-            print("[전화 서비스 handler] 오디오 수신 대기 중")
+            print("[new 전화 서비스 handler] 오디오 수신 대기 중")
             receive_task = asyncio.create_task(
                 receive_audio(websocket, audio_queue, stt_done, received_chunks, audio_received)
             )
@@ -42,24 +45,24 @@ async def websocket_endpoint(websocket: WebSocket):
             while received_chunks[0] < MIN_AUDIO_CHUNKS:
                 await asyncio.sleep(0.1)
 
-            print("\n[전화 서비스 handler] 새 오디오 입력 대기 중")
+            print("\n[new전화 서비스 handler] 새 오디오 입력 대기 중")
             process_task = asyncio.create_task(process_stt(websocket, audio_queue))
 
             await asyncio.gather(receive_task, process_task)
 
             if websocket.client_state.name == "DISCONNECTED":
-                print("[handler] 클라이언트가 연결을 종료함")
+                print("[new 전화 서비스 handler] 클라이언트가 연결을 종료함")
                 break
 
-            print("[전화 서비스 handler] 대화 흐름 1회 완료\n")
+            print("[new 전화 서비스 handler] 대화 흐름 1회 완료\n")
 
     except WebSocketDisconnect:
-        print("[전화 서비스 handler] 연결 끊김")
+        print("[new전화 서비스 handler] 연결 끊김")
 
 
 async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_chunks, audio_received):
-    print("[전화서비스] 오디오 큐 수신 시작")
-
+    print("[new 전화서비스] 오디오 큐 수신 시작")
+    
     try:
         while True:
             data = await websocket.receive()
@@ -67,10 +70,12 @@ async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_ch
                 try:
                     msg = json.loads(data["text"])
                     if msg.get("event") == "end":
-                        print("[전화서비스] 클라이언트 종료 명령 수신 → STT 종료")
+                        print("[new 전화서비스] 클라이언트 종료 명령 수신 → STT 종료")
                         await asyncio.sleep(0.5)
                         
-                        await audio_queue.put(None)
+                        if not stt_done.is_set():
+                            await audio_queue.put(None)
+                            stt_done.set()
                         await websocket.send_text(json.dumps({"type": "stt_start"}))
                         break
                 except Exception as e:
@@ -87,12 +92,12 @@ async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_ch
         if not stt_done.is_set():
             await audio_queue.put(None)
             stt_done.set()
-        print("[전화서비스] 오디오 큐 종료 신호 수신 (None)")
+        print("[new 전화서비스] 오디오 큐 종료")
 
 
 async def process_stt(websocket: WebSocket, audio_queue):
     # await websocket.send_text(json.dumps({"type": "stt_start"}))
-    print("[전화서비스] run_streaming_stt() 호출 시작")
+    print("[new 전화서비스] run_streaming_stt() 호출 시작")
     t0 = time.perf_counter()
     responses = await run_streaming_stt(audio_queue)
 
@@ -115,74 +120,78 @@ async def process_stt(websocket: WebSocket, audio_queue):
                     final_result = transcript
                     
                     t1 = time.perf_counter()
-                    print("[전화서비스]최종 STT 결과:", final_result)
+                    print("[new 전화서비스]최종 STT 결과:", final_result)
                     print(f"[STT] 총 소요 시간:{t1 - t0:.2f}초)")
                     await process_llm_and_tts(websocket, final_result)
                     return
             else:
                 if transcript != last_partial_transcript:
                     last_partial_transcript = transcript
-                    print("[전화서비스]중간 STT:", transcript)
+                    print("[new 전화서비스]중간 STT:", transcript)
 
     if final_result is None and last_partial_transcript:
-        print("[전화서비스] 최종 STT 없음. 마지막 중간 결과로 처리:", last_partial_transcript)
+        print("[new 전화서비스] 최종 STT 없음. 마지막 중간 결과로 처리:", last_partial_transcript)
         await websocket.send_text(json.dumps({"type": "stt_start"}))
         await process_llm_and_tts(websocket, last_partial_transcript)
 
 async def process_llm_and_tts(websocket: WebSocket, final_result):
     try:
-        print("[전화서비스 LLM] LLM 호출")
+        print("[new 전화서비스 LLM] LLM 호출")
         chat_input = ChatRequest(subscriptionCode=300, userInput=final_result)
         llm_response = generate_response(chat_input)
         reply = llm_response["message"]
-        print("[전화서비스 LLM] 답장:", reply)
+        print("[new 전화서비스 LLM] 답장:", reply)
 
-        await stream_tts_audio(websocket, reply)
+        audio_data = generate_tts_audio(reply)
+        
+        if audio_data:
+            await websocket.send_bytes(audio_data)
+            await websocket.send_text(json.dumps({"type": "tts_end"}))
+    
     except Exception as e:
         print("[LLM → TTS 흐름 오류]:", e)
 
 
-async def stream_tts_audio(websocket: WebSocket, reply: str):
-    print("[전화서비스 TTS] ElevenLabs TTS 시작")
+# async def stream_tts_audio(websocket, reply):
+#     print("[전화서비스 TTS] ElevenLabs TTS 시작")
+    
 
-    elevenlabs_ws_uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}/stream"
-    headers = [("xi-api-key", API_KEY)]
+#     model_id = "eleven_multilingual_v2"
+#     api_key = os.getenv("ELEVENLABS_API_KEY")
+#     voice_id = "Y0kMLRNxCTef2wtDgX1R"
 
-    try:
-        async with websockets.connect(elevenlabs_ws_uri, extra_headers=headers) as eleven_ws:
-            # 텍스트 전송
-            await eleven_ws.send(json.dumps({
-                "text": reply,
-                "model_id": "eleven_multilingual_v2",
-                "voice_settings": {
-                    "stability": 0.6,
-                    "similarity_boost": 0.75
-                }
-            }))
+#     uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input?model_id={model_id}"
 
-            # 오디오 chunk 수신 및 전달
-            while True:
-                try:
-                    message = await eleven_ws.recv()
-                    parsed = json.loads(message)
+#     async with websockets.connect(uri) as eleven_ws:
+#         await eleven_ws.send(json.dumps({
+#             "text": reply,
+#             "voice_settings": {
+#                 "stability": 0.4,
+#                 "similarity_boost": 0.85
+#             },
+#             "xi_api_key": api_key
+#         }))
 
-                    if "audio" in parsed:
-                        chunk = base64.b64decode(parsed["audio"])
-                        await websocket.send_bytes(chunk)
+#         while True:
+#             try:
+#                 message = await eleven_ws.recv()
+#                 parsed = json.loads(message)
 
-                    elif parsed.get("isFinal"):
-                        print("[전화서비스 TTS] 최종 chunk 수신 완료")
-                        break
+#                 if "audio" in parsed:
+#                     chunk = base64.b64decode(parsed["audio"])
+#                     await websocket.send_bytes(chunk)
 
-                except Exception as e:
-                    print(f"[ElevenLabs 수신 오류]: {e}")
-                    break
+#                 elif parsed.get("isFinal"):
+#                     print("[전화서비스 TTS] 최종 chunk 수신 완료")
+#                     break
 
-        await websocket.send_text(json.dumps({"type": "tts_end"}))
-        print("[전화서비스 TTS] 오디오 스트리밍 완료")
+#             except Exception as e:
+#                 print(f"[ElevenLabs 수신 오류]: {e}")
+#                 break
 
-    except Exception as e:
-        print("[전화서비스 TTS] WebSocket 오류:", e)
+#     await websocket.send_text(json.dumps({"type": "tts_end"}))
+#     print("[전화서비스 TTS] 오디오 스트리밍 완료")
+
 
 
 if __name__ == "__main__":

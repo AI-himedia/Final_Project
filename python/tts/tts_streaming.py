@@ -159,6 +159,11 @@ def pcm_to_webm_chunk(audio_array: np.ndarray, sample_rate: int):
     webm_data, _ = process.communicate(audio_array_int16.tobytes())
     return webm_data
 
+# 쿠다 확인용
+print(torch.cuda.is_available())  # True
+print(torch.cuda.get_device_name(0))
+print(torch.version.cuda)
+
 
 # TTS 스트리밍 (WebM binary)
 def stream_tts(text: str):
@@ -180,9 +185,12 @@ def stream_tts(text: str):
 
     if cached_global_token_ids is None:
         print("[TTS]더미 임베딩 값 사용 중")
-        embedding_data = [[[3079, 3762, 3451, 3950, 2621, 3911, 209, 94, 2743, 3601, 2497, 4023, 2008, 3608, 3316, 343, 3963, 923, 1380, 3121, 153, 3600, 3554, 2359, 1809, 3842, 4015, 583, 2337, 332, 1934, 3682]]]
-        cached_global_token_ids = torch.tensor(embedding_data, dtype=torch.long)
-
+        embedding_data =[[[2219, 2049, 2047, 4048, 2438, 267, 2197, 3581, 911, 3338, 3937, 174, 694, 3616, 2284, 3225, 3835, 968, 3877, 861, 4030, 557, 506, 2417, 2359, 1284, 4039, 4026, 1458, 2851, 2660, 149]]]
+        cached_global_token_ids = torch.tensor(embedding_data, dtype=torch.long).to(spark_model.device)
+        
+        print("모델 디바이스:", next(spark_model.model.parameters()).device)
+        print("토큰 디바이스:", cached_global_token_ids.device)
+    
     print("[TTS] TTS 음성 생성 시작")
     t2 = time.perf_counter()
 
@@ -209,12 +217,12 @@ def stream_tts(text: str):
     print(f"[TTS] WebM chunk 변환 완료 (소요 시간: {t5 - t4:.2f}초)")
 
     # 오디오 디버깅용 저장
-    # output_dir = Path("results")
-    # output_dir.mkdir(exist_ok=True)
-    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # debug_path = output_dir / f"debug_tts_{timestamp}.wav"
-    # write(debug_path, 16000, (audio_array * 32767).astype(np.int16))
-    # print(f"[TTS DEBUG] WAV 파일 저장됨: {debug_path}")
+    output_dir = Path("results")
+    output_dir.mkdir(exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    debug_path = output_dir / f"debug_tts_{timestamp}.wav"
+    write(debug_path, 16000, (audio_array * 32767).astype(np.int16))
+    print(f"[TTS DEBUG] WAV 파일 저장됨: {debug_path}")
 
     # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     # output_dir = Path("results")

@@ -27,10 +27,8 @@ streaming_config = speech.StreamingRecognitionConfig(
 def stt_streaming_generator(audio_chunks):
     buffer = b""
     min_chunk_size = 3200
-    total_chunks = 0
 
-    for idx, chunk in enumerate(audio_chunks):
-        total_chunks += 1        
+    for idx, chunk in enumerate(audio_chunks):     
         if chunk is None:
             print("[STT] STT 종료: None 수신")
             if buffer:
@@ -53,7 +51,7 @@ async def run_streaming_stt(audio_queue: asyncio.Queue):
         chunk = await audio_queue.get()
         
         if chunk is None:
-            print("[STT] 오디오 큐 종료 신호 수신 (None)")
+            print("[STT] 오디오 큐 종료 신호 수신")
             audio_chunks.append(None)
             break
         audio_chunks.append(chunk)
@@ -67,7 +65,6 @@ async def run_streaming_stt(audio_queue: asyncio.Queue):
             return None
 
     # 동기 함수 백그라운드에서 실행
-    print("[STT] Google STT 호출 시작")
     responses = await loop.run_in_executor(None, _call_google_stt)
 
     if responses is None:

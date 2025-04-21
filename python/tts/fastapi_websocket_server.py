@@ -19,13 +19,13 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("[전화 서비스 handler] Spring boot 연결됨")
     
-    audio_queue = asyncio.Queue()
     stt_done = asyncio.Event()
-    received_chunks = [0]
 
     try:
         while websocket.client_state.name == "CONNECTED":
+            audio_queue = asyncio.Queue()
             audio_received = asyncio.Event()
+            received_chunks = [0]
 
             print("[전화 서비스 handler] 오디오 수신 대기 중")
             receive_task = asyncio.create_task(
@@ -54,7 +54,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_chunks, audio_received):
     print("[전화서비스] 오디오 큐 수신 시작")
-
+    print(f"[청크 수신]: {received_chunks[0]}개, 길이: {len(data['bytes'])} bytes")
     try:
         while True:
             data = await websocket.receive()

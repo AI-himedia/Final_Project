@@ -7,9 +7,9 @@ API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 
 # 1. 업로드할 화자 정보
-VOICE_NAME = "MyCustomVoice"  # 원하는 이름으로 설정
-VOICE_DESCRIPTION = "Uploaded by API"  # 선택사항
-FILE_PATH = "./voice_sample/my_voice.wav"  # 경로 확인 필수
+VOICE_NAME = "코딩"  # 원하는 이름으로 설정
+VOICE_DESCRIPTION = "보이스 클로닝 테스트 1" 
+FILE_PATH = "./voice_sample/sample1.mp3"  # 경로 확인 필수
 
 # 2. API 요청 설정
 url = "https://api.elevenlabs.io/v1/voices/add"
@@ -20,7 +20,7 @@ headers = {
 files = {
     "name": (None, VOICE_NAME),
     "description": (None, VOICE_DESCRIPTION),
-    "files": (os.path.basename(FILE_PATH), open(FILE_PATH, "rb"), "audio/wav")
+    "files": (os.path.basename(FILE_PATH), open(FILE_PATH, "rb"), "audio/mpeg")
 }
 
 # 3. 요청 보내기
