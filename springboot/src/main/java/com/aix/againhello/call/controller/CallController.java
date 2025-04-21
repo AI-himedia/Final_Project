@@ -38,6 +38,9 @@ public class CallController {
     @Value("${file.call}")
     private String baseDirectory;
 
+    @Value("${file.upload.dir}")
+    private String uploadDir;
+
     @Value("${file.output.dir}")
     private String outputDir;
 
@@ -134,10 +137,10 @@ public class CallController {
     @PostMapping("/audio/cleanup")
     public ResponseEntity<?> cleanupAudio(@RequestParam int subscriptionCode) throws IOException {
 
-        Path inputPath = Paths.get(baseDirectory, String.valueOf(subscriptionCode));
+        Path uploadPath = Paths.get(uploadDir, String.valueOf(subscriptionCode));
         Path outputPath = Paths.get(outputDir, String.valueOf(subscriptionCode));
 
-        audioProcessingService.deleteDirectoryRecursively(inputPath);
+        audioProcessingService.deleteDirectoryRecursively(uploadPath);
         audioProcessingService.deleteDirectoryRecursively(outputPath);
         
         return ResponseEntity.ok("임시 작업 폴더 삭제 완료");
