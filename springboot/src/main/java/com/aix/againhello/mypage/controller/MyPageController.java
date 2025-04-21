@@ -8,6 +8,7 @@ import com.aix.againhello.mypage.dto.MyPageInfoDTO;
 import com.aix.againhello.mypage.dto.ServiceUpdateDTO;
 import com.aix.againhello.mypage.service.MyPageService;
 import com.aix.againhello.sms.SmsService;
+import com.aix.againhello.sms.wrapper.DeceasedHintDTO;
 import com.aix.againhello.subscription.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,7 @@ public class MyPageController {
     public ResponseEntity<?> updateDeceased(
             @RequestPart("deceasedDataDto") DeceasedDataDTO deceasedDataDto,
             @RequestPart("serviceSubscriptions") List<ServiceUpdateDTO> serviceSubscriptions,
+            @RequestPart(value = "deceasedHint", required = false) DeceasedHintDTO deceasedHintDTO,
             @RequestPart(value = "smsFiles", required = false) List<MultipartFile> smsFiles,
             @RequestPart(value = "callFiles", required = false) List<MultipartFile> callFiles
     ) {
@@ -64,17 +66,27 @@ public class MyPageController {
 
         for (ServiceUpdateDTO sub : serviceSubscriptions) {
             if (sub.getServiceCode() == 1) {
-                smsService.startService(sub.getSubscriptionCode(), deceasedDataDto, smsFiles);
+                smsService.startService(sub.getSubscriptionCode(), deceasedDataDto, deceasedHintDTO, smsFiles);
             } else if (sub.getServiceCode() == 2) {
-                callService.processSubscription(sub.getSubscriptionCode(), deceasedDataDto, callFiles);
+                // call 서비스 분기
+                if (callFiles != null && !callFiles.isEmpty()) {
+                    // 오디오 파일이 있으면 기존대로 전체 로직 실행
+                    callService.processSubscription(sub.getSubscriptionCode(), deceasedDataDto, callFiles);
 
-                try {
-                    PreviewResponseDTO response = audioProcessingService.separateSpeakers(sub.getSubscriptionCode());
+                    try {
+                        PreviewResponseDTO response = audioProcessingService.separateSpeakers(sub.getSubscriptionCode());
+                        result.put("subscriptionCode", sub.getSubscriptionCode());
+                        result.put("preview", response);
+                    } catch (Exception e) {
+                        return ResponseEntity.internalServerError()
+                                .body(Map.of("error", "화자 분리 중 오류 발생: " + e.getMessage()));
+                    }
+                } else {
+                    // 오디오 파일이 없으면 고인 데이터만 업데이트
+                    Integer deceasedCode = deceasedDataDto.getDeceasedCode();
+                    callService.updateDeceasedData(deceasedCode, deceasedDataDto);
                     result.put("subscriptionCode", sub.getSubscriptionCode());
-                    result.put("preview", response);
-                } catch (Exception e) {
-                    return ResponseEntity.internalServerError()
-                            .body(Map.of("error", "화자 분리 중 오류 발생: " + e.getMessage()));
+                    result.put("message", "고인 정보만 수정되었습니다.");
                 }
             }
         }

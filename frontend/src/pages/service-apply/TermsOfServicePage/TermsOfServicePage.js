@@ -25,7 +25,7 @@ export default function TermsOfServicePage() {
     checkedItems.payment;
 
   useEffect(() => {
-    console.log('[DEBUG] ', isTermsAgreed);
+    // console.log('[DEBUG] ', isTermsAgreed);
   }, [isTermsAgreed]);
 
   // 체크박스 상태 토글 핸들러

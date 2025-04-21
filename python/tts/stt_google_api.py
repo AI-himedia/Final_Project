@@ -8,16 +8,6 @@ from pathlib import Path
 load_dotenv()
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-# load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
-
-# cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-# if cred_path is None:
-#     raise ValueError("GOOGLE_APPLICATION_CREDENTIALS is not set in .env")
-# else:
-#     print("[DEBUG] GOOGLE_APPLICATION_CREDENTIALS =", cred_path)
-
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = cred_path
-
 client = speech.SpeechClient()
 
 config = speech.RecognitionConfig(
@@ -66,7 +56,6 @@ async def run_streaming_stt(audio_queue: asyncio.Queue):
             print("[STT] 오디오 큐 종료 신호 수신 (None)")
             audio_chunks.append(None)
             break
-        
         audio_chunks.append(chunk)
 
     def _call_google_stt():

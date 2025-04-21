@@ -7,6 +7,7 @@ from api import routers
 import psycopg2
 import uvicorn
 import os
+from tts.fastapi_websocket_server import router as ws_router
 
 
 app = FastAPI()
@@ -32,6 +33,7 @@ for router in routers:
 # 나중에 user, memory 등도 추가 가능
 # app.include_router(user.router)
 # app.include_router(memory.router)
+    app.include_router(ws_router)
 
 @app.get("/")
 def root():

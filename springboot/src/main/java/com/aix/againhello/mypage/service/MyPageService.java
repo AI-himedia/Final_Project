@@ -2,6 +2,7 @@ package com.aix.againhello.mypage.service;
 
 import com.aix.againhello.common.DeceasedDetailDTO;
 import com.aix.againhello.common.SubscriptionDTO;
+import com.aix.againhello.common.exception.ServiceException;
 import com.aix.againhello.mypage.dto.MyPageInfoDTO;
 import com.aix.againhello.oauth.kakao.dto.User;
 import com.aix.againhello.oauth.kakao.mapper.UserMapper;
@@ -24,8 +25,8 @@ public class MyPageService {
 
     public MyPageInfoDTO getMyPageInfo(int userCode) {
 
-        User user = new User();
-        user.setCode(userCode);
+        User user = userMapper.findById(userCode);
+        if (user == null) throw new ServiceException("유저 정보가 존재하지 않습니다.");
 
         // 구독 테이블에서 userCode로 구독 목록 조회 (고인별 중복 없이)
         List<SubscriptionDTO> subscriptions = subscriptionMapper.findByUserCode(userCode);

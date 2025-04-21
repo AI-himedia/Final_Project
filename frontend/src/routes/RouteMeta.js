@@ -85,4 +85,10 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
+  '/deceased/profile/step7-call': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
 };

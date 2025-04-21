@@ -1,13 +1,21 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/againhello
+#    url: jdbc:postgresql://localhost:5432/postgres
     username: ${POSTGRESQL_USERNAME}
+
+
     password: ${POSTGRESQL_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
 server:
   frontend: http://localhost:3000
   backend: http://localhost:8080
+
+file:
+  sms:
+  call: /Users/dijeung/Desktop/Final_Project/springboot/output
+
 
 app:
   props:

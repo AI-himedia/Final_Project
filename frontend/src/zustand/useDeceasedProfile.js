@@ -16,6 +16,10 @@ const useDeceasedProfile = create((set) => ({
 
   // 기타
   personality: '',
+  subscription_Code: '',
+
+  // 업로드 파일들
+  files: [],
 
   // Setter 함수들
   setDeceasedName: (val) => set({ deceased_name: val }),
@@ -26,6 +30,17 @@ const useDeceasedProfile = create((set) => ({
   setRelationship: (val) => set({ relationship: val }),
   setSpeakingTone: (val) => set({ speaking_tone: val }),
   setPersonality: (val) => set({ personality: val }),
+  setSubscriptionCode: (val) => set({ subscription_Code: val }),
+
+  // 파일 관련
+  setFiles: (fileList) => set({ files: fileList }),
+  addFile: (file) => set((state) => ({ files: [...state.files, file] })),
+  removeFile: (index) =>
+    set((state) => {
+      const newFiles = [...state.files];
+      newFiles.splice(index, 1);
+      return { files: newFiles };
+    }),
 
   // 전체 프로필 일괄 저장
   setDeceasedProfile: (profile) =>
@@ -38,6 +53,10 @@ const useDeceasedProfile = create((set) => ({
       relationship: profile.relationship || '',
       speaking_tone: profile.speakingTone || false,
       personality: profile.personality || '',
+      subscription_Code:
+        profile.subscriptionCode ||
+        profile.serviceSubscriptions?.[0]?.subscriptionCode ||
+        '',
     }),
 
   // 초기화
@@ -51,7 +70,24 @@ const useDeceasedProfile = create((set) => ({
       relationship: '',
       speaking_tone: false,
       personality: '',
+      subscription_Code: '',
+      files: [],
     }),
 }));
+
+// API 전송용 변환 함수
+export const mapStateToApiFormat = (state) => ({
+  subscriptionCode: state.subscription_Code,
+  deceasedData: {
+    deceasedName: state.deceased_name,
+    gender: state.gender,
+    deceasedAge: state.deceased_age,
+    personality: state.personality,
+    deceasedNickname: state.deceased_nickname,
+    userNickname: state.user_nickname,
+    relationship: state.relationship,
+    speakingTone: state.speaking_tone,
+  },
+});
 
 export default useDeceasedProfile;

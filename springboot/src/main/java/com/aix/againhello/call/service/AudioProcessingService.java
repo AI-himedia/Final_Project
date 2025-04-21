@@ -45,59 +45,6 @@ public class AudioProcessingService {
     /**
      * 화자 분리 처리 (Clova Speech API 사용)
      */
-//    public PreviewResponseDTO separateSpeakers() throws Exception {
-//        log.info("화자 분리 처리 시작...");
-//        File folder = new File(uploadDir);
-//        Path baseOutputDir = Paths.get(outputDir);
-//        Files.createDirectories(baseOutputDir);
-//
-//        File[] mediaFiles = folder.listFiles(file ->
-//                file.isFile() && ClovaSpeechClient.isSupportedMediaFile(file)
-//        );
-//
-//        if (mediaFiles == null || mediaFiles.length == 0) {
-//            log.warn("처리할 미디어 파일을 찾을 수 없거나 지원되지 않는 형식입니다. Upload 디렉토리: {}", uploadDir);
-//            throw new IOException("파일을 찾을 수 없거나 지원되지 않는 형식입니다.");
-//        }
-//
-//        ClovaSpeechClient.NestRequestEntity requestEntity = new ClovaSpeechClient.NestRequestEntity();
-//        ClovaSpeechClient.Diarization diarization = new ClovaSpeechClient.Diarization();
-//        diarization.setEnable(Boolean.TRUE);
-//        requestEntity.setDiarization(diarization);
-//
-//        for (File mediaFile : mediaFiles) {
-//            log.info("Clova Speech 처리 중: {}", mediaFile.getName());
-//            try {
-//                String result = clovaSpeechClient.upload(mediaFile, requestEntity);
-//                clovaSpeechClient.extractSpeakerSegmentsIndividually(result, mediaFile, baseOutputDir);
-//                log.info("{} 처리 완료!", mediaFile.getName());
-//            } catch (Exception e) {
-//                log.error("{} 처리 중 Clova Speech API 오류 발생", mediaFile.getName(), e);
-//                // 개별 파일 실패 시 계속 진행할지, 전체를 중단할지 정책 결정 필요
-//                // 여기서는 일단 로그만 남기고 다음 파일 처리 시도
-//            }
-//        }
-//
-//        PreviewResponseDTO response = new PreviewResponseDTO();
-//        response.setStatus("success");
-//        response.setMessage("모든 파일의 화자 분리가 완료되었습니다.");
-//
-//        // 화자별 파일 정보 생성 및 추가
-//        try {
-//            response.setSpeakersByFile(getSpeakersByOriginalFile(baseOutputDir));
-//        } catch (IOException e) {
-//            log.error("화자별 파일 목록 생성 중 오류 발생", e);
-//            // 이 경우 응답은 성공으로 나가지만, 화자 목록은 비어있을 수 있음
-//            response.setMessage("화자 분리는 완료되었으나, 파일 목록 생성 중 오류가 발생했습니다.");
-//            response.setStatus("partial_success"); // 상태 변경 고려
-//        }
-//
-//        response.setOutputDir(baseOutputDir.resolve("long").toString()); // 필요 시 경로 정보 제공
-//
-//        log.info("화자 분리 처리 완료.");
-//        return response;
-//    }
-
     public PreviewResponseDTO separateSpeakers(int subscriptionCode) throws Exception {
         log.info("화자 분리 처리 시작...");
 
@@ -253,6 +200,14 @@ public class AudioProcessingService {
         for (SelectedSpeakerDTO selection : request.getSelections()) {
             String originalFilename = selection.getOriginalFilename();
             String selectedSpeakerId = selection.getSelectedSpeakerId();
+
+            // selectedSpeakerId이 "해당 없음" 또는 originalFilename이 null/빈값이면 건너뜀
+            if (selectedSpeakerId == null || "none".equals(selectedSpeakerId)
+                    || originalFilename == null || originalFilename.trim().isEmpty()) {
+                log.info("파일/화자 정보가 없거나 '해당 없음' 선택됨: originalFilename={}, speakerId={}", originalFilename, selectedSpeakerId);
+                continue;
+            }
+
             String selectionKey = originalFilename + "_" + selectedSpeakerId;
 
             if (!uniqueSelections.add(selectionKey)) {

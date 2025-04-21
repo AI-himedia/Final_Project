@@ -22,10 +22,11 @@ public class SmsController {
     public ResponseEntity<?> startSubscription(
             @RequestParam("subscriptionCode") int subscriptionCode,
             @RequestPart(value = "deceasedData", required = false) DeceasedDataDTO deceasedDataDTO,
+            @RequestPart(value = "deceasedHint", required = false) DeceasedHintDTO deceasedHintDTO,
             @RequestPart(value = "chatFile", required = false) List<MultipartFile> chatFile
     ) {
 
-        SmsResponse result = smsService.startService(subscriptionCode, deceasedDataDTO, chatFile);
+        SmsResponse result = smsService.startService(subscriptionCode, deceasedDataDTO, deceasedHintDTO, chatFile);
 
         return ResponseEntity.ok(result);
     }
@@ -59,8 +60,3 @@ public class SmsController {
     }
 
 }
-
-
-
-
-

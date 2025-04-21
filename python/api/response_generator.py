@@ -62,7 +62,6 @@ def generate_response(request: ChatRequest):
                 }
 
                 config = RunnableConfig(configurable={"session_id": str(subscription_code)}) 
-
                   
                 # 동적으로 생성된 base_chain을 사용하여 MyChatChain 인스턴스화
                 # redis_config.py에서 생성한 redis_client는 전역 인스턴스
