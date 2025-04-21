@@ -194,91 +194,99 @@ public class AudioProcessingService {
             throw new IllegalArgumentException("유효하지 않은 구독 코드입니다.");
         }
 
-        List<File> selectedFiles = new ArrayList<>();
-        Set<String> uniqueSelections = new HashSet<>(); // 중복 선택 방지 (선택사항)
+        List<File> combinedSpeakerFiles = new ArrayList<>();
+        Set<String> uniqueSelections = new HashSet<>();
 
-        for (SelectedSpeakerDTO selection : request.getSelections()) {
-            String originalFilename = selection.getOriginalFilename();
-            String selectedSpeakerId = selection.getSelectedSpeakerId();
-
-            // selectedSpeakerId이 "해당 없음" 또는 originalFilename이 null/빈값이면 건너뜀
-            if (selectedSpeakerId == null || "none".equals(selectedSpeakerId)
-                    || originalFilename == null || originalFilename.trim().isEmpty()) {
-                log.info("파일/화자 정보가 없거나 '해당 없음' 선택됨: originalFilename={}, speakerId={}", originalFilename, selectedSpeakerId);
-                continue;
-            }
-
-            String selectionKey = originalFilename + "_" + selectedSpeakerId;
-
-            if (!uniqueSelections.add(selectionKey)) {
-                log.warn("중복된 화자 선택 감지: {}", selectionKey);
-                continue;
-            }
-
-            Path longOutputDir = Paths.get(outputDir, String.valueOf(subscriptionCode), "long");
-            Optional<File> foundFile = Files.walk(longOutputDir)
-                    .filter(path -> path.getFileName().toString().startsWith(originalFilename + "_speaker_" + selectedSpeakerId))
-                    .map(Path::toFile)
-                    .findFirst();
-
-            if (foundFile.isPresent()) {
-                selectedFiles.add(foundFile.get());
-                log.debug("선택된 파일 추가: {}", foundFile.get().getName());
-            } else {
-                log.warn("선택된 화자 파일을 찾을 수 없습니다: original={}, speakerId={}", originalFilename, selectedSpeakerId);
-            }
-        }
-
-        if (selectedFiles.isEmpty()) {
-            log.error("병합할 유효한 화자 파일이 선택되지 않았습니다.");
-            throw new IllegalArgumentException("병합할 유효한 화자 파일이 없습니다.");
-        }
-
-        if (selectedFiles.size() > 3) { // 최대 3개 제한 확인
-            log.warn("선택된 화자 파일 개수 초과: {}", selectedFiles.size());
-            throw new IllegalArgumentException("최대 3개의 화자 파일만 선택할 수 있습니다.");
-        }
-
-        log.info("선택된 화자 파일 {}개를 병합합니다.", selectedFiles.size());
-        File combinedFile = clovaSpeechClient.combineAudioFiles(selectedFiles);
-        log.info("오디오 파일 병합 완료: {}", combinedFile.getName());
-
-        // combined 폴더 생성 및 파일 저장 (임시 저장)
-        Path combinedOutputDir = Paths.get(outputDir, String.valueOf(subscriptionCode), "combined");
+        Path baseOutputDir = Paths.get(outputDir, String.valueOf(subscriptionCode));
+        Path combinedOutputDir = baseOutputDir.resolve("combined");
         Files.createDirectories(combinedOutputDir);
-        String combinedFilename = "combined_audio_" + UUID.randomUUID().toString().substring(0, 8) + ".wav"; // 고유 이름 부여
-        Path combinedFilePath = combinedOutputDir.resolve(combinedFilename);
-        Files.copy(combinedFile.toPath(), combinedFilePath); // 임시 병합 파일 복사
-        log.info("병합된 파일을 임시 저장: {}", combinedFilePath);
 
-        String s3Url = null;
+        File combinedFile = null;
         try {
-            // S3 업로드 및 FastAPI 호출
-            s3Url = uploadFileToS3(combinedFilePath.toFile(), subscriptionCode);
-            log.info("S3 업로드 및 FastAPI 호출 완료. S3 URL: {}", s3Url);
+            for (SelectedSpeakerDTO selection : request.getSelections()) {
+                String originalFilename = selection.getOriginalFilename();
+                String selectedSpeakerId = selection.getSelectedSpeakerId();
 
-            // S3 업로드 및 FastAPI 호출 성공 후 로컬 디렉토리 및 파일 삭제
-            deleteDirectoryRecursively(Paths.get(outputDir, String.valueOf(subscriptionCode)));
-            deleteDirectoryRecursively(Paths.get(uploadDir, String.valueOf(subscriptionCode)));
-            log.info("처리 완료 후 로컬 출력 및 입력 디렉토리가 삭제되었습니다.");
+                if (selectedSpeakerId == null || "none".equals(selectedSpeakerId)
+                        || originalFilename == null || originalFilename.trim().isEmpty()) {
+                    log.info("파일/화자 정보가 없거나 '해당 없음' 선택됨: originalFilename={}, speakerId={}", originalFilename, selectedSpeakerId);
+                    continue;
+                }
 
-            // 응답 생성
-            SaveResponseDTO response = new SaveResponseDTO();
-            response.setStatus("success");
-            response.setMessage("선택된 화자 파일이 성공적으로 저장 및 처리되었습니다.");
-            response.setUploadedFile(s3Url);
-            return response;
+                String selectionKey = originalFilename + "_" + selectedSpeakerId;
+                if (!uniqueSelections.add(selectionKey)) {
+                    log.warn("중복된 화자 선택 감지: {}", selectionKey);
+                    continue;
+                }
 
-        } catch (Exception e) { // uploadFileToS3 등에서 발생한 예외 처리
-            log.error("선택된 화자 저장/처리 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
-            throw new RuntimeException("선택된 화자 파일 처리 중 오류 발생: " + e.getMessage(), e);
+                // segment 파일들이 저장된 폴더
+                Path segmentDir = baseOutputDir.resolve(originalFilename);
+
+                // 해당 화자 segment 파일만 필터링 (예: speaker_1_A_XXX.wav)
+                File[] segmentFiles = segmentDir.toFile().listFiles(f -> f.getName().startsWith("speaker_" + selectedSpeakerId + "_") && f.getName().endsWith(".wav"));
+
+                if (segmentFiles == null || segmentFiles.length == 0) {
+                    log.warn("선택된 화자 segment 파일이 없습니다: {}", segmentDir);
+                    continue;
+                }
+                Arrays.sort(segmentFiles, Comparator.comparing(File::getName));
+
+                // segment 파일들을 하나로 합침 (임시 파일 생성)
+                File combinedSpeakerFile = clovaSpeechClient.combineAudioFiles(Arrays.asList(segmentFiles));
+                combinedSpeakerFiles.add(combinedSpeakerFile);
+            }
+
+            if (combinedSpeakerFiles.isEmpty()) {
+                log.error("병합할 유효한 화자 segment 파일이 선택되지 않았습니다.");
+                throw new IllegalArgumentException("병합할 유효한 화자 segment 파일이 없습니다.");
+            }
+            if (combinedSpeakerFiles.size() > 3) {
+                log.warn("선택된 화자 파일 개수 초과: {}", combinedSpeakerFiles.size());
+                throw new IllegalArgumentException("최대 3개의 화자 파일만 선택할 수 있습니다.");
+            }
+
+            log.info("선택된 화자 segment {}개를 병합합니다.", combinedSpeakerFiles.size());
+            combinedFile = clovaSpeechClient.combineAudioFiles(combinedSpeakerFiles);
+            log.info("오디오 파일 병합 완료: {}", combinedFile.getName());
+
+            // combined 폴더에 저장
+            String combinedFilename = "combined_audio_" + UUID.randomUUID().toString().substring(0, 8) + ".wav";
+            Path combinedFilePath = combinedOutputDir.resolve(combinedFilename);
+            Files.copy(combinedFile.toPath(), combinedFilePath);
+
+            String s3Url = null;
+            try {
+                s3Url = uploadFileToS3(combinedFilePath.toFile(), subscriptionCode);
+                log.info("S3 업로드 및 FastAPI 호출 완료. S3 URL: {}", s3Url);
+
+                deleteDirectoryRecursively(baseOutputDir);
+                deleteDirectoryRecursively(Paths.get(uploadDir, String.valueOf(subscriptionCode)));
+                log.info("처리 완료 후 로컬 출력 및 입력 디렉토리가 삭제되었습니다.");
+
+                SaveResponseDTO response = new SaveResponseDTO();
+                response.setStatus("success");
+                response.setMessage("선택된 화자 파일이 성공적으로 저장 및 처리되었습니다.");
+                response.setUploadedFile(s3Url);
+                return response;
+            } catch (Exception e) {
+                log.error("선택된 화자 저장/처리 중 오류 발생. 구독 코드: {}", subscriptionCode, e);
+                throw new RuntimeException("선택된 화자 파일 처리 중 오류 발생: " + e.getMessage(), e);
+            }
         } finally {
-            // 임시로 생성된 combinedFile 원본 삭제 (combineAudioFiles가 임시 파일을 생성했다면)
             if (combinedFile != null && combinedFile.exists()) {
                 if (combinedFile.delete()) {
                     log.debug("임시 병합 파일 삭제 완료: {}", combinedFile.getName());
                 } else {
                     log.warn("임시 병합 파일 삭제 실패: {}", combinedFile.getName());
+                }
+            }
+            for (File f : combinedSpeakerFiles) {
+                if (f != null && f.exists()) {
+                    if (f.delete()) {
+                        log.debug("임시 화자 병합 파일 삭제 완료: {}", f.getName());
+                    } else {
+                        log.warn("임시 화자 병합 파일 삭제 실패: {}", f.getName());
+                    }
                 }
             }
         }
@@ -335,7 +343,7 @@ public class AudioProcessingService {
     /**
      * 지정된 디렉토리와 그 하위의 모든 폴더 및 파일을 재귀적으로 삭제하는 메서드
      */
-    private void deleteDirectoryRecursively(Path directory) throws IOException {
+    public void deleteDirectoryRecursively(Path directory) throws IOException {
         if (Files.exists(directory)) {
             log.warn("디렉토리 삭제 시도: {}", directory); // 삭제 전 로그
             try {
