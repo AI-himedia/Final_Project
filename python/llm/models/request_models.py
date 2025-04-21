@@ -29,3 +29,8 @@ class ServiceStartRequest(BaseModel):
     subscriptionCode: int
     deceasedData: DeceasedData
     analyzableFiles: List[AnalyzableFile]
+
+class ChatRequest(BaseModel):
+    subscriptionCode: int
+    userInput: str
+    serviceType: str

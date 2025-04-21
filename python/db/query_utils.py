@@ -69,10 +69,10 @@ def get_similar_messages_with_embedding(deceased_code: int, embedding: List[floa
 def add_messages(
     subscription_code: int,
     deceased_code: int,
+    service_type: str,
     messages: List[Tuple[Literal["user", "ai"], str]],
     embeddings: Optional[List[Optional[List[float]]]] = None,
-    model_version: Optional[str] = None,
-    service_type: str = "sms"
+    model_version: Optional[str] = None
 ) -> None:
     """
     여러 메시지를 bulk insert 하기 위한 함수

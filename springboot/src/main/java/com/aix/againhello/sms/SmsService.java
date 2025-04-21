@@ -109,6 +109,7 @@ public class SmsService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        requestDto.setServiceType("sms");
         HttpEntity<ChatRequestDTO> request = new HttpEntity<>(requestDto, headers);
 
         ResponseEntity<SmsResponse> response = restTemplate.postForEntity(
@@ -198,5 +199,9 @@ public class SmsService {
             throw new ServiceException("Python 서버로부터 실패 응답을 받았습니다. 상태코드: " + response.getStatusCode());
         }
 
+    }
+
+    public String test(MultipartFile chatFile) {
+        return s3Service.uploadFile(chatFile);
     }
 }
