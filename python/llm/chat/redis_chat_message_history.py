@@ -64,6 +64,7 @@ class RedisChatMessageHistory:
         self, 
         subscription_code: int, 
         deceased_code: int, 
+        service_type: str,
         user_input: str, 
         ai_response: str, 
         user_embedding: Optional[List[float]] = None, 
@@ -84,8 +85,9 @@ class RedisChatMessageHistory:
 
         # PostgreSQL에 대화 기록 저장
         add_messages(
-            subscription_code, 
-            deceased_code,
+            subscription_code=subscription_code, 
+            deceased_code=deceased_code,
+            service_type=service_type,
             messages=[
                 ("user", user_input),
                 ("ai", ai_response)

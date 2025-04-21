@@ -18,6 +18,16 @@ public class SmsController {
     private SmsService smsService;
 
     /**문자서비스 신청*/
+    @PostMapping("/service/test")
+    public ResponseEntity<?> startSubscription(
+            @RequestPart(value = "chatFile", required = false) MultipartFile chatFile
+    ) {
+        String embedding = smsService.test(chatFile);
+
+        return ResponseEntity.ok(embedding);
+    }
+
+    /**문자서비스 신청*/
     @PostMapping("/service/start")
     public ResponseEntity<?> startSubscription(
             @RequestParam("subscriptionCode") int subscriptionCode,
