@@ -7,6 +7,7 @@ from llm.chat.prompt_template import SYSTEM_PROMPT_TEMPLATE
 from llm.chat.chain_config import get_llm_and_prompt
 from llm.chat.memory_chain import MyChatChain
 from llm.chat.embedding_model import embedding_model
+from llm.models.request_models import ChatRequest
 from db.query_utils import fetch_prompt_data, get_similar_messages_with_embedding
 from config.redis_config import redis_client
 import time
@@ -20,15 +21,14 @@ sms_router = APIRouter()
 
 model_choices = ["openai", "claude", "sonar"]
 
-class ChatRequest(BaseModel):
-    subscriptionCode: int
-    userInput: str
+
 
 @sms_router.post("/ai/responses")
 def generate_response(request: ChatRequest):
     start_time = time.time()
     subscription_code = request.subscriptionCode
     user_input = request.userInput
+    service_type = request.serviceType
     chosen_model: str
 
     try:
@@ -41,7 +41,8 @@ def generate_response(request: ChatRequest):
 
         # 2. user_input 임베딩 
         # tolist()로 바꿔주는 이유는 DB에 넣거나 쿼리문에 넘기기 위해서
-        user_embedding  = embedding_model.encode(user_input).tolist()
+        query_text = f"query: {user_input}"
+        user_embedding  = embedding_model.encode(query_text, normalize_embeddings=True).tolist()
 
         # 2. 유사도 높은 과거 대화 검색
         similar_messages = get_similar_messages_with_embedding(deceased_code, user_embedding, top_k=5)
@@ -64,6 +65,7 @@ def generate_response(request: ChatRequest):
             raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
 
         # 4. 모델을 순차적으로 시도 (openai -> claude -> sonar)
+        print(f"[DEBUG] retrieved_messages: {retrieved_messages}")
         ai_response = None
         for model in model_choices:
             try:
@@ -132,13 +134,15 @@ def generate_response(request: ChatRequest):
 
 
     # 12. ai_response 임베딩 
-    ai_embedding  = embedding_model.encode(ai_response).tolist()
+    passage_text = f"passage: {ai_response}"
+    ai_embedding  = embedding_model.encode(passage_text, normalize_embeddings=True).tolist()
 
     # 13. 응답 저장 (Redis + DB) (DB INSERT는 비동기 처리 고려)
     try:
         chat_chain.chat_history_instance.store_message(
             subscription_code, 
-            deceased_code, 
+            deceased_code,
+            service_type, 
             user_input, 
             ai_response,
             user_embedding=user_embedding,          

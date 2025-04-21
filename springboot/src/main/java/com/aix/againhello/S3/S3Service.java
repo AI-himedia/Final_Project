@@ -40,6 +40,7 @@ public class S3Service {
                         !originalFilename.endsWith(".wav") &&
                         !originalFilename.endsWith(".txt") &&
                         !originalFilename.endsWith(".csv") &&
+                        !originalFilename.endsWith(".m4a") &&
                         !originalFilename.endsWith(".jpg") &&
                         !originalFilename.endsWith(".jpeg") &&
                         !originalFilename.endsWith(".png"))) {
