@@ -103,4 +103,10 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
+  '/sms/chat': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
 };
