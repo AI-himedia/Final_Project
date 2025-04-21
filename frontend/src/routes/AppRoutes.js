@@ -7,6 +7,9 @@ import MainPage from '../pages/main/MainPage';
 import LoginPage from '../pages/auth/LoginPage';
 import SignUpPage from '../pages/auth/SignUpPage/SignUpPage';
 
+// 서비스 이용 페이지
+import ServiceList from '../pages/service/List';
+
 // 서비스 신청 관련
 import ApplyPage from '../pages/service-apply/ApplyPage/ApplyPage';
 import TermsOfServicePage from '../pages/service-apply/TermsOfServicePage/TermsOfServicePage';
@@ -61,6 +64,8 @@ export const AppRoutes = () => (
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>
+      <Route path="/service/list/call" element={<ServiceList />} />
+      <Route path="/service/list/sms" element={<ServiceList />} />
       <Route path="/service/terms/check" element={<ServiceCheck />} />
       <Route path="/service/terms/product" element={<ProductPage />} />
     </Route>

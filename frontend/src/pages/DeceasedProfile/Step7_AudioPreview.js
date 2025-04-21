@@ -186,7 +186,7 @@ export default function Step7_Call() {
                   : ''
               }`}
               onClick={() =>
-                handleSpeakerSelect(idx, speaker.displayName, originalFilename)
+                handleSpeakerSelect(idx, speaker.speakerId, originalFilename)
               }
             >
               <div className={styles.audioContainer}>
