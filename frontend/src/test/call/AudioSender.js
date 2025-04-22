@@ -1,73 +1,28 @@
 import { useRef } from "react";
 
 const AudioSender = () => {
-//     const [isStreaming, setIsStreaming] = useState(false);
-    // const socketRef = useRef(null);
   const audioContextRef = useRef(null);
   const workletNodeRef = useRef(null);
   const streamRef = useRef(null);
   const silenceStartRef = useRef(null);
-  const SILENCE_TIMEOUT_MS = 2000
-
-    // const webSocketUrl = "ws://localhost:8080/be/ws/react"
-
-    // const startAudio = async () => {
-    //     socketRef.current = new WebSocket(webSocketUrl);
-    //     socketRef.current.binaryType = "arraybuffer";
-
-    //     socketRef.current.onopen = async () => {
-    //         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    //         audioContextRef.current = new AudioContext({ sampleRate: 16000 });
-
-    //         await audioContextRef.current.audioWorklet.addModule("/worklet-processor.js");
-    //         workletNodeRef.current = new AudioWorkletNode(audioContextRef.current, "pcm-processor");
-        
-    //         const source = audioContextRef.current.createMediaStreamSource(stream);
-    //         source.connect(workletNodeRef.current);
-    //         workletNodeRef.current.connect(audioContextRef.current.destination);
-
-    //         let totalSentBytes = 0;
-
-    //         workletNodeRef.current.port.onmessage = (event) => {
-    //             const { type, silent, buffer } = event.data;
-
-    //             if (type === "audio" && socketRef.current?.readyState === WebSocket.OPEN) {
-    //                 const byteView = new Uint8Array(buffer);
-    //                 socketRef.current.send(byteView);
-    //                 totalSentBytes += buffer.byteLength;
-    //             }
-    //         };
-
-    //         streamRef.current = stream;
-    //         setIsStreaming(true);
-    //     };
-    // };
-
-    // const stopAudio = async () => {
-    //     if (workletNodeRef.current) workletNodeRef.current.disconnect();
-    //     if (audioContextRef.current) await audioContextRef.current.close();
-    //     if (streamRef.current) {
-    //       streamRef.current.getTracks().forEach((track) => track.stop());
-    //     }
-    //     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-    //       socketRef.current.close();
-    //     }
-    
-    //     setIsStreaming(false);
-    //     console.log("오디오 스트리밍 종료됨");
-    // };
-    
-    // return (
-    //     <div>
-    //       {isStreaming ? (
-    //         <button onClick={stopAudio}>Stop</button>
-    //       ) : (
-    //         <button onClick={startAudio}>Start</button>
-    //       )}
-    //     </div>
-    // );
+  const endSentRef = useRef(null);
 
   const startAudioCapture = async (socketRef, isTTSPlaying) => {
+    silenceStartRef.current = null;
+    endSentRef.current = false;
+
+    if (!audioContextRef.current || audioContextRef.current.state === "closed") {
+
+      if (audioContextRef.current?.state === "closed") {
+        audioContextRef.current = null;
+      }
+
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext({ sampleRate: 16000 });
+        await audioContextRef.current.audioWorklet.addModule("/worklet-processor.js");
+      }
+    }
+
     // 마이크 접근 권한 요청
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -77,45 +32,60 @@ const AudioSender = () => {
       }
     });
     
-    // 오디오 가공처리 
-    audioContextRef.current = new AudioContext({ sampleRate: 16000 });
-    await audioContextRef.current.audioWorklet.addModule("/worklet-processor.js");
-
+    // WorkletNode 생성
     workletNodeRef.current = new AudioWorkletNode(audioContextRef.current, "pcm-processor");
+    
+    // 초기화 이후에 무음 타이머 리셋
+    workletNodeRef.current.port.postMessage({ type: "resetSilenceTimer" });
+
+    // 연결
     const source = audioContextRef.current.createMediaStreamSource(stream);
     source.connect(workletNodeRef.current);
-
-    // 오디오 전송
-    workletNodeRef.current.port.onmessage = (event) => {
-      const { type, silent, buffer } = event.data;
-
-      if (type === "silence") {
-        if (silent && !silenceStartRef.current) {
-          silenceStartRef.current = Date.now();
-        } else if (!silent) {
-          silenceStartRef.current = null;
-        }
     
-        // 2초 이상 무음 지속 → STT 종료 요청
-        if ( silenceStartRef.current && Date.now() - silenceStartRef.current > SILENCE_TIMEOUT_MS) {
-          console.log("[React] 무음 감지: 마이크 자동 종료");
-          socketRef.current.send(JSON.stringify({ event: "end" }));
-          silenceStartRef.current = null;
-        }
+    // 메시지 수신 처리
+    workletNodeRef.current.port.onmessage = (event) => {
+      const { type, buffer } = event.data;
+    
+      if (type === "autoEnd") {
+        console.log("무음 2초 감지됨 → end 이벤트 서버 전송");
+        socketRef.current.send(JSON.stringify({ event: "end" }));
+        return;
       }
-
+    
+      // audio 처리
       if (type === "audio" && socketRef.current?.readyState === WebSocket.OPEN && !isTTSPlaying) {
         socketRef.current.send(new Uint8Array(buffer));
       }
     };
-
     streamRef.current = stream;
   };
 
+
   const stopAudioCapture = async () => {
-    if (workletNodeRef.current) workletNodeRef.current.disconnect();
-    if (audioContextRef.current) await audioContextRef.current.close();
-    if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
+    if (workletNodeRef.current) {
+      workletNodeRef.current.disconnect();
+      workletNodeRef.current = null;
+    }
+
+    if (streamRef.current) {
+      const tracks = streamRef.current.getTracks();
+      tracks.forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    if (
+      audioContextRef.current &&
+      audioContextRef.current.state !== "closed"
+    ) {
+      try {
+        await audioContextRef.current.close();
+        console.log("AudioContext 닫힘");
+      } catch (e) {
+        console.warn("AudioContext 닫기 실패:", e);
+      }
+    } else {
+      console.log("AudioContext는 이미 닫혀 있음");
+    }
   };
 
   return { startAudioCapture, stopAudioCapture };

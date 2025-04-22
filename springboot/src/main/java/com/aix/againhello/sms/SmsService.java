@@ -200,8 +200,12 @@ public class SmsService {
         }
 
     }
+<<<<<<< HEAD
+}
+=======
 
     public String test(MultipartFile chatFile) {
         return s3Service.uploadFile(chatFile);
     }
 }
+>>>>>>> df7f1f5c2572fd89af4228bd176d72715d6b563e

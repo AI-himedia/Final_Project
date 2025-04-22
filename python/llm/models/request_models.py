@@ -34,3 +34,4 @@ class ChatRequest(BaseModel):
     subscriptionCode: int
     userInput: str
     serviceType: str
+
