@@ -42,6 +42,41 @@ const useDeceasedProfile = create((set) => ({
       return { files: newFiles };
     }),
 
+  // 파일 meta 업데이트 (side, name 등 포함)
+  setFileMeta: (index, meta) =>
+    set((state) => {
+      const updatedFiles = [...state.files];
+
+      // File 인스턴스에 직접 meta 넣지 않고, wrap 형태로 감싸기
+      const file = state.files[index];
+      if (!file) return {};
+
+      updatedFiles[index] = {
+        file, // 원본 File 객체
+        meta: {
+          ...(file.meta || {}),
+          ...meta,
+        },
+      };
+
+      return { files: updatedFiles };
+    }),
+
+  // 개별 기능 유지 (이전 방식)
+  setFileSelection: (index, selection) =>
+    set((state) => {
+      const updatedFiles = [...state.files];
+      updatedFiles[index].selection = selection;
+      return { files: updatedFiles };
+    }),
+
+  setDeceasedNameForFile: (index, name) =>
+    set((state) => {
+      const updatedFiles = [...state.files];
+      updatedFiles[index].deceasedName = name;
+      return { files: updatedFiles };
+    }),
+
   // 전체 프로필 일괄 저장
   setDeceasedProfile: (profile) =>
     set({

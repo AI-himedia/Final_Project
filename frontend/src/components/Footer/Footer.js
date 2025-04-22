@@ -1,9 +1,7 @@
 // src/components/Footer.js
-
-// css
 import './Footer.mobile.css';
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { GoHomeFill } from 'react-icons/go';
 import { PiPhoneCallLight } from 'react-icons/pi';
@@ -13,6 +11,15 @@ import { GoPerson } from 'react-icons/go';
 
 export default function Footer() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleCallClick = () => {
+    navigate('/service/list/call', { state: { serviceType: 'call' } });
+  };
+
+  const handleSmsClick = () => {
+    navigate('/service/list/sms', { state: { serviceType: 'sms' } });
+  };
 
   return (
     <footer className="Footer_Container">
@@ -21,26 +28,25 @@ export default function Footer() {
         className={`Footer_Item ${location.pathname === '/' ? 'active' : ''}`}
       >
         <GoHomeFill />
-        {/* <span>홈</span> */}
       </Link>
-      <Link
-        to="/call"
+      <div
         className={`Footer_Item ${
-          location.pathname === '/call' ? 'active' : ''
+          location.pathname.startsWith('/service/list/call') ? 'active' : ''
         }`}
+        onClick={handleCallClick}
+        style={{ cursor: 'pointer' }}
       >
         <PiPhoneCallLight />
-        {/* <span>통화</span> */}
-      </Link>
-      <Link
-        to="/chat"
+      </div>
+      <div
         className={`Footer_Item ${
-          location.pathname === '/chat' ? 'active' : ''
+          location.pathname.startsWith('/service/list/sms') ? 'active' : ''
         }`}
+        onClick={handleSmsClick}
+        style={{ cursor: 'pointer' }}
       >
         <IoChatbubblesOutline />
-        {/* <span>채팅</span> */}
-      </Link>
+      </div>
       <Link
         to="/service"
         className={`Footer_Item ${
@@ -48,17 +54,16 @@ export default function Footer() {
         }`}
       >
         <CgAddR />
-        {/* <span>서비스 신청</span> */}
       </Link>
-      <Link
-        to="/sms"
+      <div
         className={`Footer_Item ${
-          location.pathname === '/mypage' ? 'active' : ''
+          location.pathname.startsWith('/service/list/sms') ? 'active' : ''
         }`}
+        onClick={handleSmsClick}
+        style={{ cursor: 'pointer' }}
       >
         <GoPerson />
-        {/* <span>테스트</span> */}
-      </Link>
+      </div>
     </footer>
   );
 }

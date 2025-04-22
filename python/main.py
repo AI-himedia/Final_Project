@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from llm.chat.embedding_model import embedding_model  # 전역 임베딩 모델 로딩용 import
 from dotenv import load_dotenv
 from api import routers
 import psycopg2

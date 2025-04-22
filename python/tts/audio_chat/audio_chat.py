@@ -21,7 +21,7 @@ async def process_audio(subscriptionCode: str = Form(...), audio: UploadFile = F
         print(transcript)
 
         # 3. LLM
-        chat_input = ChatRequest(subscriptionCode=subscriptionCode, userInput=transcript)
+        chat_input = ChatRequest(subscriptionCode=subscriptionCode, userInput=transcript, serviceType="call")
         llm_response = generate_response(chat_input)
         reply = llm_response["message"]
         

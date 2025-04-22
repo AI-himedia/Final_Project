@@ -72,16 +72,13 @@ export default function Step4_Personality() {
     if (value.trim() !== '' && selected.length > 0) {
       setSelected([]); // custom 입력 시 selected 초기화
     }
-    // Zustand 업데이트는 useEffect에서 처리
   };
 
   const clearCustomInput = () => {
     setCustom('');
-    // Zustand 업데이트는 useEffect에서 처리
   };
 
   const handleSubmit = () => {
-    // 최종 상태는 useEffect에서 이미 setPersonality로 반영되었을 것이므로 여기서는 네비게이션만 처리
     navigate('/deceased/profile/step5');
   };
 
@@ -110,10 +107,7 @@ export default function Step4_Personality() {
             onBlur={() => setFocusedField(null)}
             onChange={handleCustomChange}
             className={styles.input}
-            // --- Placeholder 수정 제안 ---
-            // 기존 로직 대신 단순 텍스트로 변경하여 테스트
             placeholder={focusedField !== 'custom' && !custom ? '직접입력' : ''}
-            // --- 원래 Placeholder (참고용) ---
             // placeholder={
             //   focusedField !== 'custom' && !custom
             //     ? selected.join(', ').slice(0, 30) +
@@ -124,10 +118,7 @@ export default function Step4_Personality() {
           />
 
           {custom && (
-            <button
-              className={styles.clearButton}
-              onClick={clearCustomInput} // clearCustomInput 함수 사용
-            >
+            <button className={styles.clearButton} onClick={clearCustomInput}>
               ✕
             </button>
           )}

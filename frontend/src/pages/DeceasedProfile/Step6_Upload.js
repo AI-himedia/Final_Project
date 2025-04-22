@@ -3,7 +3,7 @@ import styles from './Deceased.module.css';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { axiosInstance } from '../../api/AxiosInstance';
-import { useSelector } from 'react-redux';
+import { useRef } from 'react';
 
 const audioVideoExtensions = [
   'mp3',
@@ -26,6 +26,7 @@ const MAX_TXT_SIZE_MB = 10;
 
 export default function Step6_FileUpload() {
   console.log('[zustand 전체 상태6]', useDeceasedProfile.getState());
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const serviceCode = localStorage.getItem('@againhello/service-code');
 
@@ -81,6 +82,9 @@ export default function Step6_FileUpload() {
     }
 
     addFile(uploaded);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null; // input 값 초기화
+    }
   };
 
   const handleSubmit = async () => {
@@ -88,43 +92,50 @@ export default function Step6_FileUpload() {
 
     const formData = new FormData();
 
+    // sms 서비스일 경우,
     if (serviceCode === '1') {
-      const validFile = files.find((file) => {
-        const ext = file.name.split('.').pop().toLowerCase();
-        return imageTextExtensions.includes(ext);
-      });
-
-      if (!validFile) {
-        alert('png, jpg, jpeg, txt 중 하나 이상의 파일이 필요합니다.');
-        return;
-      }
-
-      const chatFile = files.find((file) => file.name.endsWith('.txt'));
-      const deceasedCode = localStorage.getItem('@againhello/deceased-code');
-
-      formData.append('subscriptionCode', subscription_Code);
-      if (chatFile) formData.append('chatFile', chatFile);
-
-      const deceasedData = {
-        deceasedName: deceased_name,
-        gender,
-        deceasedAge: deceased_age,
-        personality: Array.isArray(personality)
-          ? personality.join(', ')
-          : personality,
-        deceasedNickname: deceased_nickname,
-        userNickname: user_nickname,
-        relationship,
-        speakingTone: speaking_tone,
-        ...(deceasedCode && { deceasedCode: Number(deceasedCode) }),
-      };
-
-      formData.append(
-        'deceasedData',
-        new Blob([JSON.stringify(deceasedData)], { type: 'application/json' })
-      );
+      navigate('/deceased/profile/step7-sms');
+      return;
     }
 
+    // if (serviceCode === '1') {
+    //   const validFile = files.find((file) => {
+    //     const ext = file.name.split('.').pop().toLowerCase();
+    //     return imageTextExtensions.includes(ext);
+    //   });
+
+    //   if (!validFile) {
+    //     alert('png, jpg, jpeg, txt 중 하나 이상의 파일이 필요합니다.');
+    //     return;
+    //   }
+
+    //   const chatFile = files.find((file) => file.name.endsWith('.txt'));
+    //   const deceasedCode = localStorage.getItem('@againhello/deceased-code');
+
+    //   formData.append('subscriptionCode', subscription_Code);
+    //   if (chatFile) formData.append('chatFile', chatFile);
+
+    //   const deceasedData = {
+    //     deceasedName: deceased_name,
+    //     gender,
+    //     deceasedAge: deceased_age,
+    //     personality: Array.isArray(personality)
+    //       ? personality.join(', ')
+    //       : personality,
+    //     deceasedNickname: deceased_nickname,
+    //     userNickname: user_nickname,
+    //     relationship,
+    //     speakingTone: speaking_tone,
+    //     ...(deceasedCode && { deceasedCode: Number(deceasedCode) }),
+    //   };
+
+    //   formData.append(
+    //     'deceasedData',
+    //     new Blob([JSON.stringify(deceasedData)], { type: 'application/json' })
+    //   );
+    // }
+
+    // call 서비스일 경우,
     if (serviceCode === '2') {
       const audioFiles = files.filter((file) =>
         ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'wav', 'm4a'].includes(
@@ -148,7 +159,7 @@ export default function Step6_FileUpload() {
         },
       };
 
-      audioFiles.forEach((file) => formData.append('audioFiles', file));
+      audioFiles.forEach((file) => formData.append('audioFiles', file)); // 모든 오디오 파일 추가
       formData.append(
         'request',
         new Blob([JSON.stringify(requestData)], { type: 'application/json' })
@@ -210,6 +221,7 @@ export default function Step6_FileUpload() {
               accept={allowedExtensions.map((ext) => '.' + ext).join(',')}
               onChange={handleFileChange}
               hidden
+              ref={fileInputRef}
             />
           </label>
 
@@ -269,7 +281,7 @@ export default function Step6_FileUpload() {
         onClick={handleSubmit}
         disabled={files.length === 0}
       >
-        프로필 저장하기
+        {serviceCode === '1' ? '다음' : '프로필 저장하기'}
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
 import redis
 import json
+from typing import Optional, List
 from langchain_core.messages import HumanMessage, AIMessage
 from llm.chat.postgresql_chat_message_history import YourPostgresChatMessageHistory
 from db.query_utils import add_messages
@@ -59,7 +60,17 @@ class RedisChatMessageHistory:
         
         return postgres_history
 
-    def store_message(self, subscription_code, deceased_code, user_input: str, ai_response: str):
+    def store_message(
+        self, 
+        subscription_code: int, 
+        deceased_code: int, 
+        service_type: str,
+        user_input: str, 
+        ai_response: str, 
+        user_embedding: Optional[List[float]] = None, 
+        ai_embedding: Optional[List[float]] = None,
+        model_version: Optional[str] = None
+    ):
         conversation_key = f"conversation:{self.session_id}"
 
         # Redis에 user_input과 ai_response 추가
@@ -73,11 +84,21 @@ class RedisChatMessageHistory:
         print(f"[DEBUG] redis 저장: {len(self.redis_client.lrange(conversation_key, 0, -1))}")
 
         # PostgreSQL에 대화 기록 저장
-        add_messages(subscription_code, deceased_code,
-                     messages=[
-                         ("user", user_input),
-                         ("ai", ai_response)
-                     ])
+        add_messages(
+            subscription_code=subscription_code, 
+            deceased_code=deceased_code,
+            service_type=service_type,
+            messages=[
+                ("user", user_input),
+                ("ai", ai_response)
+            ],
+            embeddings=[
+                user_embedding,
+                ai_embedding
+            ] if user_embedding and ai_embedding else None,
+            model_version=model_version
+        ),
+            
 
     def clear(self):
         conversation_key = f"conversation:{self.session_id}"

@@ -1,6 +1,6 @@
 from db.postgresql_connector import get_db_connection
 from typing import List, Literal, Tuple, Optional
-from psycopg2.extras import execute_values, Json
+from psycopg2.extras import execute_values, Json, RealDictCursor
 from datetime import datetime
 from llm.models.request_models import DeceasedData
 
@@ -48,13 +48,31 @@ def fetch_prompt_data(subscription_code: int) -> dict:
         "example_lines": row[11]
     }
 
+def get_similar_messages_with_embedding(deceased_code: int, embedding: List[float], top_k: int = 5):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            query = """
+            SELECT code, content, role, 
+                1 - (vectorization <#> %s::vector) AS similarity
+            FROM contents
+            WHERE deceased_code = %s
+                AND vectorization IS NOT NULL
+            ORDER BY vectorization <#> %s::vector
+            LIMIT %s;
+            """
+            cur.execute(query, (embedding, deceased_code, embedding, top_k))
+            return cur.fetchall()
+
+
 
 # 문자응답시 input, output bulk INSERT
 def add_messages(
     subscription_code: int,
     deceased_code: int,
+    service_type: str,
     messages: List[Tuple[Literal["user", "ai"], str]],
-    service_type: str = "sms"
+    embeddings: Optional[List[Optional[List[float]]]] = None,
+    model_version: Optional[str] = None
 ) -> None:
     """
     여러 메시지를 bulk insert 하기 위한 함수
@@ -62,6 +80,8 @@ def add_messages(
     :param subscription_code: 구독 코드
     :param deceased_code: 고인 코드
     :param messages: (role, content) 튜플의 리스트
+    :param embeddings: 각 메시지에 대한 임베딩 벡터 리스트 (user/ai 순서와 맞춰야 함)
+    :param model_version: 벡터 생성에 사용한 임베딩 모델 버전
     :param service_type: 기본 'sms'로 설정됨
     """
 
@@ -69,7 +89,14 @@ def add_messages(
         with conn.cursor() as cur:
             query = """
                 INSERT INTO contents (
-                    subscription_code, deceased_code, service_type, role, message_time, content
+                    subscription_code, 
+                    deceased_code, 
+                    service_type, 
+                    role, 
+                    message_time, 
+                    content,
+                    vectorization,
+                    model_version
                 ) VALUES %s
             """
 
@@ -77,10 +104,20 @@ def add_messages(
             # 이 방식이 bulk insert 시 더 안정적이고, timezone 제어도 가능
             now = datetime.now()
 
-            values = [
-                (subscription_code, deceased_code, service_type, role, now, content)
-                for role, content in messages
-            ]
+            values = []
+            for i, (role, content) in enumerate(messages):
+                embedding = embeddings[i] if embeddings else None
+                values.append((
+                    subscription_code,
+                    deceased_code,
+                    service_type,
+                    role,
+                    now,
+                    content,
+                    embedding,
+                    model_version
+                ))
+
 
             execute_values(
                 cur, query.replace("VALUES %s", "VALUES %s"),

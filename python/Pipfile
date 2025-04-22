@@ -45,6 +45,8 @@ torch = {version = "*", index = "pytorch"}
 torchvision = {version = "*", index = "pytorch"}
 torchaudio = {version = "*", index = "pytorch"}
 websockets = ">=10.0"
+sentence-transformers = "*"
+
 
 [dev-packages]
 
