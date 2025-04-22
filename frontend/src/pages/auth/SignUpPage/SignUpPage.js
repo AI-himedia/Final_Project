@@ -48,7 +48,7 @@ export default function SignUpPage() {
       alert('회원가입 완료!');
       navigate('/');
     } catch (err) {
-      console.error('[DEBUG] 회원가입 실패:', err);
+      // console.error('[DEBUG] 회원가입 실패:', err);
       alert('회원가입 실패');
     }
   };

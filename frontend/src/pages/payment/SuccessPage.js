@@ -1,11 +1,19 @@
+// src/pages/SuccessPage.jsx
+
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SuccessPage.module.css';
-import { axiosInstance } from '../../api/AxiosInstance';
 import { useSelector } from 'react-redux';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 
+import { getPostSubscribe } from '../../api/ServiceApi';
+import { getDeceasedProfile } from '../../api/ServiceApi';
+import { useAuth } from '../../hooks/useAuth';
+
 const SuccessPage = () => {
+  const { isLoading } = useAuth();
+  console.log('[zustand 결제 성공]', useDeceasedProfile.getState());
+
   const location = useLocation();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState({});
@@ -13,8 +21,6 @@ const SuccessPage = () => {
   const [error, setError] = useState(null);
 
   const userCode = useSelector((state) => state.user.user?.userCode);
-
-  // zustand에서 setter 가져오기
   const setDeceasedProfile = useDeceasedProfile(
     (state) => state.setDeceasedProfile
   );
@@ -47,55 +53,41 @@ const SuccessPage = () => {
           now.getMonth() + 1
         }-${now.getDate()} ${now.toLocaleTimeString()}`;
 
-        const receiptData = {
+        setReceipt({
           vaccine: '결제',
           manufacturer: '카드',
-          lotNumber: paymentKey?.slice(-6),
+          lotNumber: paymentKey.slice(-6),
           date: formattedDate,
           orderId,
           country: '대한민국',
           agency: 'TossPayments',
           status: '결제완료',
           amount,
-        };
-
-        setReceipt(receiptData);
-
-        const requestParams = {
-          userCode,
-          serviceCode,
-        };
-
-        if (deceasedCode && deceasedCode !== 'null') {
-          requestParams.deceasedCode = deceasedCode;
-        }
-
-        await axiosInstance.post('/subscription/subscribe', null, {
-          params: requestParams,
         });
 
-        const receiptRequestParams = {
+        const subscriptionCode = await getPostSubscribe({
           userCode,
-        };
+          serviceCode,
+          deceasedCode,
+        });
 
-        if (deceasedCode && deceasedCode !== 'null') {
-          receiptRequestParams.deceasedCode = deceasedCode;
+        setDeceasedProfile({ subscriptionCode });
+
+        if (userCode) {
+          const profileData = await getDeceasedProfile({
+            userCode,
+            serviceCode,
+            deceasedCode,
+          });
+
+          if (profileData) {
+            setDeceasedProfile(profileData);
+          }
         }
 
-        const deceasedResponse = await axiosInstance.get(
-          '/subscription/deceased',
-          {
-            params: receiptRequestParams,
-          }
-        );
-
-        // zustand에 고인 프로필 저장
-        setDeceasedProfile(deceasedResponse.data);
-
-        console.log('신청된 고인 서비스 정보:', deceasedResponse.data);
         setLoading(false);
-      } catch (error) {
-        console.error('결제 처리 오류', error);
+      } catch (err) {
+        console.error('결제 처리 오류', err);
         setError('결제 처리 중 문제가 발생했습니다.');
         setLoading(false);
       }
@@ -108,11 +100,19 @@ const SuccessPage = () => {
     navigate('/deceased/profile/step1');
   };
 
+  const errorConfirm = () => {
+    navigate('/');
+  };
+
+  if (isLoading || loading) {
+    return null;
+  }
+
   if (error) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>{error}</div>
-        <button className={styles.confirmButton} onClick={handleConfirm}>
+        <button className={styles.confirmButton} onClick={errorConfirm}>
           다시 시도
         </button>
       </div>

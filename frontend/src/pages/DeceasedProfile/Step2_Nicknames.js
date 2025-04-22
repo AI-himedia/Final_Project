@@ -4,7 +4,7 @@ import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import styles from './Deceased.module.css';
 
 export default function Step2_Nicknames() {
-  console.log('[zustand 전체 상태]', useDeceasedProfile.getState());
+  console.log('[zustand 전체 상태2]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
   // zustand 상태 & setter

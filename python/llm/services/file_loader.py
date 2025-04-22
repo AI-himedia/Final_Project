@@ -81,8 +81,8 @@ def load_text(chat_urls: List[str]) -> Tuple[str, List[str]]:
         if ext == "txt":
             text = get_text_from_s3_url(url)
             texts.append(text)
-        else:
-            print(f"지원하지 않는 형식: {ext} (url: {url})")
+        # else:
+        #     print(f"지원하지 않는 형식: {ext} (url: {url})")
 
 # texts 리스트가 비어 있으면 combined_text 는 ""(빈 문자열)
     combined_text = "\n".join(texts)

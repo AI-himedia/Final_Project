@@ -5,12 +5,13 @@ const AudioSender = () => {
   const workletNodeRef = useRef(null);
   const streamRef = useRef(null);
   const silenceStartRef = useRef(null);
-  const SILENCE_TIMEOUT_MS = 2000
+  const endSentRef = useRef(null);
 
   const startAudioCapture = async (socketRef, isTTSPlaying) => {
+    silenceStartRef.current = null;
+    endSentRef.current = false;
 
-    if (!audioContextRef.current || audioContextRef.current.state === "closed"
-    ) {
+    if (!audioContextRef.current || audioContextRef.current.state === "closed") {
 
       if (audioContextRef.current?.state === "closed") {
         audioContextRef.current = null;
@@ -31,38 +32,34 @@ const AudioSender = () => {
       }
     });
     
-    // 오디오 가공처리 
+    // WorkletNode 생성
     workletNodeRef.current = new AudioWorkletNode(audioContextRef.current, "pcm-processor");
+    
+    // 초기화 이후에 무음 타이머 리셋
+    workletNodeRef.current.port.postMessage({ type: "resetSilenceTimer" });
+
+    // 연결
     const source = audioContextRef.current.createMediaStreamSource(stream);
     source.connect(workletNodeRef.current);
-
-    // 오디오 전송
-    workletNodeRef.current.port.onmessage = (event) => {
-      const { type, silent, buffer } = event.data;
-
-      if (type === "silence") {
-        if (silent && !silenceStartRef.current) {
-          silenceStartRef.current = Date.now();
-          console.log("사용자 말 끝남")
-        } else if (!silent) {
-          console.log("사용자 말하는 중")
-        }
     
-        // 2초 이상 무음 지속 → STT 종료 요청
-        if ( silenceStartRef.current && Date.now() - silenceStartRef.current > SILENCE_TIMEOUT_MS) {
-          console.log("무음 감지: 마이크 자동 종료");
-          socketRef.current.send(JSON.stringify({ event: "end" }));
-          silenceStartRef.current = null;
-        }
+    // 메시지 수신 처리
+    workletNodeRef.current.port.onmessage = (event) => {
+      const { type, buffer } = event.data;
+    
+      if (type === "autoEnd") {
+        console.log("무음 2초 감지됨 → end 이벤트 서버 전송");
+        socketRef.current.send(JSON.stringify({ event: "end" }));
+        return;
       }
-
+    
+      // audio 처리
       if (type === "audio" && socketRef.current?.readyState === WebSocket.OPEN && !isTTSPlaying) {
         socketRef.current.send(new Uint8Array(buffer));
       }
     };
-
     streamRef.current = stream;
   };
+
 
   const stopAudioCapture = async () => {
     if (workletNodeRef.current) {
@@ -83,7 +80,6 @@ const AudioSender = () => {
       try {
         await audioContextRef.current.close();
         console.log("AudioContext 닫힘");
-        console.log("닫은 후 상태:", audioContextRef.current.state);
       } catch (e) {
         console.warn("AudioContext 닫기 실패:", e);
       }

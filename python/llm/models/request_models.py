@@ -16,8 +16,13 @@ class DeceasedData(BaseModel):
     commonPhrases: Optional[List[str]] = None
     exampleLines: Optional[List[str]] = None
 
+class DeceasedHint(BaseModel):
+    nickname: Optional[str] = None
+    smsBubbleSide: Optional[str] = None
+
 class ServiceStartRequest(BaseModel):
     subscriptionCode: int
     deceasedData: DeceasedData
+    deceasedHint: DeceasedHint
     chatFileUrls: List[str]
     presignedUrls: List[str]

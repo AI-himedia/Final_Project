@@ -12,14 +12,13 @@ export default function HeaderApply({
   const isLastSlide = currentSlide === 2;
 
   const handleClick = () => {
-    console.log('[DEBUG] 클릭됨');
-    console.log('[DEBUG] isLastSlide:', isLastSlide);
+    // console.log('[DEBUG] isLastSlide:', isLastSlide);
 
     if (!isLastSlide) {
-      console.log('[DEBUG] 건너뛰기 실행');
+      // console.log('[DEBUG] 건너뛰기 실행');
       swiperRef.current?.slideTo(2);
     } else {
-      console.log('[DEBUG] 이동 실행');
+      // console.log('[DEBUG] 이동 실행');
       navigate('/service/terms');
     }
   };
