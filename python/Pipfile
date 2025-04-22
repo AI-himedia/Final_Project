@@ -41,6 +41,7 @@ aiofiles = "*"
 aioboto3 = "*"
 redis = "*"
 sentence-transformers = "*"
+pgvector = "*"
 
 [dev-packages]
 

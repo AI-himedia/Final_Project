@@ -6,7 +6,6 @@ from llm.models.request_models import DeceasedData
 
 # system_prompt_template에 필요한 data
 def fetch_prompt_data(subscription_code: int) -> dict:
-
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -48,7 +47,12 @@ def fetch_prompt_data(subscription_code: int) -> dict:
         "example_lines": row[11]
     }
 
-def get_similar_messages_with_embedding(deceased_code: int, embedding: List[float], top_k: int = 5):
+def get_similar_messages_with_embedding(
+        deceased_code: int,
+        embedding: List[float], 
+        top_k: int = 5,
+        similarity_threshold: float = 1.75
+        ):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             query = """
@@ -57,12 +61,26 @@ def get_similar_messages_with_embedding(deceased_code: int, embedding: List[floa
             FROM contents
             WHERE deceased_code = %s
                 AND vectorization IS NOT NULL
+                AND (1 - (vectorization <#> %s::vector)) >= %s 
             ORDER BY vectorization <#> %s::vector
             LIMIT %s;
             """
-            cur.execute(query, (embedding, deceased_code, embedding, top_k))
+            cur.execute(query, (embedding, deceased_code, embedding, similarity_threshold, embedding, top_k))
             return cur.fetchall()
 
+def get_vector():
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                        SELECT content, vectorization 
+                        FROM contents
+                        ORDER BY code DESC
+                        LIMIT 1
+                    """)
+            result = cur.fetchone()
+            return result if result else None
+
+            
 
 
 # 문자응답시 input, output bulk INSERT
@@ -84,6 +102,9 @@ def add_messages(
     :param model_version: 벡터 생성에 사용한 임베딩 모델 버전
     :param service_type: 기본 'sms'로 설정됨
     """
+
+    print(f"[DEBUG] add: {type(embeddings)}")
+
 
     with get_db_connection() as conn:
         with conn.cursor() as cur:
@@ -107,6 +128,7 @@ def add_messages(
             values = []
             for i, (role, content) in enumerate(messages):
                 embedding = embeddings[i] if embeddings else None
+                print(f"[DEBUG] for: {type(embedding)}")
                 values.append((
                     subscription_code,
                     deceased_code,

@@ -83,6 +83,11 @@ class RedisChatMessageHistory:
 
         print(f"[DEBUG] redis 저장: {len(self.redis_client.lrange(conversation_key, 0, -1))}")
 
+
+        print(f"[DEBUG] embedding_type: {type(user_embedding)}")
+        print(f"[DEBUG] embedding_type: {type(ai_embedding)}")
+
+
         # PostgreSQL에 대화 기록 저장
         add_messages(
             subscription_code=subscription_code, 
