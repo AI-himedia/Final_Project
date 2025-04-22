@@ -89,9 +89,6 @@ public class CallController {
     /**
      * 오디오 파일 스트리밍(미리 듣기)
      */
-    /**
-     * 오디오 파일 스트리밍(미리 듣기)
-     */
     @GetMapping("/audio-direct")
     public ResponseEntity<Resource> streamAudioDirect(@RequestParam String path, @RequestParam int subscriptionCode) {
         try {
@@ -159,42 +156,6 @@ public class CallController {
                 return "application/octet-stream";  // 알 수 없는 형식은 기본 바이너리 파일로 처리
         }
     }
-
-//    @GetMapping("/audio-direct")
-//    public ResponseEntity<Resource> streamAudioDirect(@RequestParam String path, @RequestParam int subscriptionCode) {
-//        try {
-//            // 경로 디코딩
-//            String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-//            System.out.println("Decoded path: " + decodedPath);  // 디버깅용
-//
-//            // decodedPath에서 "/be/call/audio/" 부분 제거
-//            String cleanPath = decodedPath.replace("/be/call/audio", "");
-//
-//            // subscriptionCode로 폴더 경로 설정
-//            String fullPath = baseDirectory + "/" + subscriptionCode + "/long" + cleanPath;
-//
-//            // 디버깅: 경로 확인
-//            System.out.println("Full path to file: " + fullPath);
-//
-//            File file = new File(fullPath);
-//            if (!file.exists()) {
-//                System.out.println("파일이 존재하지 않습니다: " + fullPath);
-//                return ResponseEntity.notFound().build();  // 파일이 존재하지 않으면 404 반환
-//            }
-//
-//            // 파일이 존재하면 스트리밍
-//            Resource resource = new InputStreamResource(new FileInputStream(file));
-//
-//            return ResponseEntity.ok()
-//                    .contentType(MediaType.parseMediaType("audio/wav"))
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
-//                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()))
-//                    .body(resource);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.internalServerError().build();  // 예외 처리
-//        }
-//    }
 
     @GetMapping("/audio/{filename:.+}")
     public ResponseEntity<Resource> getAudio(
