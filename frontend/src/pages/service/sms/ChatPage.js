@@ -10,6 +10,22 @@ const ChatPage = () => {
 
   useEffect(() => {
     console.log('Received subscriptionCode:', subscriptionCode);
+
+    // 컴포넌트가 로딩될 때 대화내역 불러오기.
+    const fetchRecentContents = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/sms/recent-contents/${subscriptionCode}`
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching recent contents:', error);
+      }
+    };
+
+    if (subscriptionCode) {
+      fetchRecentContents();
+    }
   }, [subscriptionCode]);
 
   const [messages, setMessages] = useState([]);
@@ -17,7 +33,6 @@ const ChatPage = () => {
   const [isTyping, setIsTyping] = useState(false);
   const chatBoxRef = useRef(null);
 
-  // 스크롤을 맨 아래로 이동시키는 함수
   const scrollToBottom = useCallback(() => {
     if (chatBoxRef.current) {
       const scrollHeight = chatBoxRef.current.scrollHeight;
@@ -108,7 +123,6 @@ const ChatPage = () => {
             </div>
           ))}
 
-          {/* 입력 중 표시 */}
           {isTyping && (
             <div
               className={`${styles['chat-message']} ${styles['ai-message']} ${styles['typing-indicator']}`}
