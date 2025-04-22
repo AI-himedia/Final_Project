@@ -42,6 +42,9 @@ public class CallController {
     @Autowired
     private AudioProcessingService audioProcessingService;
 
+    @Autowired
+    private PythonService pythonService;
+
     @Value("${file.call}")
     private String baseDirectory;
 
