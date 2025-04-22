@@ -1,27 +1,24 @@
-// src/components/ServiceList.js
-import styles from './ServiceCheck.module.css';
+// src/pages/service/ServiceList.js
+
+import styles from '../../pages/service/ServiceCheck.module.css';
 import { useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SkeletonList from '../../components/common/SkeletonList';
-import { useDelaySkeleton } from '../../hooks/useDelaySkeleton';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { axiosInstance } from '../../api/AxiosInstance';
 
 export default function ServiceList() {
   const userCode = useSelector((state) => state.user.user?.userCode);
   const fullName = useSelector((state) => state.user.user?.fullName);
-  const showSkeleton = useDelaySkeleton(1000);
   const navigate = useNavigate();
   const location = useLocation();
-  // const { state } = location; // 더 이상 location.state를 직접 사용하지 않습니다.
 
   const [deceasedList, setDeceasedList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filling, setFilling] = useState(false);
   const [selectedCode, setSelectedCode] = useState(null);
   const [serviceType, setServiceType] = useState(null);
-
-  const pressTimer = useRef(null);
+  const [showSkeleton, setShowSkeleton] = useState(true);
 
   // URL 경로에 따라 serviceType 설정
   useEffect(() => {
@@ -44,74 +41,27 @@ export default function ServiceList() {
         let apiUrl = '';
         if (serviceType === 'call') {
           apiUrl = `/call/user/${userCode}/deceased-list`;
-          console.log('[LOG] [API 요청] URL:', apiUrl);
-          console.log(
-            '[LOG] [API 요청] 헤더:',
-            axiosInstance.defaults.headers.common
-          ); // 기본 헤더 로깅
           const response = await axiosInstance.get(apiUrl);
-          console.log('[LOG] [API 응답] 전화 서비스:', response.data);
           setDeceasedList(response.data);
         } else if (serviceType === 'sms') {
           apiUrl = `/sms/init-check/${userCode}`;
-          console.log('[LOG] [API 요청] URL:', apiUrl);
-          console.log(
-            '[LOG] [API 요청] 헤더:',
-            axiosInstance.defaults.headers.common
-          ); // 기본 헤더 로깅
           const response = await axiosInstance.get(apiUrl);
-          console.log('[LOG] [API 응답] 문자 서비스:', response.data);
-          console.log(
-            '[LOG] [설정] deceasedList:',
-            response.data.subscriptionSummaryDTOList
-          );
           setDeceasedList(response.data.subscriptionSummaryDTOList || []);
         } else {
-          console.log('[LOG] 알 수 없는 serviceType:', serviceType);
           setDeceasedList([]);
         }
       } catch (error) {
         console.error('API 호출 오류:', error);
+      } finally {
+        setLoading(false);
+        setTimeout(() => {
+          setShowSkeleton(false);
+        }, 1000);
       }
-      setLoading(false);
     };
 
     fetchData();
   }, [userCode, serviceType]);
-
-  useEffect(() => {
-    console.log('[LOG] deceasedList 상태 업데이트:', deceasedList); // deceasedList 상태 업데이트 로깅
-  }, [deceasedList]);
-
-  const handlePressStart = (services, subscriptionCode) => {
-    const isCallService = services.includes(2); // 전화 서비스가 포함되어 있으면
-    const isSmsService = services.includes(1); // 문자 서비스가 포함되어 있으면
-
-    // 전화 서비스만 클릭하면 /call로 이동
-    if (
-      isCallService &&
-      !isSmsService &&
-      !location.pathname.startsWith('/call') // 경로를 /call로 변경
-    ) {
-      console.log('[LOG] CALL 클릭');
-      navigate(`/call`);
-    }
-
-    // 문자 서비스만 클릭하면 /sms/chat으로 이동
-    if (
-      isSmsService &&
-      !isCallService &&
-      !location.pathname.startsWith('/sms/chat')
-    ) {
-      console.log('[LOG] SMS 클릭');
-      navigate(`/sms/chat`, { state: { subscriptionCode } });
-    }
-  };
-
-  const handlePressEnd = () => {
-    setFilling(false);
-    setSelectedCode(null);
-  };
 
   const renderDeceasedList = (list) => {
     if (!list || list.length === 0) {
@@ -122,14 +72,12 @@ export default function ServiceList() {
       <div className={styles.CardContainer}>
         {list.map((service, idx) => {
           const deceasedCode = service.deceasedCode;
-          const deceasedName = service.name || service.deceasedName?.name;
+          const deceasedName = service.name || service.deceasedName;
           const profileImageUrl = service.profileImageUrl;
           const services = service.services || [];
           const deceasedBirth = service.deceasedBirth;
           const deceasedDeath = service.deceasedDeath;
           const subscriptionCode = service.subscriptionCode;
-
-          console.log('서비스 목록:', serviceType);
 
           const isFullySubscribed =
             services.includes(1) && services.includes(2);
@@ -137,12 +85,10 @@ export default function ServiceList() {
           return (
             <div key={idx}>
               <div
-                key={idx}
                 className={`${styles.ServiceCard} ${
                   isFullySubscribed ? styles.disabled : ''
                 }`}
                 onClick={() => {
-                  console.log('클릭됨', subscriptionCode, deceasedName);
                   if (!isFullySubscribed) {
                     if (serviceType === 'sms') {
                       navigate('/sms/chat', {
@@ -243,7 +189,12 @@ export default function ServiceList() {
         </div>
       )}
 
-      {loading ? <SkeletonList count={3} /> : renderDeceasedList(deceasedList)}
+      {/* 스켈레톤 UI를 항상 1초 이상 표시 */}
+      {showSkeleton ? (
+        <SkeletonList count={10} />
+      ) : (
+        renderDeceasedList(deceasedList)
+      )}
     </div>
   );
 }

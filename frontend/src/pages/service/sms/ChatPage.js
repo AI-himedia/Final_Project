@@ -42,6 +42,7 @@ const ChatPage = () => {
         subscriptionCode,
         userInput: currentInput,
       });
+      console.log(response);
       setIsTyping(false);
       const aiMessage = {
         type: 'ai',
