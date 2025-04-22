@@ -3,7 +3,7 @@ import uvicorn
 import json
 import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from tts.stt_google_api import run_streaming_stt
+from python.tts.call.stt_google_api import run_streaming_stt
 from api.response_generator import generate_response, ChatRequest
 import time
 import base64

@@ -2,7 +2,7 @@ import asyncio
 import base64
 import json
 from websockets.exceptions import ConnectionClosed
-from stt_google_api import run_streaming_stt
+from python.tts.call.stt_google_api import run_streaming_stt
 from websockets.server import serve
 from api.response_generator import generate_response, ChatRequest
 from tts_test import run_tts
