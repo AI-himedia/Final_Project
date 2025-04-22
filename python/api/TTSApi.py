@@ -2,6 +2,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import uvicorn
 from tts.tts_test import Ready_S3File
+import sys
+import os
 from db.postgresql_connector import get_db_connection
 from db.query_utils import voice_raw_file
 
@@ -16,16 +18,15 @@ def synthesize(request: S3Request):
     try:
         # 1. 임베딩 생성
         embedding = Ready_S3File(request.s3_url)
-        print("!!!!!!!!!!!!!!!임베딩 : ",embedding)
 
-        # # 2. DB 저장
-        # with get_db_connection() as conn:
-        #     code = voice_raw_file(
-        #         conn,
-        #         subscription_code=request.subscription_code,
-        #         s3_url=request.s3_url,
-        #         embedding_data=embedding
-        #     )
+        # 2. DB 저장
+        with get_db_connection() as conn:
+            code = voice_raw_file(
+                conn,
+                subscription_code=request.subscription_code,
+                s3_url=request.s3_url,
+                embedding_data=embedding
+            )
 
         return {
             "status": "success",

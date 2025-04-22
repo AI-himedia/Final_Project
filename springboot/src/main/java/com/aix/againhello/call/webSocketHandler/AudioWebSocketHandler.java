@@ -2,6 +2,8 @@ package com.aix.againhello.call.webSocketHandler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
@@ -10,19 +12,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.Base64;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 
 @Component
 public class AudioWebSocketHandler extends BinaryWebSocketHandler implements WebSocketHandler {
 
     private static FastApiWebSocketClient fastApiClient;
-    private final Set<WebSocketSession> connectedReactSessions = ConcurrentHashMap.newKeySet();
     // 오디오 버퍼링을 위한 Map (세션별로 저장)
     private final Map<String, ByteArrayOutputStream> sessionAudioBuffers = new ConcurrentHashMap<>();
 
@@ -38,18 +36,9 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
         System.out.println("[웹소켓] 인증된 사용자 WebSocket 연결: " + userEmail);
         System.out.println("[웹소켓] 클라이언트 연결됨 sessionID: " + session.getId());
 
-        connectedReactSessions.add(session);
-        System.out.println("React 세션 등록됨: " + session.getId() + " (총 세션 수: " + connectedReactSessions.size() + ")");
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Origin", "http://localhost:8080");
-
         try {
             if (fastApiClient == null || !fastApiClient.isOpen()) {
-                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"), headers);
-                fastApiClient.setMessageRelayCallback(this::relayToReactClients);
-                fastApiClient.setBinaryRelayCallback(this::relayBinaryToReactClients);
-                fastApiClient.setConnectionLostTimeout(300);
+                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"));
                 fastApiClient.connectBlocking();
                 System.out.println("[FastAPI 연결 성공]");
             }
@@ -58,70 +47,44 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
         }
     }
 
-    public void relayToReactClients(String message) {
-        System.out.println("Python 메시지 React로 전달 시도: " + message);
-        for (WebSocketSession session : connectedReactSessions) {
-            System.out.println(" - 연결된 세션 ID: " + session.getId() + ", 상태: " + session.isOpen());
-            if (session.isOpen()) {
-                try {
-                    session.sendMessage(new TextMessage(message));
-                    System.out.println(" → 전송 성공");
-                } catch (IOException e) {
-                    System.err.println(" → 전송 실패: " + e.getMessage());
-                }
-            }
-        }
-    }
-
-
-    public void relayBinaryToReactClients(ByteBuffer buffer) {
-        BinaryMessage binaryMessage = new BinaryMessage(buffer);
-        for (WebSocketSession session : connectedReactSessions) {
-            if (session.isOpen()) {
-                try {
-                    session.sendMessage(binaryMessage);
-                    System.out.println("React로 바이너리 오디오 chunk 전송 완료");
-                } catch (IOException e) {
-                    System.err.println("React로 바이너리 전송 실패: " + e.getMessage());
-                }
-            }
-        }
-    }
-
-
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message){
-        System.out.println("텍스트 메시지 수신됨: " + message.getPayload());
+        System.out.println("[웹소켓] 텍스트 메시지 수신됨: " + message.getPayload());
         String payload = message.getPayload();
 
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(payload);  // JSON 트리로 파싱
 
-            String signal = root.path("type").asText();
-            if ("".equals(signal)) {
-                signal = root.path("event").asText();  // fallback
-            }
+            String event = root.path("event").asText(null);
+            String type = root.path("type").asText(null);
 
-            if ("end".equals(signal)) {
+            System.out.println("[event]: " + event + " / [type]: " + type);
+
+            if ("end".equals(event)) {
+                System.out.println("클라이언트가 STT 종료 요청");
                 fastApiClient.send("{\"event\":\"end\"}");
-                System.out.println(" 'end' 메시지 FastAPI로 전송");
             }
 
-            if ("stt_start".equals(signal)) {
-                session.sendMessage(new TextMessage("{\"type\": \"stt_start\"}"));
+            if ("stt_end".equals(type)) {
                 System.out.println("React로 STT 종료 알림 전송");
+                session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
             }
 
-//            if ("tts_end".equals(signal)) {
-//                System.out.println("TTS 종료 → 오디오 클립 React로 전송");
-//                ByteArrayOutputStream audioStream = sessionAudioBuffers.remove(session.getId());
-//                byte[] fullAudio = audioStream.toByteArray();
-//                sendToReactClient(session, fullAudio);
-//            }
+            if ("tts_start".equals(type)) {
+                System.out.println("TTS 시작");
+                session.sendMessage(new TextMessage("{\"type\": \"tts_start\"}"));
+            }
+
+            if ("tts_end".equals(type)) {
+                System.out.println("TTS 종료 → 오디오 클립 React로 전송");
+                ByteArrayOutputStream audioStream = sessionAudioBuffers.remove(session.getId());
+                byte[] fullAudio = audioStream.toByteArray();
+                sendToReactClient(session, fullAudio);
+            }
 
         } catch (Exception e) {
-            System.err.println("JSON 파싱 실패: " + e.getMessage());
+            System.err.println("[Spring] JSON 파싱 실패: " + e.getMessage());
         }
     }
 
@@ -133,36 +96,30 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
 
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-
         ByteBuffer buffer = message.getPayload();
         byte[] audioBytes = new byte[buffer.remaining()];
         buffer.get(audioBytes);
 
-        if (Objects.requireNonNull(session.getUri()).toString().contains("be/ws/react")) {
+        if (session.getUri().toString().contains("be/ws/react")) {
             if (fastApiClient != null && fastApiClient.isOpen()) {
                 fastApiClient.send(audioBytes);
             }
+//            System.out.println("React → Python 오디오 전달");
         } else if (session.getUri().toString().contains("be/ws/python")) {
-            relayBinaryToReactClients(buffer);
-            System.out.println("Python → React 오디오 전송");
-//            // 혹시 TTS 음성 저장할 것이면 사용
-//            ByteArrayOutputStream streamBuffer = sessionAudioBuffers.get(session.getId());
-//            if (streamBuffer != null) {
-//              streamBuffer.write(audioBytes);
-//              System.out.println("Python → React 오디오 저장 (chunk 크기: " + audioBytes.length + ")");
-//            }
+            ByteArrayOutputStream streamBuffer = sessionAudioBuffers.get(session.getId());
+            if (streamBuffer != null) {
+                streamBuffer.write(audioBytes);
+                System.out.println("Python → React 오디오 저장 (chunk 크기: " + audioBytes.length + ")");
+            }
         }
     }
 
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        System.out.println("연결 종료 sessionID: " + session.getId());
-        connectedReactSessions.remove(session);
-        if (connectedReactSessions.isEmpty() && fastApiClient != null && fastApiClient.isOpen()) {
+        System.out.println("[웹소켓] 연결 종료 sessionID: " + session.getId());
+        if (fastApiClient != null && fastApiClient.isOpen()) {
             fastApiClient.close();
         }
     }
-
-
 }

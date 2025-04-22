@@ -8,9 +8,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import SignUpPage from '../pages/auth/SignUpPage/SignUpPage';
 
 // 서비스 이용 페이지
-import ServiceList from '../pages/service/ServiceList';
-import ChatPage from '../pages/service/sms/ChatPage';
-import CallPage from '../pages/service/call/CallPage';
+import ServiceList from '../pages/service/List';
 
 // 서비스 신청 관련
 import ApplyPage from '../pages/service-apply/ApplyPage/ApplyPage';
@@ -32,9 +30,10 @@ import SuccessPage from '../pages/payment/SuccessPage';
 // 테스트 페이지
 import ConnectionTestPage from '../test/ConnectionTestPage';
 import TTSAudioPlayer from '../test/TTSAudioPlayer';
+import CallService from '../test/call/CallService';
+import ChatTestPage from '../test/ChatTestPage';
 import Step7_AudioPreview from '../pages/DeceasedProfile/Step7_AudioPreview';
 import Step7_SMS from '../pages/DeceasedProfile/Step7_SmsPreview';
-
 
 export const AppRoutes = () => (
   <Routes>
@@ -61,8 +60,7 @@ export const AppRoutes = () => (
     />
 
     {/* 통화서비스 */}
-    <Route path="/sms/chat" element={<ChatPage />} />
-    <Route path="/call" element={<CallPage />} />
+    <Route path="/chat" element={<ChatTestPage />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>
@@ -79,8 +77,6 @@ export const AppRoutes = () => (
     <Route path="/test" element={<ConnectionTestPage />} />
     <Route path="/ttstest" element={<TTSAudioPlayer />} />
     <Route path="/call" element={<CallService />} />
-    <Route path='/audiochat' element={<AudioChatService/>} />
-
 
     {/* 실패 시 리디렉션 */}
     <Route

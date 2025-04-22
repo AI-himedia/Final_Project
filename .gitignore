@@ -95,7 +95,6 @@ python/.coverage
 **/__pycache__/
 python/dump.rdb
 python/received_files/
-python/pretrained_models
 
 # Google Cloud 인증키
 hello-again-ai-project.json

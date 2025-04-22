@@ -8,12 +8,13 @@ from llm.chat.chain_config import get_llm_and_prompt
 from llm.chat.memory_chain import MyChatChain
 from llm.chat.embedding_model import embedding_model
 from llm.models.request_models import ChatRequest
-from db.query_utils import fetch_prompt_data, get_similar_messages_with_embedding
+from db.query_utils import fetch_prompt_data, get_similar_messages_with_embedding, get_vector
 from config.redis_config import redis_client
 import time
 import traceback # 에러 로깅
 import logging
 from typing import Optional 
+import numpy as np
 
 
 load_dotenv()
@@ -43,6 +44,7 @@ def generate_response(request: ChatRequest):
         # tolist()로 바꿔주는 이유는 DB에 넣거나 쿼리문에 넘기기 위해서
         query_text = f"query: {user_input}"
         user_embedding  = embedding_model.encode(query_text, normalize_embeddings=True).tolist()
+        print("L2 norm:", np.linalg.norm(user_embedding))
 
         # 2. 유사도 높은 과거 대화 검색
         similar_messages = get_similar_messages_with_embedding(deceased_code, user_embedding, top_k=5)
@@ -65,6 +67,7 @@ def generate_response(request: ChatRequest):
             raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
 
         # 4. 모델을 순차적으로 시도 (openai -> claude -> sonar)
+        print(f"[DEBUG] similar_messages: {similar_messages}")
         print(f"[DEBUG] retrieved_messages: {retrieved_messages}")
         ai_response = None
         for model in model_choices:
@@ -133,7 +136,7 @@ def generate_response(request: ChatRequest):
     print("------------------------------------------")
 
 
-    # 12. ai_response 임베딩 
+    # 12. ai_response 임베딩
     passage_text = f"passage: {ai_response}"
     ai_embedding  = embedding_model.encode(passage_text, normalize_embeddings=True).tolist()
 
@@ -150,10 +153,31 @@ def generate_response(request: ChatRequest):
             model_version="intfloat/multilingual-e5-base"  
         )
 
+
+    
+
     except Exception as db_e:
         # DB 오류는 로깅만 하고 사용자에게는 응답을 계속 반환
         print(f"ERROR saving messages to DB: {db_e}")
         traceback.print_exc()
+
+
+
+    content, vector = get_vector()
+
+    print(type(vector))  # list인지 str인지 확인
+    print(content)
+    if isinstance(vector, (list, np.ndarray)):
+        print("✅ DB에 float[]로 저장되어 있습니다.")
+        print("벡터 길이:", len(vector))
+        print("L2 Norm:", np.linalg.norm(np.array(vector)))
+    else:
+        print("❌ DB에 문자열로 저장되어 있음. pgvector 유사도 계산 불가.")
+ 
+    # v = np.array(vector)
+    # print("------------------------------")
+    # print(np.linalg.norm(v))
+
 
     return {"status": "LLM_RESPONSE", "message": ai_response, "model_used": model}
 

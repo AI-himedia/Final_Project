@@ -5,18 +5,12 @@ from huggingface_hub import snapshot_download
 from pydub import AudioSegment
 from pathlib import Path
 import torch
-from tts.cli.SparkTTS import SparkTTS
+from cli.SparkTTS import SparkTTS
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 import boto3
 from io import BytesIO
 import numpy as np
-from scipy.signal import resample
-import subprocess
-from datetime import datetime
-from scipy.io.wavfile import write
-from scipy.signal import resample
-import time
 
 load_dotenv()
 
@@ -98,71 +92,20 @@ def Ready_S3File(s3_url: str) -> BytesIO:
         print("함수 실행 중 오류 발생:", str(e))
         raise
 
-def resample_audio(audio_array: np.ndarray, orig_sr=16000, target_sr=48000):
-    target_len = int(len(audio_array) * target_sr / orig_sr)
-    return resample(audio_array, target_len)
-
-
-def save_debug_audio(audio_array: np.ndarray, sample_rate: int = 16000) -> str:
-    # 현재 시간 기반 파일명 생성
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"debug_tts_{timestamp}.wav"
-    output_dir = Path.cwd() / "results"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    filepath = output_dir / filename
-
-    # float → int16로 변환 (Spark-TTS 출력이 보통 float이므로)
-    audio_int16 = np.int16(audio_array * 32767)
-    write(filepath, sample_rate, audio_int16)
-
-    return str(filepath)
 
 # PCM to WebM 변환
-# def pcm_to_webm_chunk(pcm_chunk: np.ndarray, sample_rate=16000):
-#     audio = AudioSegment(
-#         pcm_chunk.tobytes(),
-#         frame_rate=sample_rate,
-#         sample_width=2,
-#         channels=1
-#     )
-#     buffer = BytesIO()
-#     audio.export(buffer, format="webm", codec="libopus")
-#     buffer.seek(0)
-#     return buffer.read()
 
-
-
-def pcm_to_webm_chunk(audio_array: np.ndarray, sample_rate: int):
-    audio_array = np.clip(audio_array, -1.0, 1.0)
-    audio_array_int16 = (audio_array * 32767).astype(np.int16)
-
-    process = subprocess.Popen(
-        [
-            'ffmpeg',
-            '-f', 's16le',
-            '-ar', str(sample_rate),
-            '-ac', '1',
-            '-i', 'pipe:0',
-            '-f', 'webm',
-            '-c:a', 'libopus',
-            '-application', 'audio',
-            '-vbr', 'off',
-            '-compression_level', '0',
-            '-b:a', '64k',
-            '-loglevel', 'quiet',
-            'pipe:1'
-        ],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE
+def pcm_to_webm_chunk(pcm_chunk: np.ndarray, sample_rate=16000):
+    audio = AudioSegment(
+        pcm_chunk.tobytes(),
+        frame_rate=sample_rate,
+        sample_width=2,
+        channels=1
     )
-
-    webm_data, _ = process.communicate(audio_array_int16.tobytes())
-    return webm_data
-
-# 쿠다 확인용
-print(torch.cuda.is_available())  # True
-print(torch.cuda.get_device_name(0))
-print(torch.version.cuda)
+    buffer = BytesIO()
+    audio.export(buffer, format="webm", codec="libopus")
+    buffer.seek(0)
+    return buffer.read()
 
 
 # TTS 스트리밍 (WebM binary)
@@ -173,67 +116,20 @@ def stream_tts(text: str):
     ensure_environment_ready()
 
     if spark_model is None:
-        print("[TTS]Spark-TTS 모델 초기화")
-        t0 = time.perf_counter()
-
+        print("Spark-TTS 모델 초기화")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
 
-        t1 = time.perf_counter()
-        print(f"[TTS] 모델 초기화 완료 (소요 시간: {t1 - t0:.2f}초)")
-
-
     if cached_global_token_ids is None:
-        print("[TTS]더미 임베딩 값 사용 중")
-        embedding_data =[[[2219, 2049, 2047, 4048, 2438, 267, 2197, 3581, 911, 3338, 3937, 174, 694, 3616, 2284, 3225, 3835, 968, 3877, 861, 4030, 557, 506, 2417, 2359, 1284, 4039, 4026, 1458, 2851, 2660, 149]]]
-        cached_global_token_ids = torch.tensor(embedding_data, dtype=torch.long).to(spark_model.device)
-        
-        print("모델 디바이스:", next(spark_model.model.parameters()).device)
-        print("토큰 디바이스:", cached_global_token_ids.device)
-    
-    print("[TTS] TTS 음성 생성 시작")
-    t2 = time.perf_counter()
+        print("더미 임베딩 값 사용 중")
+        embedding_data = [[[3199,253,1592,4042,290,1733,1056,2665,3594,3475,672,3142,738,3628,3253,3101,1084,3088,3227,1261,541,2425,2271,1461,1602,204,3531,3143,3780,2572,2946,135]]]
+        cached_global_token_ids = torch.tensor(embedding_data, dtype=torch.long)
 
-    audio_tensor = spark_model.inference(text=text, global_token_ids=cached_global_token_ids)
-    
-    t3 = time.perf_counter()
-    print(f"[TTS] TTS 음성 생성 완료 (소요 시간: {t3 - t2:.2f}초)")
-    
-    print(f"[TTS] WebM chunk 변환 시작")
-
-    # torch.Tensor → np.ndarray
-    if isinstance(audio_tensor, torch.Tensor):
-        audio_array = audio_tensor.cpu().numpy()
-    else:
-        audio_array = audio_tensor
-
-    t4 = time.perf_counter()
-
-    # WebM 형식 청크로 변환해서 스트리밍
-    audio_array_48k = resample_audio(audio_array, orig_sr=16000, target_sr=48000)
-    chunk = pcm_to_webm_chunk(audio_array_48k, sample_rate=48000)
-
-    t5 = time.perf_counter()
-    print(f"[TTS] WebM chunk 변환 완료 (소요 시간: {t5 - t4:.2f}초)")
-
-    # 오디오 디버깅용 저장
-    output_dir = Path("results")
-    output_dir.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    debug_path = output_dir / f"debug_tts_{timestamp}.wav"
-    write(debug_path, 16000, (audio_array * 32767).astype(np.int16))
-    print(f"[TTS DEBUG] WAV 파일 저장됨: {debug_path}")
-
-    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # output_dir = Path("results")
-    # output_dir.mkdir(exist_ok=True)
-    # webm_path = output_dir / f"debug_tts_{timestamp}.webm"
-    # with open(webm_path, "wb") as f:
-    #     f.write(chunk)
-    #     print(f"[TTS DEBUG] WebM 파일 저장됨: {webm_path}")
-
-    # print("[DEBUG] audio_tensor max:", np.max(audio_tensor))
-    # print("[DEBUG] audio_tensor min:", np.min(audio_tensor))
-    # print("[DEBUG] audio_tensor mean:", np.mean(audio_tensor))
-    # print(f"[DEBUG] WebM chunk 크기: {len(chunk)} bytes")
-    yield chunk
+    print("실시간 TTS 생성 중 (raw binary)")
+    for audio_chunk in spark_model.stream_inference(text=text, global_token_ids=cached_global_token_ids):
+        if isinstance(audio_chunk, np.ndarray):
+            yield pcm_to_webm_chunk(audio_chunk)
+        elif isinstance(audio_chunk, bytes):
+            yield audio_chunk
+        else:
+            raise TypeError("지원되지 않는 audio_chunk 타입")

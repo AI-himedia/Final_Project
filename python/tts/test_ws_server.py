@@ -4,7 +4,7 @@ import json
 import uuid
 import time
 from websockets.legacy.server import serve, WebSocketServerProtocol
-from python.tts.call.stt_google_api import run_streaming_stt
+from stt_google_api import run_streaming_stt
 from test_tts import run_tts, initialize_tts_environment
 from api.response_generator import generate_response, ChatRequest
 import traceback

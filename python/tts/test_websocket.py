@@ -2,7 +2,7 @@ import asyncio
 import base64
 import json
 from websockets.exceptions import ConnectionClosed
-from python.tts.call.stt_google_api import run_streaming_stt
+from stt_google_api import run_streaming_stt
 from websockets.server import serve
 from api.response_generator import generate_response, ChatRequest
 from tts_test import run_tts
@@ -10,31 +10,25 @@ from tts_streaming import stream_tts
 
 
 CHUNK_SIZE = 4096
-MIN_AUDIO_CHUNKS = 1
-
 
 # 오디오 수신
-async def receive_audio(websocket, audio_queue, stt_done, audio_received, received_chunks):
-
+async def receive_audio(websocket, audio_queue, stt_done):
     print("[전화서비스] 오디오 큐 수신 시작")
-    
     try:
-        async for data in websocket:
-            # data = await websocket.recv()   
+        while True:
+            data = await websocket.recv()
+          
             if isinstance(data, str):
                 try:
                     msg = json.loads(data)
                     if msg.get("event") == "end":
                         print("[STT] 클라이언트 종료 명령 수신 → STT 종료")
                         await audio_queue.put(None)
-                        break   
-                except Exception as e:
-                    print("[수신 오류] JSON 파싱 오류:", e)
+                        break    
+                except Exception:
+                    pass  # 안전 처리
             else:
-                received_chunks[0] += 1
                 await audio_queue.put(data)
-                if received_chunks[0] >= MIN_AUDIO_CHUNKS:
-                    audio_received.set()
     except Exception as e:
         print("[WebSocket 에러]:", e)
     finally:
@@ -50,6 +44,7 @@ async def process_stt(websocket, audio_queue):
     seen_final_transcripts = set()
     last_partial_transcript = ""
     final_result = None
+    llm_called = False
 
     for response in responses:
         if not response.results:
@@ -68,20 +63,19 @@ async def process_stt(websocket, audio_queue):
 
                     await websocket.send(json.dumps({ "type": "stt_end" }))
                     await process_llm_and_tts(websocket, final_result)
-                    return
+                    llm_called = True
             else:
                 if transcript != last_partial_transcript:
                     last_partial_transcript = transcript
                     print("[전화서비스]중간 STT:", transcript)
 
-    # fallback 처리
-    if final_result is None and last_partial_transcript:
-        print("[전화서비스] 최종 STT 없음. 마지막 중간 결과로 처리:", last_partial_transcript)
-        await websocket.send(json.dumps({"type": "stt_end"}))
-        await process_llm_and_tts(websocket, last_partial_transcript)
+    # if final_result:
+    #     await websocket.send(json.dumps({ "type": "stt_end" }))
+    #     await process_llm_and_tts(websocket, final_result)
+
         
     
-# LLM → TTS 흐름 처리
+# LLM
 async def process_llm_and_tts(websocket, final_result):
     try:
         print("[전화서비스 LLM] LLM 호출")
@@ -95,8 +89,7 @@ async def process_llm_and_tts(websocket, final_result):
         
     except Exception as e:
         print("[LLM → TTS 흐름 오류]:", e)
-        import traceback
-        traceback.print_exc()
+
 
 # TTS
 async def process_tts(websocket, reply):
@@ -116,7 +109,7 @@ async def process_tts(websocket, reply):
         print("[전화서비스 TTS] TTS 비동기 처리 오류:", e)
 
 
-# TTS 스트리밍 전송
+# TTS 스트리밍
 async def stream_tts_audio(websocket, reply):
     try:
         print("[전화서비스 TTS] Spark-TTS 음성 생성 시작")
@@ -127,7 +120,9 @@ async def stream_tts_audio(websocket, reply):
         print(f"[전화서비스 TTS] 오디오 총 길이: {len(audio_bytes)} bytes")
 
         # 시작 알림
-        await websocket.send(json.dumps({"type": "tts_start"}))
+        await websocket.send(json.dumps({
+            "type": "tts_start"
+        }))
 
         # chunk 단위로 전송
         for i in range(0, len(audio_bytes), CHUNK_SIZE):
@@ -135,7 +130,9 @@ async def stream_tts_audio(websocket, reply):
             await websocket.send(chunk)  # binary frame
 
         # 종료 알림
-        await websocket.send(json.dumps({"type": "tts_end"}))
+        await websocket.send(json.dumps({
+            "type": "tts_end"
+        }))
 
         print("[전화서비스 TTS] 오디오 스트리밍 완료")
 
@@ -145,27 +142,19 @@ async def stream_tts_audio(websocket, reply):
 
 # 메인 핸들러
 async def handler(websocket):
-    received_chunks = [0]
     print("[전화 서비스 handler] Spring boot 연결됨")
     
     try:
         while True:
             audio_queue = asyncio.Queue()
             stt_done = asyncio.Event()
-            audio_received = asyncio.Event()
-
-            receive_task = asyncio.create_task(receive_audio(websocket, audio_queue, stt_done, audio_received, received_chunks))
-            print("[전화 서비스 handler] 오디오 수신 대기 중")
-            await audio_received.wait()
-            await asyncio.sleep(0.5)
-
-            while received_chunks[0] < MIN_AUDIO_CHUNKS:
-                await asyncio.sleep(0.1)
 
             print("\n[전화 서비스 handler] 새 오디오 입력 대기 중")
-            process_task = asyncio.create_task(process_stt(websocket, audio_queue))
-
-            await asyncio.gather(receive_task, process_task)
+            
+            await asyncio.gather(
+                receive_audio(websocket, audio_queue, stt_done),
+                process_stt(websocket, audio_queue)
+            )
 
             if websocket.close_code is not None:
                 print("[handler] 연결 종료 코드:", websocket.close_code)

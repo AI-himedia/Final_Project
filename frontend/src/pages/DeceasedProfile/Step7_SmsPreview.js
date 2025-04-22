@@ -1,36 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { axiosInstance } from '../../api/AxiosInstance';
 import styles from './Deceased.module.css';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 
 export default function Step7_SMS() {
   console.log('[zustand 전체 상태7 SMS]', useDeceasedProfile.getState());
   const navigate = useNavigate();
-  const {
-    files,
-    setFileMeta,
-    subscription_Code,
-    deceased_name,
-    gender,
-    deceased_age,
-    personality,
-    deceased_nickname,
-    user_nickname,
-    relationship,
-    speaking_tone,
-  } = useDeceasedProfile();
-
-  const [deceasedCodeFromStorage, setDeceasedCodeFromStorage] = useState(null);
-
-  useEffect(() => {
-    const code = localStorage.getItem('@againhello/deceased-code');
-    if (code === null || code === 'null') {
-      setDeceasedCodeFromStorage(null);
-    } else if (code) {
-      setDeceasedCodeFromStorage(parseInt(code, 10)); // deceasedCode를 숫자 타입으로 변환
-    }
-  }, []);
+  const { files, setFileMeta } = useDeceasedProfile();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('preview');
@@ -94,115 +70,11 @@ export default function Step7_SMS() {
     nextUnselectedIndex === -1 ? files.length : nextUnselectedIndex;
 
   const confirmText = allSelected
-    ? ''
+    ? '프로필 저장하기'
     : `${nextUnselected + 1}번째 파일을 선택하고 화자분리를 해주세요.`;
 
-  const handleSubmit = async () => {
-    if (allSelected) {
-      try {
-        const formData = new FormData();
-
-        // deceasedData 객체 생성
-        const deceasedData = {
-          deceasedName: deceased_name,
-          gender: gender,
-          deceasedAge: parseInt(deceased_age, 10),
-          personality:
-            typeof personality === 'object'
-              ? JSON.stringify(personality)
-              : personality,
-          deceasedNickname: deceased_nickname,
-          userNickname: user_nickname,
-          relationship: relationship,
-          speakingTone: speaking_tone,
-        };
-
-        console.log('!!!!!!!!!!!!!!!!!!!!!', personality);
-
-        console.log('deceasedData 속성 타입:');
-        for (const key in deceasedData) {
-          if (deceasedData.hasOwnProperty(key)) {
-            console.log(`${key}: ${typeof deceasedData[key]}`);
-          }
-        }
-
-        // deceasedCode가 null인 경우 해당 항목을 제외하기
-        if (deceasedCodeFromStorage !== null) {
-          deceasedData.deceasedCode = deceasedCodeFromStorage;
-        }
-
-        // 타입 출력
-        console.log('deceasedData type:', typeof deceasedData);
-        console.log('deceasedData:', deceasedData);
-
-        // JSON을 Blob으로 변환하여 FormData에 추가
-        const deceasedDataBlob = new Blob([JSON.stringify(deceasedData)], {
-          type: 'application/json;charset=UTF-8',
-        });
-        formData.append('deceasedData', deceasedDataBlob, 'deceasedData.json');
-
-        // deceasedHint 문자열로 변환하여 추가
-        const deceasedHint = files
-          .map((fileWrapper) => {
-            const ext = fileWrapper.file?.name?.split('.').pop().toLowerCase();
-            if (['png', 'jpg', 'jpeg'].includes(ext)) {
-              return { smsBubbleSide: fileWrapper.meta?.side || null }; // 객체로 변환
-            } else if (ext === 'txt') {
-              return { nickname: fileWrapper.meta?.name || null }; // 객체로 변환
-            }
-            return null;
-          })
-          .filter((item) => item !== null); // 배열로 필터링
-
-        console.log('deceasedHint:', deceasedHint); // 배열로 출력되는지 확인
-
-        // 타입 출력
-        // console.log('deceasedHint type:', typeof deceasedHint);
-        // console.log('deceasedHint:', deceasedHint);
-        // console.log(
-        //   'deceasedHint type:',
-        //   Array.isArray(deceasedHint) ? 'Array' : typeof deceasedHint
-        // ); // 배열 타입 확인
-
-        const deceasedHintBlob = new Blob([JSON.stringify(deceasedHint)], {
-          type: 'application/json',
-        });
-        formData.append('deceasedHint', deceasedHintBlob, 'deceasedHint.json');
-
-        // subscriptionCode를 FormData에 추가
-        formData.append('subscriptionCode', subscription_Code);
-
-        // 파일 확인 및 로그 찍기
-        files.forEach((fileWrapper, index) => {
-          const file = fileWrapper.file;
-          if (file) {
-            console.log(`File ${index} type:`, typeof file);
-            console.log(`File ${index} name:`, file.name);
-          }
-        });
-
-        // 서버로 데이터 전송
-        const response = await axiosInstance.post(
-          'sms/service/start',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-
-        navigate('/');
-      } catch (error) {
-        console.error('API 요청 실패:', error);
-        if (error.response) {
-          console.error('응답 데이터:', error.response.data);
-          console.error('응답 상태 코드:', error.response.status);
-        } else {
-          console.error('요청 설정 오류:', error.message);
-        }
-      }
-    }
+  const handleSubmit = () => {
+    if (allSelected) navigate('/deceased/profile/step8');
   };
 
   const handleFileClick = (file, index) => {
@@ -409,6 +281,7 @@ export default function Step7_SMS() {
     const classNames = `${styles.thumbImage} ${
       isSelected ? styles.selected : ''
     }`;
+
     if (['png', 'jpg', 'jpeg'].includes(ext)) {
       return (
         <img

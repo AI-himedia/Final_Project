@@ -16,22 +16,8 @@ export default function Step7_Call() {
   const [playingStatus, setPlayingStatus] = useState({});
   const [progress, setProgress] = useState({});
   const [selectedSpeakers, setSelectedSpeakers] = useState([]);
-  const audioRefs = useRef({}); // 객체로 관리
+  const audioRefs = useRef([]);
   const [durations, setDurations] = useState({});
-
-  useEffect(() => {
-    setDurations((prevDurations) => {
-      const newDurations = { ...prevDurations };
-      Object.entries(previewData.speakersByFile).forEach(
-        ([filename, speakers]) => {
-          speakers.forEach((speaker) => {
-            newDurations[`${filename}-${speaker.speakerId}`] = 0;
-          });
-        }
-      );
-      return newDurations;
-    });
-  }, [previewData]);
 
   useEffect(() => {
     if (previewData && previewData.speakersByFile) {
@@ -56,114 +42,64 @@ export default function Step7_Call() {
     }
   }, [previewData]);
 
-  // 오디오 재생/일시정지 처리
-  const handlePlayPause = (originalFilename, speakerId, idx, e) => {
+  const handlePlayPause = (index, e) => {
     e.stopPropagation();
-    const audioKey = `${originalFilename}-${speakerId}`;
-    const audioElement = audioRefs.current[audioKey]; // 고유한 key로 오디오 참조
-
-    console.log(`handlePlayPause 호출: ${audioKey}`, audioElement);
-
-    if (!audioElement) {
-      console.log(`오디오 요소가 존재하지 않습니다: ${audioKey}`);
-      return;
-    }
-
-    const key = `${originalFilename}-${speakerId}`;
+    const audioElement = audioRefs.current[index];
+    if (!audioElement) return;
 
     setPlayingStatus((prevState) => {
-      const isPlaying = prevState[key];
+      const isPlaying = !!prevState[index];
       if (isPlaying) {
         audioElement.pause();
-        console.log(`오디오 일시 정지: ${audioKey}`);
-        return { ...prevState, [key]: false };
+        return { ...prevState, [index]: false };
       } else {
         audioElement
           .play()
           .catch((error) => console.error('Play error:', error));
-        console.log(`오디오 재생 시작: ${audioKey}`);
-        return { ...prevState, [key]: true };
+        return { ...prevState, [index]: true };
       }
     });
   };
 
-  // 오디오 진행 상태 업데이트
-  const handleTimeUpdate = (originalFilename, speakerId, idx) => {
-    const audioKey = `${originalFilename}-${speakerId}`;
-    const audio = audioRefs.current[audioKey]; // 고유한 key로 오디오 참조
-    const duration = durations[audioKey];
-
-    console.log(`handleTimeUpdate 호출: ${audioKey}`, audio, duration);
+  const handleTimeUpdate = (index) => {
+    const audio = audioRefs.current[index];
+    const duration = durations[index];
 
     if (!audio || isNaN(duration) || !isFinite(duration) || duration <= 0) {
-      console.log(`유효하지 않은 duration 값 또는 audio 참조: ${audioKey}`);
       return;
     }
 
     requestAnimationFrame(() => {
+      console.log(
+        `currentTime in RAF: ${audio.currentTime}, duration: ${duration}`
+      );
       const progressValue = (audio.currentTime / duration) * 100;
-      setProgress((prevState) => ({
-        ...prevState,
-        [audioKey]: progressValue,
-      }));
+      setProgress((prevState) => ({ ...prevState, [index]: progressValue }));
     });
   };
 
-  // 오디오 메타데이터 로딩 후 처리
-  const onLoadedMetadataHandler = (index, originalFilename, speakerId) => {
-    const audioKey = `${originalFilename}-${speakerId}`;
-    const audio = audioRefs.current[audioKey];
-
-    console.log(`onLoadedMetadataHandler 호출: ${audioKey}`, audio);
-
-    if (audio) {
-      let duration = audio.duration;
-      console.log(`오디오 로드 시 duration 값: ${duration} (${audioKey})`);
-
-      if (isNaN(duration) || !isFinite(duration) || duration === Infinity) {
-        duration = 0;
-        console.log(`유효하지 않은 duration 값 처리, 0으로 설정: ${audioKey}`);
+  const handleSpeakerSelect = (index, speakerId, originalFilename) => {
+    setSelectedSpeakers((prevSelectedSpeakers) => {
+      const isSelected = prevSelectedSpeakers.some(
+        (speaker) => speaker.selectedSpeakerId === speakerId
+      );
+      if (isSelected) {
+        return prevSelectedSpeakers.filter(
+          (speaker) => speaker.selectedSpeakerId !== speakerId
+        );
+      } else {
+        return [
+          ...prevSelectedSpeakers,
+          { originalFilename, selectedSpeakerId: speakerId },
+        ];
       }
-
-      setDurations((prevDurations) => ({
-        ...prevDurations,
-        [audioKey]: duration,
-      }));
-    } else {
-      console.log(`audioRefs에서 ${audioKey} 참조가 없습니다.`);
-    }
+    });
   };
 
-  // 오디오 로드 성공시 처리
   const handleAudioSuccess = (filePath) => {
     console.log(`오디오 로드 성공: ${filePath}`);
   };
 
-  // 화자 선택시 처리
-  const handleSpeakerSelect = (idx, speakerId, originalFilename) => {
-    setSelectedSpeakers((prevSelectedSpeakers) => {
-      const isSelected = prevSelectedSpeakers.some(
-        (speaker) =>
-          speaker.selectedSpeakerId === speakerId &&
-          speaker.originalFilename === originalFilename
-      );
-
-      const updatedSpeakers = isSelected
-        ? prevSelectedSpeakers.filter(
-            (speaker) =>
-              speaker.selectedSpeakerId !== speakerId ||
-              speaker.originalFilename !== originalFilename
-          )
-        : [
-            ...prevSelectedSpeakers,
-            { originalFilename, selectedSpeakerId: speakerId },
-          ];
-
-      return updatedSpeakers;
-    });
-  };
-
-  // 대화 만들기 시작
   const handleCreateConversation = async () => {
     if (selectedSpeakers.length === 0) {
       alert('화자를 선택해주세요!');
@@ -190,10 +126,25 @@ export default function Step7_Call() {
     }
   };
 
-  // 각 오디오 요소를 고유하게 관리하는 부분에서의 로그 확인
-  useEffect(() => {
-    console.log('현재 audioRefs:', audioRefs.current);
-  }, [audioRefs.current]);
+  const onLoadedMetadataHandler = (index) => {
+    console.log(`[${index}] onLoadedMetadata triggered`);
+    const audio = audioRefs.current[index];
+    if (audio) {
+      let duration = audio.duration;
+      console.log(`[${index}] Initial duration from metadata:`, duration);
+      if (isNaN(duration) || !isFinite(duration) || duration === Infinity) {
+        console.log(`[${index}] Invalid duration, setting to 0`);
+        duration = 0;
+      }
+      setDurations((prevDurations) => ({
+        ...prevDurations,
+        [index]: duration,
+      }));
+      console.log(`[${index}] durations state:`, durations);
+    } else {
+      console.log(`[${index}] audioRef is null in onLoadedMetadata`);
+    }
+  };
 
   if (!previewData) {
     return (
@@ -229,8 +180,7 @@ export default function Step7_Call() {
               className={`${styles.audioItem} ${
                 selectedSpeakers.some(
                   (selected) =>
-                    selected.selectedSpeakerId === speaker.speakerId &&
-                    selected.originalFilename === originalFilename
+                    selected.selectedSpeakerId === speaker.displayName
                 )
                   ? styles.selected
                   : ''
@@ -242,11 +192,9 @@ export default function Step7_Call() {
               <div className={styles.audioContainer}>
                 <button
                   className={styles.playPauseButton}
-                  onClick={(e) =>
-                    handlePlayPause(originalFilename, speaker.speakerId, idx, e)
-                  }
+                  onClick={(e) => handlePlayPause(idx, e)}
                 >
-                  {playingStatus[`${originalFilename}-${speaker.speakerId}`] ? (
+                  {playingStatus[idx] ? (
                     <FaPause style={{ fontSize: '1.1rem' }} />
                   ) : (
                     <FaPlay
@@ -268,28 +216,16 @@ export default function Step7_Call() {
                 <div className={styles.progressBar}>
                   <div
                     className={styles.progress}
-                    style={{
-                      width: `${
-                        progress[`${originalFilename}-${speaker.speakerId}`] ||
-                        0
-                      }%`,
-                    }}
+                    style={{ width: `${progress[idx] || 0}%` }}
                   ></div>
                 </div>
                 <p className={styles.time}>
                   {Math.floor(
-                    audioRefs.current[
-                      `${originalFilename}-${speaker.speakerId}`
-                    ]
-                      ? audioRefs.current[
-                          `${originalFilename}-${speaker.speakerId}`
-                        ].currentTime
+                    audioRefs.current[idx]
+                      ? audioRefs.current[idx].currentTime
                       : 0
                   )}{' '}
-                  :{' '}
-                  {Math.floor(
-                    durations[`${originalFilename}-${speaker.speakerId}`] || 0
-                  )}
+                  : {Math.floor(durations[idx] || 0)}{' '}
                 </p>
               </div>
 
@@ -299,25 +235,13 @@ export default function Step7_Call() {
 
               <audio
                 key={`${originalFilename}-${speaker.displayName}-audio`}
-                ref={(el) => {
-                  audioRefs.current[
-                    `${originalFilename}-${speaker.speakerId}`
-                  ] = el;
-                }}
+                ref={(el) => (audioRefs.current[idx] = el)}
                 src={`${API_SERVER_HOST}/be/call/audio-direct?path=${encodeURIComponent(
                   speaker.filePath
                 )}&subscriptionCode=${subscription_Code}`}
                 onLoadedData={() => handleAudioSuccess(speaker.filePath)}
-                onTimeUpdate={() =>
-                  handleTimeUpdate(originalFilename, speaker.speakerId, idx)
-                }
-                onLoadedMetadata={() =>
-                  onLoadedMetadataHandler(
-                    idx,
-                    originalFilename,
-                    speaker.speakerId
-                  )
-                }
+                onTimeUpdate={() => handleTimeUpdate(idx)}
+                onLoadedMetadata={() => onLoadedMetadataHandler(idx)}
               ></audio>
               <div className={styles.audioPlayerWrapper}></div>
             </div>

@@ -120,3 +120,4 @@ async def start_service(req: ServiceStartRequest):
         return {"status": "error", "message": str(e)}
 
 # 201 return {"status": "success", "message": "대화록 캡쳐본을 올려주세요"}
+
