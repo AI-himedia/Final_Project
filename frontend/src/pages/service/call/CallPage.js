@@ -25,7 +25,6 @@ const CallPage = () => {
       audioRef.current.play().catch((err) => {
         console.warn('자동 재생 실패! 수동 재생 필요:', err);
 
-        // SweetAlert2로 수동 재생 알림
         Swal.fire({
           position: 'top-end',
           icon: 'warning',

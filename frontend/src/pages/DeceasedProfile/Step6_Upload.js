@@ -3,7 +3,7 @@ import styles from './Deceased.module.css';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { axiosInstance } from '../../api/AxiosInstance';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const audioVideoExtensions = [
   'mp3',
@@ -47,6 +47,22 @@ export default function Step6_FileUpload() {
 
   const allowedExtensions =
     serviceCode === '2' ? audioVideoExtensions : imageTextExtensions;
+
+  useEffect(() => {
+    const cleanupAudio = async () => {
+      try {
+        if (subscription_Code) {
+          await axiosInstance.post(
+            `/call/audio/cleanup?subscriptionCode=${subscription_Code}`
+          );
+        }
+      } catch (error) {
+        console.error('Audio cleanup API 요청 실패:', error);
+      }
+    };
+
+    cleanupAudio();
+  }, [subscription_Code]);
 
   const handleFileChange = (e) => {
     const uploaded = e.target.files[0];
