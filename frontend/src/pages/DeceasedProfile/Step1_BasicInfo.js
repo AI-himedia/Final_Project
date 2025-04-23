@@ -8,10 +8,15 @@ export default function Step1_BasicInfo() {
   console.log('[zustand 전체 상태1]', useDeceasedProfile.getState());
   const navigate = useNavigate();
 
+  const subscriptionCode = useDeceasedProfile(
+    (state) => state.subscriptionCode
+  );
+  console.log('[Step1] Subscription Code:', subscriptionCode);
+
   // zustand 상태 + setter
-  const name = useDeceasedProfile((state) => state.deceased_name);
+  const name = useDeceasedProfile((state) => state.deceasedName);
   const gender = useDeceasedProfile((state) => state.gender);
-  const age = useDeceasedProfile((state) => String(state.deceased_age || ''));
+  const age = useDeceasedProfile((state) => String(state.deceasedAge || ''));
 
   const setName = useDeceasedProfile((state) => state.setDeceasedName);
   const setGender = useDeceasedProfile((state) => state.setGender);

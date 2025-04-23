@@ -4,19 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
@@ -39,7 +36,11 @@ public class S3Service {
 
         String originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null ||
-                (!originalFilename.endsWith(".txt") &&
+                (!originalFilename.endsWith(".mp3") &&
+                        !originalFilename.endsWith(".wav") &&
+                        !originalFilename.endsWith(".txt") &&
+                        !originalFilename.endsWith(".csv") &&
+                        !originalFilename.endsWith(".m4a") &&
                         !originalFilename.endsWith(".jpg") &&
                         !originalFilename.endsWith(".jpeg") &&
                         !originalFilename.endsWith(".png"))) {
@@ -54,6 +55,7 @@ public class S3Service {
             String lowerCaseName = originalFilename.toLowerCase(); // 확장자 대소문자 구분 방지
 
             String folder = (lowerCaseName.endsWith(".txt") ||
+                    lowerCaseName.endsWith(".csv") ||
                     lowerCaseName.endsWith(".jpg") ||
                     lowerCaseName.endsWith(".jpeg") ||
                     lowerCaseName.endsWith(".png"))

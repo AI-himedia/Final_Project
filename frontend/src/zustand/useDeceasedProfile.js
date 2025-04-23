@@ -1,80 +1,100 @@
-// src/zustand/useDeceasedProfile.js
-
 import { create } from 'zustand';
 
 const useDeceasedProfile = create((set) => ({
-  // 고유 정보
-  deceased_name: '',
+  deceasedName: '',
   gender: '',
-  deceased_age: 0,
-
-  // 호칭 관련
-  deceased_nickname: '',
-  user_nickname: '',
-
-  // 관계 및 말투
+  deceasedAge: 0,
+  deceasedNickname: '',
+  userNickname: '',
   relationship: '',
-  speaking_tone: false,
-
-  // 기타
+  speakingTone: false,
   personality: '',
-  subscription_Code: '',
-
-  // Setter 함수들
-  setDeceasedName: (val) => set({ deceased_name: val }),
+  subscriptionCode: '',
+  files: [],
+  setDeceasedName: (val) => set({ deceasedName: val }),
   setGender: (val) => set({ gender: val }),
-  setDeceasedAge: (val) => set({ deceased_age: val }),
-  setDeceasedNickname: (val) => set({ deceased_nickname: val }),
-  setUserNickname: (val) => set({ user_nickname: val }),
+  setDeceasedAge: (val) => set({ deceasedAge: val }),
+  setDeceasedNickname: (val) => set({ deceasedNickname: val }),
+  setUserNickname: (val) => set({ userNickname: val }),
   setRelationship: (val) => set({ relationship: val }),
-  setSpeakingTone: (val) => set({ speaking_tone: val }),
+  setSpeakingTone: (val) => set({ speakingTone: val }),
   setPersonality: (val) => set({ personality: val }),
-  setSubscriptionCode: (val) => set({ subscription_Code: val }),
-
-  // 전체 프로필 일괄 저장
+  setSubscriptionCode: (val) => set({ subscriptionCode: val }),
+  setFiles: (fileList) => set({ files: fileList }),
+  addFile: (file) => set((state) => ({ files: [...state.files, file] })),
+  removeFile: (index) =>
+    set((state) => {
+      const newFiles = [...state.files];
+      newFiles.splice(index, 1);
+      return { files: newFiles };
+    }),
+  setFileMeta: (index, meta) =>
+    set((state) => {
+      const updatedFiles = [...state.files];
+      const file = state.files[index];
+      if (!file) return {};
+      updatedFiles[index] = {
+        file,
+        meta: {
+          ...(file.meta || {}),
+          ...meta,
+        },
+      };
+      return { files: updatedFiles };
+    }),
+  setFileSelection: (index, selection) =>
+    set((state) => {
+      const updatedFiles = [...state.files];
+      updatedFiles[index].selection = selection;
+      return { files: updatedFiles };
+    }),
+  setDeceasedNameForFile: (index, name) =>
+    set((state) => {
+      const updatedFiles = [...state.files];
+      updatedFiles[index].deceasedName = name;
+      return { files: updatedFiles };
+    }),
   setDeceasedProfile: (profile) =>
     set({
-      deceased_name: profile.deceasedName || '',
+      deceasedName: profile.deceasedName || '',
       gender: profile.gender || '',
-      deceased_age: profile.deceasedAge || 0,
-      deceased_nickname: profile.deceasedNickname || '',
-      user_nickname: profile.userNickname || '',
+      deceasedAge: profile.deceasedAge || 0,
+      deceasedNickname: profile.deceasedNickname || '',
+      userNickname: profile.userNickname || '',
       relationship: profile.relationship || '',
-      speaking_tone: profile.speakingTone || false,
+      speakingTone: profile.speakingTone || false,
       personality: profile.personality || '',
-      subscription_Code:
+      subscriptionCode:
         profile.subscriptionCode ||
         profile.serviceSubscriptions?.[0]?.subscriptionCode ||
         '',
     }),
-
-  // 초기화
   resetProfile: () =>
     set({
-      deceased_name: '',
+      deceasedName: '',
       gender: '',
-      deceased_age: 0,
-      deceased_nickname: '',
-      user_nickname: '',
+      deceasedAge: 0,
+      deceasedNickname: '',
+      userNickname: '',
       relationship: '',
-      speaking_tone: false,
+      speakingTone: false,
       personality: '',
-      subscription_Code: '',
+      subscriptionCode: '',
+      files: [],
     }),
 }));
 
-// API 전송용 변환 함수
 export const mapStateToApiFormat = (state) => ({
-  subscriptionCode: state.subscription_Code,
+  subscriptionCode: state.subscriptionCode,
   deceasedData: {
-    deceasedName: state.deceased_name,
+    deceasedName: state.deceasedName,
     gender: state.gender,
-    deceasedAge: state.deceased_age,
+    deceasedAge: state.deceasedAge,
     personality: state.personality,
-    deceasedNickname: state.deceased_nickname,
-    userNickname: state.user_nickname,
+    deceasedNickname: state.deceasedNickname,
+    userNickname: state.userNickname,
     relationship: state.relationship,
-    speakingTone: state.speaking_tone,
+    speakingTone: state.speakingTone,
   },
 });
 

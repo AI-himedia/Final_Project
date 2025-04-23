@@ -64,6 +64,7 @@
             dd.deceased_code      AS deceasedCode,
             dd.deceased_name      AS deceasedName,
             dd.deceased_nickname  AS deceasedNickname,
+            s.subscription_code   AS subscriptionCode,
             MAX(c.message_time)   AS latestCallTime
         FROM
             deceased_data dd
@@ -78,7 +79,8 @@
         GROUP BY
             dd.deceased_code,
             dd.deceased_name,
-            dd.deceased_nickname
+            dd.deceased_nickname,
+            s.subscription_code
         ORDER BY
             latestCallTime DESC NULLS LAST
     </select>

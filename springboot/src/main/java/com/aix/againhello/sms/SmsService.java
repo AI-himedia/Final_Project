@@ -109,6 +109,7 @@ public class SmsService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        requestDto.setServiceType("sms");
         HttpEntity<ChatRequestDTO> request = new HttpEntity<>(requestDto, headers);
 
         ResponseEntity<SmsResponse> response = restTemplate.postForEntity(
@@ -121,47 +122,69 @@ public class SmsService {
     }
 
 
-    public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, List<MultipartFile> chatFile) {
+    public SmsResponse startService(int subscriptionCode, DeceasedDataDTO deceasedDataDTO, List<DeceasedHintDTO> deceasedHintList, List<MultipartFile> chatFileList) {
 
         System.out.println("subscriptionCode : " + subscriptionCode);
         System.out.println("deceasedDataDTO : " + deceasedDataDTO);
-//        System.out.println("chatFile : " + chatFile.size());
 
         // 1. subscriptionCode 존재여부 확인
         if (!subscriptionMapper.existsBySubscriptionCode(subscriptionCode)) {
             throw new ServiceException("구독(결제) 정보가 없습니다.");
         }
 
-        // 2. file 검증
-        // 3. file S3에 저장
-        List<String> uploadedUrls = new ArrayList<>();
-        List<String> presignedUrls = new ArrayList<>();
-        if (chatFile != null && !chatFile.isEmpty()) {
+        List<AnalyzableFileDTO> analyzableFileList = new ArrayList<>();
+
+        // 2. hint 와 file 숫자 같은지 체크
+        // 3. file 검증
+        // 4. file S3에 저장
+        if (chatFileList != null && !chatFileList.isEmpty() && deceasedHintList != null && !deceasedHintList.isEmpty()) {
+            if (chatFileList.size() != deceasedHintList.size()) {
+                throw new IllegalArgumentException("파일 수와 힌트 수가 일치하지 않습니다.");
+            }
+
             // file 검증
-            fileValidationService.validateFiles(chatFile);
-            for (MultipartFile file : chatFile) {
-                if (file != null && !file.isEmpty()) { // 이중 체크
+            fileValidationService.validateFiles(chatFileList);
+            for (int i = 0; i < chatFileList.size(); i++) {
+                if (chatFileList.get(i) != null && !chatFileList.get(i).isEmpty()) { // 이중 체크
+                    MultipartFile file = chatFileList.get(i);
+                    DeceasedHintDTO hint = deceasedHintList.get(i);
+
+                    System.out.println("file :" + file.getOriginalFilename());
+
                     String url = s3Service.uploadFile(file);
-                    uploadedUrls.add(url);
-                    // 4. 이미지 파일만 preSignedUrl 로 관리
+                    String presignedUrl = null;
+
+                    // 5. 이미지 파일만 preSignedUrl 로 관리
                     if (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")) {
                         String key = s3Service.extractKeyFromUrl(url);
-                        String presignedUrl = s3Service.generatePresignedUrl(key);
-                        presignedUrls.add(presignedUrl);
+                        presignedUrl = s3Service.generatePresignedUrl(key);
                     }
+
+                    AnalyzableFileDTO analyzableFile = new AnalyzableFileDTO();
+                    analyzableFile.setFileUrl(url);
+                    analyzableFile.setPresignedUrl(presignedUrl);
+                    analyzableFile.setDeceasedHint(hint);
+
+                    System.out.println("analyzableFile :" + analyzableFile);
+
+                    analyzableFileList.add(analyzableFile);
+
+                    System.out.println("analyzableFileList :" + analyzableFileList);
+
                 }
             }
         }
+
+
 
         // Python 요청용 DTO 구성
         ServiceStartRequestDTO requestDto = new ServiceStartRequestDTO(
                 subscriptionCode,
                 deceasedDataDTO,
-                uploadedUrls,
-                presignedUrls
+                analyzableFileList
         );
 
-        // 4. python 전달
+        // 6. python 전달
         String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "sms/service/start";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -183,4 +206,8 @@ public class SmsService {
         }
 
     }
+    public String test(MultipartFile chatFile) {
+        return s3Service.uploadFile(chatFile);
+    }
 }
+

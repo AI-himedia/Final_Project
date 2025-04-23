@@ -2,13 +2,15 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from llm.chat.embedding_model import embedding_model  # 전역 임베딩 모델 로딩용 import
 from dotenv import load_dotenv
 from api import routers
 import psycopg2
 import uvicorn
 import os
-
-
+# from tts.call.fastapi_websocket_server import router as ws_router
+from tts.call.new_fastapi_ws_server import call_router as call_router
+from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
 app = FastAPI()
 
 
@@ -32,6 +34,9 @@ for router in routers:
 # 나중에 user, memory 등도 추가 가능
 # app.include_router(user.router)
 # app.include_router(memory.router)
+    # app.include_router(ws_router)
+    app.include_router(call_router)
+    app.include_router(audio_chat_router)
 
 @app.get("/")
 def root():

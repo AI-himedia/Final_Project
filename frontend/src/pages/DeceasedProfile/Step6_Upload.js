@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Deceased.module.css';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { axiosInstance } from '../../api/AxiosInstance';
-import { useSelector } from 'react-redux';
+import { useEffect, useRef } from 'react';
 
 const audioVideoExtensions = [
   'mp3',
@@ -21,31 +20,49 @@ const audioVideoExtensions = [
   'flv',
   'mkv',
 ];
-
 const imageTextExtensions = ['png', 'jpg', 'jpeg', 'txt'];
 const MAX_AUDIO_COUNT = 3;
 const MAX_TXT_SIZE_MB = 10;
 
 export default function Step6_FileUpload() {
-  const [files, setFiles] = useState([]);
+  console.log('[zustand 전체 상태6]', useDeceasedProfile.getState());
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const serviceCode = localStorage.getItem('@againhello/service-code');
 
-  const userCode = useSelector((state) => state.user.userCode);
   const {
-    subscription_Code,
-    deceased_name,
+    subscriptionCode,
+    deceasedName,
     gender,
-    deceased_age,
+    deceasedAge,
     personality,
-    deceased_nickname,
-    user_nickname,
+    deceasedNickname,
+    userNickname,
     relationship,
-    speaking_tone,
+    speakingTone,
+    files,
+    addFile,
+    removeFile,
   } = useDeceasedProfile();
 
   const allowedExtensions =
     serviceCode === '2' ? audioVideoExtensions : imageTextExtensions;
+
+  useEffect(() => {
+    const cleanupAudio = async () => {
+      try {
+        if (subscriptionCode) {
+          await axiosInstance.post(
+            `/call/audio/cleanup?subscriptionCode=${subscriptionCode}`
+          );
+        }
+      } catch (error) {
+        console.error('Audio cleanup API 요청 실패:', error);
+      }
+    };
+
+    cleanupAudio();
+  }, [subscriptionCode]);
 
   const handleFileChange = (e) => {
     const uploaded = e.target.files[0];
@@ -80,7 +97,10 @@ export default function Step6_FileUpload() {
       }
     }
 
-    setFiles((prev) => [...prev, uploaded]);
+    addFile(uploaded);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null; // input 값 초기화
+    }
   };
 
   const handleSubmit = async () => {
@@ -88,73 +108,50 @@ export default function Step6_FileUpload() {
 
     const formData = new FormData();
 
+    // sms 서비스일 경우,
     if (serviceCode === '1') {
-      const validFile = files.find((file) => {
-        const ext = file.name.split('.').pop().toLowerCase();
-        return imageTextExtensions.includes(ext);
-      });
-
-      if (!validFile) {
-        alert('png, jpg, jpeg, txt 중 하나 이상의 파일이 필요합니다.');
-        return;
-      }
-
-      formData.append('subscriptionCode', subscription_Code);
-
-      // formData에는 txt만 넣고 싶을 때
-      const chatFile = files.find((file) => file.name.endsWith('.txt'));
-      if (chatFile) {
-        formData.append('chatFile', chatFile);
-      }
-
-      const deceasedCode = localStorage.getItem('@againhello/deceased-code');
-
-      const deceasedData = {
-        deceasedName: deceased_name,
-        gender,
-        deceasedAge: deceased_age,
-        personality,
-        deceasedNickname: deceased_nickname,
-        userNickname: user_nickname,
-        relationship,
-        speakingTone: speaking_tone,
-      };
-
-      if (deceasedCode) {
-        deceasedData.deceasedCode = Number(deceasedCode);
-      }
-
-      const postBody = {
-        subscriptionCode: Number(subscription_Code),
-        deceasedData,
-      };
-
-      console.log('🟢 POST Body:', postBody);
-
-      formData.append('subscriptionCode', subscription_Code);
-      formData.append('chatFile', chatFile);
-      formData.append(
-        'deceasedData',
-        new Blob(
-          [
-            JSON.stringify({
-              deceasedName: deceased_name,
-              gender,
-              deceasedAge: deceased_age,
-              personality: Array.isArray(personality)
-                ? personality.join(', ')
-                : personality,
-              deceasedNickname: deceased_nickname,
-              userNickname: user_nickname,
-              relationship,
-              speakingTone: speaking_tone,
-            }),
-          ],
-          { type: 'application/json' }
-        )
-      );
+      navigate('/deceased/profile/step7-sms');
+      return;
     }
 
+    // if (serviceCode === '1') {
+    //   const validFile = files.find((file) => {
+    //     const ext = file.name.split('.').pop().toLowerCase();
+    //     return imageTextExtensions.includes(ext);
+    //   });
+
+    //   if (!validFile) {
+    //     alert('png, jpg, jpeg, txt 중 하나 이상의 파일이 필요합니다.');
+    //     return;
+    //   }
+
+    //   const chatFile = files.find((file) => file.name.endsWith('.txt'));
+    //   const deceasedCode = localStorage.getItem('@againhello/deceased-code');
+
+    //   formData.append('subscriptionCode', subscription_Code);
+    //   if (chatFile) formData.append('chatFile', chatFile);
+
+    //   const deceasedData = {
+    //     deceasedName: deceased_name,
+    //     gender,
+    //     deceasedAge: deceased_age,
+    //     personality: Array.isArray(personality)
+    //       ? personality.join(', ')
+    //       : personality,
+    //     deceasedNickname: deceased_nickname,
+    //     userNickname: user_nickname,
+    //     relationship,
+    //     speakingTone: speaking_tone,
+    //     ...(deceasedCode && { deceasedCode: Number(deceasedCode) }),
+    //   };
+
+    //   formData.append(
+    //     'deceasedData',
+    //     new Blob([JSON.stringify(deceasedData)], { type: 'application/json' })
+    //   );
+    // }
+
+    // call 서비스일 경우,
     if (serviceCode === '2') {
       const audioFiles = files.filter((file) =>
         ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'wav', 'm4a'].includes(
@@ -163,40 +160,41 @@ export default function Step6_FileUpload() {
       );
 
       const requestData = {
-        subscriptionCode: Number(subscription_Code),
-        // userCode,
+        subscriptionCode: Number(subscriptionCode),
         deceasedData: {
-          deceasedName: deceased_name,
+          deceasedName: deceasedName,
           gender,
-          deceasedAge: deceased_age,
+          deceasedAge: deceasedAge,
           personality: Array.isArray(personality)
             ? personality.join(', ')
             : personality,
-          deceasedNickname: deceased_nickname,
-          userNickname: user_nickname,
+          deceasedNickname: deceasedNickname,
+          userNickname: userNickname,
           relationship,
-          speakingTone: speaking_tone,
+          speakingTone: speakingTone,
         },
       };
 
-      console.log('🟢 POST Body:', requestData);
-
-      audioFiles.forEach((file) => formData.append('audioFiles', file));
+      audioFiles.forEach((file) => formData.append('audioFiles', file)); // 모든 오디오 파일 추가
       formData.append(
         'request',
-        new Blob([JSON.stringify(requestData)], {
-          type: 'application/json',
-        })
+        new Blob([JSON.stringify(requestData)], { type: 'application/json' })
       );
     }
 
     try {
       if (serviceCode === '1') {
         await axiosInstance.post('/sms/service/start', formData);
+        navigate('/deceased/profile/step7-sms');
       } else if (serviceCode === '2') {
-        await axiosInstance.post('/call/service/start-and-separate', formData);
+        const response = await axiosInstance.post(
+          '/call/service/start-and-separate',
+          formData
+        );
+        navigate('/deceased/profile/step7-call', {
+          state: { previewData: response.data.preview },
+        });
       }
-      navigate('/deceased/profile/step7');
     } catch (err) {
       alert('서버 요청 중 오류가 발생했습니다.');
     }
@@ -237,9 +235,9 @@ export default function Step6_FileUpload() {
             <input
               type="file"
               accept={allowedExtensions.map((ext) => '.' + ext).join(',')}
-              multiple
               onChange={handleFileChange}
               hidden
+              ref={fileInputRef}
             />
           </label>
 
@@ -255,15 +253,11 @@ export default function Step6_FileUpload() {
               'm4a',
             ].includes(ext);
 
-            const handleDelete = () => {
-              setFiles((prev) => prev.filter((_, i) => i !== index));
-            };
-
             return (
               <div
                 key={index}
                 className={styles.fileThumb}
-                onClick={handleDelete}
+                onClick={() => removeFile(index)}
                 style={{ cursor: 'pointer' }}
                 title="클릭하면 삭제됩니다"
               >
@@ -303,7 +297,7 @@ export default function Step6_FileUpload() {
         onClick={handleSubmit}
         disabled={files.length === 0}
       >
-        프로필 저장하기
+        {serviceCode === '1' ? '다음' : '프로필 저장하기'}
       </button>
     </div>
   );

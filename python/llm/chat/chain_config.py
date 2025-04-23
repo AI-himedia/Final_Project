@@ -31,7 +31,8 @@ MODEL_NAMES = {
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "{system_prompt}"), 
-    MessagesPlaceholder(variable_name="messages"), # Placeholder for chat history
+    MessagesPlaceholder(variable_name="retrieved"),   # 과거 유사 메시지
+    MessagesPlaceholder(variable_name="messages"),    # Redis 대화 기록
     ("human", "{input}") 
 ])
 

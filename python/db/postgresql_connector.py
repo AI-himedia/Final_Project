@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.chat_history import BaseChatMessageHistory
 from contextlib import contextmanager
+from pgvector.psycopg2 import register_vector
 import os
 import psycopg2
 
@@ -18,6 +19,7 @@ def get_db_connection():
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD")
     )
+    register_vector(conn)
     try:
         yield conn
     finally:

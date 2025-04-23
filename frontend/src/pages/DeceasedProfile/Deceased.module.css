@@ -13,7 +13,7 @@
   .title {
     font-size: 1.7rem;
     font-weight: bold;
-    margin: 1rem 0 5rem 0;
+    margin: 1rem 0 3rem 0;
   }
 
   .title .helperText {
@@ -118,6 +118,10 @@
     margin-left: 2px;
   }
 
+  .confirmButtonWrapper {
+    margin-top: auto; /* 내용이 끝난 후 버튼을 하단에 배치 */
+  }
+
   .confirmButton {
     width: 100%;
     padding: 1rem 0;
@@ -199,10 +203,26 @@
     transition: all 0.2s ease;
   }
 
-  .optionButton.selected {
-    background-color: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
+  .selected {
+    background-color: #cce5ff;
+    border: 2px dashed #2e80ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .audioLabel {
+    font-size: 1.2rem;
+    margin-left: 10px;
+    color: #090909;
+  }
+
+  .filename {
+    font-size: 0.85rem;
+    margin-left: 10px;
+    color: #555;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .toneGroup {
@@ -252,7 +272,7 @@
     grid-template-columns: repeat(auto-fill, minmax(100px, max-content));
     justify-items: start;
     gap: 12px;
-    margin-top: -3rem;
+    margin-top: 3rem;
     /* margin-right: 1.5rem; */
   }
 
@@ -262,12 +282,18 @@
     color: #ff6363;
   }
 
+  .Reference {
+    font-size: 0.75rem;
+    text-align: center;
+    color: #6eb035;
+  }
+
   .singleUploadRow {
     /* padding-left: 50px; */
   }
 
   .uploadBox {
-    width: 105px;
+    width: 110%;
     max-width: 120px;
     aspect-ratio: 1 / 1;
     border: 2px dashed #d3d3d3;
@@ -296,14 +322,14 @@
   }
 
   .fileThumb {
-    width: 100px;
+    width: 110%;
     padding: 0 6px 0 10px;
     text-align: center;
     box-sizing: border-box;
   }
 
   .thumbImage {
-    width: 120%;
+    width: 110%;
     max-width: 120px;
     height: auto;
     border-radius: 8px;
@@ -319,6 +345,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-left: 10px;
   }
 
   .uploadGuideBox {
@@ -349,5 +376,243 @@
 
   .guideItem {
     margin-bottom: 0.25rem;
+  }
+
+  /* 오디오 그룹 (파일별 화자들) */
+
+  .audioItem {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+    z-index: 1;
+  }
+
+  .audioContainer {
+    display: flex;
+  }
+
+  .playPauseButtonWrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0.85rem 0 0.25rem 0;
+  }
+
+  .playPauseButton {
+    background-color: #d2e6ff;
+    color: #0093cd;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+    z-index: 10;
+  }
+
+  .progressBar {
+    width: 80%;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    flex-grow: 1;
+    z-index: 5;
+  }
+
+  .progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #007bff;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .time {
+    font-size: 0.85rem;
+    color: #666;
+    margin-left: 10px;
+  }
+
+  .buttonWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .speakerSelection {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .speakerSelectionRow {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .checkboxContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+
+  .speakerSelectionGroup {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .speakerLabel {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+  }
+
+  .speakerLabel input {
+    margin-right: 10px;
+  }
+
+  .speakerLabel input {
+    margin-right: 10px;
+  }
+
+  /* 버튼들 좌우대칭 배치 */
+  .buttonGroup {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+  }
+
+  /* 모달 배경 스타일 */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* 모달 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  /* 모달 콘텐츠 */
+  .modalContent {
+    position: relative;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 80vw;
+    max-width: 800px;
+    height: 80vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+  }
+
+  .modalContent.select {
+    width: 90vw;
+    max-width: 480px;
+    height: auto;
+    min-height: 280px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .conversationWrapper {
+    display: none;
+  }
+
+  .modalText {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Toss Product Sans', sans-serif;
+    color: #333;
+    height: 100%;
+    overflow-y: auto;
+    max-height: 70vh;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* 이미지 모달 스타일 */
+  .modalImage {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .modalContent {
+    cursor: pointer;
+  }
+
+  .confirmButtonSplitWrapper {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+  }
+
+  .splitLeft,
+  .splitRight {
+    width: 50%;
+    border-radius: 0;
+    border-radius: 12px;
+  }
+
+  .disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  .separation {
+    text-align: center;
   }
 }

@@ -1,12 +1,19 @@
+// src/pages/SuccessPage.jsx
+
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SuccessPage.module.css';
-import { axiosInstance } from '../../api/AxiosInstance';
 import { useSelector } from 'react-redux';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 
+import { getPostSubscribe } from '../../api/ServiceApi';
+import { getDeceasedProfile } from '../../api/ServiceApi';
+import { useAuth } from '../../hooks/useAuth';
+
 const SuccessPage = () => {
+  const { isLoading } = useAuth();
   console.log('[zustand 결제 성공]', useDeceasedProfile.getState());
+
   const location = useLocation();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState({});
@@ -58,40 +65,35 @@ const SuccessPage = () => {
           amount,
         });
 
-        const subscribeParams = {
+        const subscriptionCode = await getPostSubscribe({
           userCode,
           serviceCode,
-        };
+          deceasedCode,
+        });
 
-        if (deceasedCode && deceasedCode !== 'null') {
-          subscribeParams.deceasedCode = deceasedCode;
-        }
-
-        const subscribeRes = await axiosInstance.post(
-          '/subscription/subscribe',
-          null,
-          { params: subscribeParams }
+        console.log('[SuccessPage] subscriptionCode 저장:', subscriptionCode);
+        setDeceasedProfile({ subscriptionCode });
+        console.log(
+          '[SuccessPage] Zustand 업데이트 직후 (subscriptionCode 저장 후):',
+          useDeceasedProfile.getState()
         );
 
-        const subscriptionCode = subscribeRes.data;
-        setDeceasedProfile({ subscriptionCode });
-
         if (userCode) {
-          const profileParams = {
+          const profileData = await getDeceasedProfile({
             userCode,
             serviceCode,
-          };
-
-          if (deceasedCode && deceasedCode !== 'null') {
-            profileParams.deceasedCode = deceasedCode;
-          }
-
-          const profileRes = await axiosInstance.get('/subscription/deceased', {
-            params: profileParams,
+            deceasedCode,
           });
 
-          if (profileRes.data) {
-            setDeceasedProfile(profileRes.data);
+          if (profileData) {
+            setDeceasedProfile({
+              ...profileData,
+              subscriptionCode: useDeceasedProfile.getState().subscriptionCode,
+            });
+            console.log(
+              '[SuccessPage] Zustand 업데이트 직후 (프로필 데이터 저장 후):',
+              useDeceasedProfile.getState()
+            );
           }
         }
 
@@ -104,17 +106,25 @@ const SuccessPage = () => {
     };
 
     processPayment();
-  }, [location, userCode, setDeceasedProfile]);
+  }, [location, userCode, setDeceasedProfile]); // getZustandState 제거
 
   const handleConfirm = () => {
     navigate('/deceased/profile/step1');
   };
 
+  const errorConfirm = () => {
+    navigate('/');
+  };
+
+  if (isLoading || loading) {
+    return null;
+  }
+
   if (error) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>{error}</div>
-        <button className={styles.confirmButton} onClick={handleConfirm}>
+        <button className={styles.confirmButton} onClick={errorConfirm}>
           다시 시도
         </button>
       </div>

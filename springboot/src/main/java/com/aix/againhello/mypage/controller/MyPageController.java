@@ -8,6 +8,7 @@ import com.aix.againhello.mypage.dto.MyPageInfoDTO;
 import com.aix.againhello.mypage.dto.ServiceUpdateDTO;
 import com.aix.againhello.mypage.service.MyPageService;
 import com.aix.againhello.sms.SmsService;
+import com.aix.againhello.sms.wrapper.DeceasedHintDTO;
 import com.aix.againhello.subscription.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,7 @@ public class MyPageController {
     public ResponseEntity<?> updateDeceased(
             @RequestPart("deceasedDataDto") DeceasedDataDTO deceasedDataDto,
             @RequestPart("serviceSubscriptions") List<ServiceUpdateDTO> serviceSubscriptions,
+            @RequestPart(value = "deceasedHint", required = false) List<DeceasedHintDTO> deceasedHintList,
             @RequestPart(value = "smsFiles", required = false) List<MultipartFile> smsFiles,
             @RequestPart(value = "callFiles", required = false) List<MultipartFile> callFiles
     ) {
@@ -64,7 +66,7 @@ public class MyPageController {
 
         for (ServiceUpdateDTO sub : serviceSubscriptions) {
             if (sub.getServiceCode() == 1) {
-                smsService.startService(sub.getSubscriptionCode(), deceasedDataDto, smsFiles);
+                smsService.startService(sub.getSubscriptionCode(), deceasedDataDto, deceasedHintList, smsFiles);
             } else if (sub.getServiceCode() == 2) {
                 // call 서비스 분기
                 if (callFiles != null && !callFiles.isEmpty()) {

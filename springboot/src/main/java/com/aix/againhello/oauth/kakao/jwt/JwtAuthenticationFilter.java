@@ -28,6 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String accessToken = null;
         String refreshToken = null;
+        String uri = request.getRequestURI();
+
+        if (uri.startsWith("/be/call/audio/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {

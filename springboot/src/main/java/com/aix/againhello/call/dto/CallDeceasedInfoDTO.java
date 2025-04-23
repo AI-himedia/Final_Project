@@ -14,6 +14,7 @@ public class CallDeceasedInfoDTO {
     private int deceasedCode;
     private String deceasedName;
     private String deceasedNickname;
+    private int subscriptionCode;
     private LocalDateTime latestCallTime;
 
 }
