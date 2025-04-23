@@ -26,6 +26,13 @@
 
 
 export function setupMediaSource(audioRef, onSourceBufferReady) {
+  const mime = 'audio/webm; codecs="opus"';
+  if (!MediaSource.isTypeSupported(mime)) {
+    console.error("브라우저가 audio/webm; codecs=opus 지원 안 함");
+  } else {
+    console.log("브라우저가 audio/webm; codecs=opus 지원");
+  }
+
   const mediaSource = new MediaSource();
   const url = URL.createObjectURL(mediaSource);
   audioRef.current.src = url;
@@ -36,7 +43,6 @@ export function setupMediaSource(audioRef, onSourceBufferReady) {
       return;
     }
     
-    const mime = 'audio/webm; codecs="opus"';
     const sourceBuffer = mediaSource.addSourceBuffer(mime);
     onSourceBufferReady({ current: sourceBuffer }, mediaSource);
   });

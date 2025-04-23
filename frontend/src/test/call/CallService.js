@@ -25,15 +25,26 @@ const CallService = () => {
       mediaSourceRef.current = mediaSource;
   
       const tryAppendBuffer = () => {
+        console.log("[SourceBuffer] 생성됨:", mediaSource.readyState);
+
         const queue = appendQueueRef.current;
-        if (!sourceBufferRef.current || sourceBufferRef.current.updating) return;
+        if (!sourceBufferRef.current || !mediaSourceRef.current ||
+            mediaSourceRef.current.readyState !== "open" ||
+            sourceBufferRef.current.updating) return;
+
         if (queue.length > 0) {
           const nextBuffer = queue.shift();
-          sourceBufferRef.current.appendBuffer(nextBuffer);
+          try {
+            sourceBufferRef.current.appendBuffer(nextBuffer);
+          } catch (e) {
+            console.warn("appendBuffer 실패:", e);
+          }
         }
       };
+
   
       sourceBufferRef.current.addEventListener("updateend", () => {
+        console.log("[updateend] 이벤트 발생");
         tryAppendBuffer();
   
         const queue = appendQueueRef.current;
@@ -44,20 +55,26 @@ const CallService = () => {
           console.log("sourceBuffer.updating:", sourceBufferRef.current?.updating);
   
           setTimeout(() => {
+            console.log("[React] 재생 시도 직전 readyState:", audioRef.current.readyState);
+
+            if (audioRef.current.readyState === 0) {
+              console.warn("[재생 실패] 오디오 준비 안 됨");
+              setManualPlayRequired(true);
+              return;
+            }
+          
             audioRef.current.play()
-              .then(() => {
-                console.log("오디오 재생 시작됨");
-              })
+              .then(() => console.log("오디오 재생 시작됨"))
               .catch((e) => {
                 console.warn("자동 재생 실패. 수동 재생 필요:", e);
                 setManualPlayRequired(true);
               });
           }, 50);
   
-          if (mediaSourceRef.current?.readyState === "open") {
-            mediaSourceRef.current.endOfStream();
-            console.log("MediaSource 정상 종료됨 (from updateend)");
-          }
+          // if (mediaSourceRef.current?.readyState === "open") {
+          //   mediaSourceRef.current.endOfStream();
+          //   console.log("MediaSource 정상 종료됨 (from updateend)");
+          // }
         }
       });
   
@@ -73,6 +90,10 @@ const CallService = () => {
       audioRef.current.onended = () => {
         console.log("오디오 재생 완료됨");
         setIsTTSPlaying(false);
+
+        mediaSourceRef.current = null;
+        sourceBufferRef.current = null;
+        appendQueueRef.current = [];
         
         setTimeout(() => {
           console.log("발화 재시작");
@@ -110,32 +131,53 @@ const CallService = () => {
             audioRef.current.pause();
             audioRef.current.src = "";
           }
-          mediaSourceRef.current = null;
-          sourceBufferRef.current = null;
-          appendQueueRef.current = [];
+          // mediaSourceRef.current = null;
+          // sourceBufferRef.current = null;
+          // appendQueueRef.current = [];
           
-          initMediaSource();
+          // initMediaSource();
           
         } else if(msg.type === "tts_end") {
-          console.log("TTS 수신 완료. 곧 재생");
+          console.log("TTS 수신 완료. 재생 완료될 때까지 대기");
         }
       }else if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
         // ArrayBuffer로 변환해서 appendBuffer에 추가
-        const buffer = event.data instanceof Blob
-          ? await event.data.arrayBuffer()
-          : event.data;
-
+        // const buffer = event.data instanceof Blob
+        //   ? await event.data.arrayBuffer()
+        //   : event.data;
+        const buffer = event.data instanceof Blob ? await event.data.arrayBuffer() : event.data;
         const queue = appendQueueRef.current;
         queue.push(buffer);
-
-        if (sourceBufferRef.current && !sourceBufferRef.current.updating) {
+    
+        if (
+          sourceBufferRef.current &&
+          mediaSourceRef.current &&
+          mediaSourceRef.current.readyState === "open" &&
+          !sourceBufferRef.current.updating
+        ) {
           const nextBuffer = queue.shift();
-          if (nextBuffer) sourceBufferRef.current.appendBuffer(nextBuffer);
+          if (nextBuffer) {
+            try {
+              sourceBufferRef.current.appendBuffer(nextBuffer);
+              console.log("[React] appendBuffer 실행됨, 크기:", nextBuffer.byteLength);
+            } catch (e) {
+              console.warn("appendBuffer 에러 발생:", e);
+            }
+          }
         }
       }
     };
     setIsCalling(true);
   };
+
+  //       if (sourceBufferRef.current && !sourceBufferRef.current.updating) {
+  //         const nextBuffer = queue.shift();
+  //         if (nextBuffer) sourceBufferRef.current.appendBuffer(nextBuffer);
+  //       }
+  //     }
+  //   };
+  //   setIsCalling(true);
+  // };
 
   // 통화 종료 - 마이크/AudioContext 정지, WebSocket 닫기
   const endCall = async () => {

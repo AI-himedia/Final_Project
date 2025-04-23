@@ -7,9 +7,9 @@ import base64
 
 
 
-router = APIRouter()
+audio_chat_router = APIRouter()
 
-@router.post("/ai/api/process-audio")
+@audio_chat_router.post("/ai/api/process-audio")
 async def process_audio(subscriptionCode: str = Form(...), audio: UploadFile = File(...)):
     
     try:
