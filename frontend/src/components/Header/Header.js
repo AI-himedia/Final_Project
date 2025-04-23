@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom';
 const headerMap = [
   { path: '/service/terms/product', component: HeaderVariants.HeaderProduct },
   { path: '/service/terms/check', component: HeaderVariants.HeaderCheck },
+  { path: '/sms/chat', component: HeaderVariants.HeaderService },
   { path: '/service/terms', component: HeaderVariants.HeaderTerms },
   { path: '/service', component: HeaderVariants.HeaderApply },
   { path: '/deceased/profile/step1', component: HeaderVariants.HeaderDeceased },
