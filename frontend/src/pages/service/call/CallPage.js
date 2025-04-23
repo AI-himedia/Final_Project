@@ -1,140 +1,110 @@
 import React, { useRef, useState, useEffect } from 'react';
-import AudioSender from '../../../test/call/AudioSender';
-import { setupMediaSource } from '../../../test/call/TTSStreamPlayer';
-import styles from './CallPage.module.css';
+import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
+import { AudioApi } from '../../../api/AudioApi';
 import Swal from 'sweetalert2';
-
-import { BiSolidUserVoice } from 'react-icons/bi';
 import { MdKeyboardVoice } from 'react-icons/md';
+import styles from './CallPage.module.css';
+import { useLocation } from 'react-router-dom';
 
 const CallPage = () => {
-  const { startAudioCapture, stopAudioCapture } = AudioSender();
-  const [isCalling, setIsCalling] = useState(false);
-  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
-  const [manualPlayRequired, setManualPlayRequired] = useState(false);
-
-  const socketRef = useRef(null);
+  const { startRecording, stopRecording } = useAudioRecorder();
   const audioRef = useRef(null);
-  const mediaSourceRef = useRef(null);
-  const sourceBufferRef = useRef(null);
+  const [isCalling, setIsCalling] = useState(false);
+  const [manualPlayRequired, setManualPlayRequired] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+  const location = useLocation();
 
-  const webSocketUrl = 'ws://localhost:8080/be/ws/react';
+  // location.state가 있을 경우 subscriptionCode를 추출하고, 없을 경우 undefined로 설정
+  const initialSubscriptionCode = location.state?.subscriptionCode;
+  const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
+    initialSubscriptionCode
+  );
 
   useEffect(() => {
-    if (isCalling && audioRef.current) {
-      audioRef.current.play().catch((err) => {
-        console.warn('자동 재생 실패! 수동 재생 필요:', err);
+    // location.state의 subscriptionCode가 변경될 때 상태 업데이트
+    if (location.state?.subscriptionCode !== currentSubscriptionCode) {
+      setCurrentSubscriptionCode(location.state.subscriptionCode);
+    }
+    console.log(
+      'CallPage useEffect - currentSubscriptionCode:',
+      currentSubscriptionCode
+    );
+  }, [location.state?.subscriptionCode, currentSubscriptionCode]);
 
-        Swal.fire({
-          position: 'top-end',
-          icon: 'warning',
-          title: '수동 재생이 필요합니다.',
-          toast: true,
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
+  const handleToggleCall = async () => {
+    if (isTTSPlaying) {
+      console.warn('TTS 재생 중. 마이크 정지');
+      return;
+    }
+
+    // 녹음 시작
+    if (!isCalling) {
+      console.log('[버튼] 통화 시작');
+      setIsCalling(true);
+
+      // 오디오 초기화
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.src = '';
+      }
+
+      try {
+        await startRecording();
+        console.log('[Recorder] 사용자 발화 시작됨');
+      } catch (e) {
+        console.error('녹음 시작 실패:', e);
+        setIsCalling(false);
+      }
+    } else {
+      // 녹음 종료 + 서버 전송
+      console.log('[버튼] 통화 종료');
+      setIsCalling(false);
+
+      const audioBlob = await stopRecording();
+
+      if (!audioBlob || !(audioBlob instanceof Blob)) {
+        console.error('녹음된 오디오가 유효하지 않음. 전송 중단.');
+        return;
+      }
+
+      try {
+        // AudioApi 함수 호출 시 currentSubscriptionCode 사용
+        const data = await AudioApi(audioBlob, currentSubscriptionCode);
+        setReplyText(data.text);
+
+        const audioBase64 = data.audio;
+        const binary = atob(audioBase64);
+        const bytes = new Uint8Array([...binary].map((c) => c.charCodeAt(0)));
+        const blob = new Blob([bytes], { type: 'audio/mpeg' });
+        const url = URL.createObjectURL(blob);
+
+        audioRef.current.src = url;
+        setIsTTSPlaying(true);
+
+        await audioRef.current.play().catch(() => {
+          setManualPlayRequired(true);
         });
 
-        setManualPlayRequired(true);
-      });
-    }
-  }, [isCalling]);
-
-  const startCall = async () => {
-    socketRef.current = new WebSocket(webSocketUrl);
-    socketRef.current.binaryType = 'arraybuffer';
-
-    // TTS 실행 -> 사용자 Audio 다시 받기
-    mediaSourceRef.current = setupMediaSource(
-      audioRef,
-      (sourceBufferRefFromSetup) => {
-        sourceBufferRef.current = sourceBufferRefFromSetup.current;
-        startAudioCapture(socketRef, false);
-      }
-    );
-
-    // WebSocket 수신 처리
-    socketRef.current.onmessage = async (event) => {
-      if (typeof event.data === 'string') {
-        const msg = JSON.parse(event.data);
-
-        if (msg.type === 'tts_start' || msg.type === 'stt_end') {
-          console.log('TTS 시작 - 마이크 중단');
-          await stopAudioCapture();
-          setIsTTSPlaying(true);
-        } else if (msg.type === 'tts_end') {
-          console.log('TTS 종료 - 마이크 재시작 예정');
+        audioRef.current.onended = () => {
+          audioRef.current.src = '';
           setIsTTSPlaying(false);
-          //  MediaSource 끝내기
-          if (
-            mediaSourceRef.current &&
-            mediaSourceRef.current.readyState === 'open'
-          ) {
-            mediaSourceRef.current.endOfStream();
-          }
-          // 800ms 후 다시 마이크 캡처 시작
-          setTimeout(() => startAudioCapture(socketRef, false), 800);
-        }
+        };
+      } catch (err) {
+        console.error('오디오 전송 실패:', err);
+        setIsTTSPlaying(false);
       }
-      // 바이너리 데이터 처리 (WebM chunk 수신)
-      else if (
-        event.data instanceof Blob ||
-        event.data instanceof ArrayBuffer
-      ) {
-        // ArrayBuffer로 변환해서 appendBuffer에 추가
-        const buffer =
-          event.data instanceof Blob
-            ? await event.data.arrayBuffer()
-            : event.data;
-
-        if (sourceBufferRef.current && !sourceBufferRef.current.updating) {
-          try {
-            sourceBufferRef.current.appendBuffer(buffer);
-            console.log('appendBuffer 완료 (chunk 크기):', buffer.byteLength);
-          } catch (e) {
-            console.error('appendBuffer 오류:', e);
-          }
-        }
-      }
-    };
-
-    setIsCalling(true);
-  };
-
-  // 통화 종료 - 마이크/AudioContext 정지, WebSocket 닫기
-  const endCall = async () => {
-    await stopAudioCapture();
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.close();
-    }
-    setIsCalling(false);
-  };
-
-  const handleToggleCall = () => {
-    if (!isCalling) {
-      startCall();
-    } else {
-      endCall();
     }
   };
 
-  // 수동 재생 버튼
+  // TTS 수동 재생
   const handleManualPlay = async () => {
     try {
       await audioRef.current?.play();
       setManualPlayRequired(false);
-      console.log('수동 재생 성공');
     } catch (err) {
       console.error('수동 재생도 실패:', err);
-    }
-  };
-
-  // 수동 재생 기능을 BiSolidUserVoice 아이콘에 옮기기
-  const handleUserVoiceClick = () => {
-    if (manualPlayRequired) {
-      handleManualPlay();
-    } else {
-      handleToggleCall();
     }
   };
 
@@ -149,19 +119,20 @@ const CallPage = () => {
         />
       </div>
       <div className={styles.bottomControls}>
-        <div className={styles.bottomLeft} onClick={handleToggleCall}>
+        <div
+          className={styles.bottomLeft}
+          onClick={handleToggleCall}
+          disabled={isTTSPlaying}
+        >
           <MdKeyboardVoice size={28} color="#555" />
         </div>
         <div className={styles.bottomRight}>
           {manualPlayRequired && (
-            <BiSolidUserVoice
-              size={24}
-              color="#FF6347"
-              onClick={handleUserVoiceClick}
-            />
+            <button onClick={handleManualPlay}>수동 재생</button>
           )}
         </div>
       </div>
+      {replyText && <p className={styles.replyText}>응답: {replyText}</p>}
       <audio ref={audioRef} autoPlay />
     </div>
   );
