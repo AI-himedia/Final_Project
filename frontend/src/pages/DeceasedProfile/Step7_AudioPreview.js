@@ -16,7 +16,7 @@ export default function Step7_Call() {
   const [playingStatus, setPlayingStatus] = useState({});
   const [progress, setProgress] = useState({});
   const [selectedSpeakers, setSelectedSpeakers] = useState([]);
-  const audioRefs = useRef({}); // 객체로 관리
+  const audioRefs = useRef({});
   const [durations, setDurations] = useState({});
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function Step7_Call() {
   const handlePlayPause = (originalFilename, speakerId, idx, e) => {
     e.stopPropagation();
     const audioKey = `${originalFilename}-${speakerId}`;
-    const audioElement = audioRefs.current[audioKey]; // 고유한 key로 오디오 참조
+    const audioElement = audioRefs.current[audioKey];
 
     console.log(`handlePlayPause 호출: ${audioKey}`, audioElement);
 
@@ -90,7 +90,7 @@ export default function Step7_Call() {
   // 오디오 진행 상태 업데이트
   const handleTimeUpdate = (originalFilename, speakerId, idx) => {
     const audioKey = `${originalFilename}-${speakerId}`;
-    const audio = audioRefs.current[audioKey]; // 고유한 key로 오디오 참조
+    const audio = audioRefs.current[audioKey];
     const duration = durations[audioKey];
 
     console.log(`handleTimeUpdate 호출: ${audioKey}`, audio, duration);
@@ -183,7 +183,7 @@ export default function Step7_Call() {
         requestData
       );
       console.log('대화 만들기 성공:', response.data);
-      // navigate('/deceased/chat/setup');
+      navigate('/');
     } catch (error) {
       console.error('오류 발생:', error);
       alert('서버 요청 중 오류가 발생했습니다.');
@@ -331,7 +331,7 @@ export default function Step7_Call() {
           onClick={handleCreateConversation}
           disabled={selectedSpeakers.length === 0}
         >
-          대화 만들기 시작
+          프로필 저장하기
         </button>
       </div>
     </div>
