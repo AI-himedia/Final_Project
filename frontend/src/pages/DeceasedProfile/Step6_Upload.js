@@ -31,15 +31,15 @@ export default function Step6_FileUpload() {
   const serviceCode = localStorage.getItem('@againhello/service-code');
 
   const {
-    subscription_Code,
-    deceased_name,
+    subscriptionCode,
+    deceasedName,
     gender,
-    deceased_age,
+    deceasedAge,
     personality,
-    deceased_nickname,
-    user_nickname,
+    deceasedNickname,
+    userNickname,
     relationship,
-    speaking_tone,
+    speakingTone,
     files,
     addFile,
     removeFile,
@@ -51,9 +51,9 @@ export default function Step6_FileUpload() {
   useEffect(() => {
     const cleanupAudio = async () => {
       try {
-        if (subscription_Code) {
+        if (subscriptionCode) {
           await axiosInstance.post(
-            `/call/audio/cleanup?subscriptionCode=${subscription_Code}`
+            `/call/audio/cleanup?subscriptionCode=${subscriptionCode}`
           );
         }
       } catch (error) {
@@ -62,7 +62,7 @@ export default function Step6_FileUpload() {
     };
 
     cleanupAudio();
-  }, [subscription_Code]);
+  }, [subscriptionCode]);
 
   const handleFileChange = (e) => {
     const uploaded = e.target.files[0];
@@ -160,18 +160,18 @@ export default function Step6_FileUpload() {
       );
 
       const requestData = {
-        subscriptionCode: Number(subscription_Code),
+        subscriptionCode: Number(subscriptionCode),
         deceasedData: {
-          deceasedName: deceased_name,
+          deceasedName: deceasedName,
           gender,
-          deceasedAge: deceased_age,
+          deceasedAge: deceasedAge,
           personality: Array.isArray(personality)
             ? personality.join(', ')
             : personality,
-          deceasedNickname: deceased_nickname,
-          userNickname: user_nickname,
+          deceasedNickname: deceasedNickname,
+          userNickname: userNickname,
           relationship,
-          speakingTone: speaking_tone,
+          speakingTone: speakingTone,
         },
       };
 

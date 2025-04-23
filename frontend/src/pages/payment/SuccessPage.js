@@ -24,6 +24,7 @@ const SuccessPage = () => {
   const setDeceasedProfile = useDeceasedProfile(
     (state) => state.setDeceasedProfile
   );
+  const getZustandState = useDeceasedProfile();
 
   useEffect(() => {
     const processPayment = async () => {
@@ -71,7 +72,9 @@ const SuccessPage = () => {
           deceasedCode,
         });
 
+        console.log('[SuccessPage] subscriptionCode 저장:', subscriptionCode);
         setDeceasedProfile({ subscriptionCode });
+        console.log('[SuccessPage] Zustand 업데이트 직후:', getZustandState);
 
         if (userCode) {
           const profileData = await getDeceasedProfile({
@@ -94,7 +97,7 @@ const SuccessPage = () => {
     };
 
     processPayment();
-  }, [location, userCode, setDeceasedProfile]);
+  }, [location, userCode, setDeceasedProfile, getZustandState]);
 
   const handleConfirm = () => {
     navigate('/deceased/profile/step1');

@@ -10,15 +10,15 @@ export default function Step7_SMS() {
   const {
     files,
     setFileMeta,
-    subscription_Code,
-    deceased_name,
+    subscriptionCode,
+    deceasedName,
     gender,
-    deceased_age,
+    deceasedAge,
     personality,
-    deceased_nickname,
-    user_nickname,
+    deceasedNickname,
+    userNickname,
     relationship,
-    speaking_tone,
+    speakingTone,
   } = useDeceasedProfile();
 
   const [deceasedCodeFromStorage, setDeceasedCodeFromStorage] = useState(null);
@@ -104,17 +104,17 @@ export default function Step7_SMS() {
 
         // deceasedData 객체 생성
         const deceasedData = {
-          deceasedName: deceased_name,
+          deceasedName: deceasedName,
           gender: gender,
-          deceasedAge: parseInt(deceased_age, 10),
+          deceasedAge: parseInt(deceasedAge, 10),
           personality:
             typeof personality === 'object'
               ? JSON.stringify(personality)
               : personality,
-          deceasedNickname: deceased_nickname,
-          userNickname: user_nickname,
+          deceasedNickname: deceasedNickname,
+          userNickname: userNickname,
           relationship: relationship,
-          speakingTone: speaking_tone,
+          speakingTone: speakingTone,
         };
 
         console.log('!!!!!!!!!!!!!!!!!!!!!', personality);
@@ -170,14 +170,17 @@ export default function Step7_SMS() {
         formData.append('deceasedHint', deceasedHintBlob, 'deceasedHint.json');
 
         // subscriptionCode를 FormData에 추가
-        formData.append('subscriptionCode', subscription_Code);
+        formData.append('subscriptionCode', subscriptionCode);
 
         // 파일 확인 및 로그 찍기
         files.forEach((fileWrapper, index) => {
           const file = fileWrapper.file;
           if (file) {
-            console.log(`File ${index} type:`, typeof file);
-            console.log(`File ${index} name:`, file.name);
+            formData.append('chatFile', file, file.name);
+            console.log(
+              `File ${index} added to FormData with key 'chatFile' and name:`,
+              file.name
+            );
           }
         });
 

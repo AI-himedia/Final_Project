@@ -6,7 +6,7 @@ import styles from './Deceased.module.css';
 export default function Step5_SpeakingTone() {
   const navigate = useNavigate();
 
-  const speakingTone = useDeceasedProfile((state) => state.speaking_tone);
+  const speakingTone = useDeceasedProfile((state) => state.speakingTone);
   const setSpeakingTone = useDeceasedProfile((state) => state.setSpeakingTone);
 
   const [selectedTone, setSelectedTone] = useState(null);
