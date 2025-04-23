@@ -149,6 +149,8 @@ public class SmsService {
                     MultipartFile file = chatFileList.get(i);
                     DeceasedHintDTO hint = deceasedHintList.get(i);
 
+                    System.out.println("file :" + file.getOriginalFilename());
+
                     String url = s3Service.uploadFile(file);
                     String presignedUrl = null;
 
@@ -163,7 +165,11 @@ public class SmsService {
                     analyzableFile.setPresignedUrl(presignedUrl);
                     analyzableFile.setDeceasedHint(hint);
 
+                    System.out.println("analyzableFile :" + analyzableFile);
+
                     analyzableFileList.add(analyzableFile);
+
+                    System.out.println("analyzableFileList :" + analyzableFileList);
 
                 }
             }
