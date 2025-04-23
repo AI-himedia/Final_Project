@@ -21,9 +21,9 @@ from pathlib import Path
 from typing import Any, Dict, Tuple
 from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Model
 
-from sparktts.utils.file import load_config
-from sparktts.utils.audio import load_audio
-from sparktts.models.bicodec import BiCodec
+from tts.cli.sparktts.utils.file import load_config
+from tts.cli.sparktts.utils.audio import load_audio
+from tts.cli.sparktts.models.bicodec import BiCodec
 
 
 class BiCodecTokenizer:
