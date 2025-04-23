@@ -11,7 +11,7 @@ export default function Step7_Call() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const previewData = state?.previewData;
-  const { subscription_Code } = useDeceasedProfile((state) => state);
+  const { subscriptionCode } = useDeceasedProfile();
 
   const [playingStatus, setPlayingStatus] = useState({});
   const [progress, setProgress] = useState({});
@@ -171,7 +171,7 @@ export default function Step7_Call() {
     }
 
     const requestData = {
-      subscriptionCode: Number(subscription_Code),
+      subscriptionCode: Number(subscriptionCode),
       selections: selectedSpeakers,
     };
 
@@ -306,7 +306,7 @@ export default function Step7_Call() {
                 }}
                 src={`${API_SERVER_HOST}/be/call/audio-direct?path=${encodeURIComponent(
                   speaker.filePath
-                )}&subscriptionCode=${subscription_Code}`}
+                )}&subscriptionCode=${subscriptionCode}`}
                 onLoadedData={() => handleAudioSuccess(speaker.filePath)}
                 onTimeUpdate={() =>
                   handleTimeUpdate(originalFilename, speaker.speakerId, idx)

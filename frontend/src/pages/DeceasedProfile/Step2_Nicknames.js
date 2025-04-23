@@ -9,8 +9,8 @@ export default function Step2_Nicknames() {
 
   // zustand 상태 & setter
   const {
-    deceased_nickname,
-    user_nickname,
+    deceasedNickname,
+    userNickname,
     setDeceasedNickname,
     setUserNickname,
   } = useDeceasedProfile();
@@ -18,9 +18,9 @@ export default function Step2_Nicknames() {
   const [focusedField, setFocusedField] = useState(null);
 
   const handleSubmit = () => {
-    if (deceased_nickname.trim() && user_nickname.trim()) {
-      setDeceasedNickname(deceased_nickname.trim());
-      setUserNickname(user_nickname.trim());
+    if (deceasedNickname.trim() && userNickname.trim()) {
+      setDeceasedNickname(deceasedNickname.trim());
+      setUserNickname(userNickname.trim());
       navigate('/deceased/profile/step3');
     }
   };
@@ -39,23 +39,23 @@ export default function Step2_Nicknames() {
 
         {/* 고인에게 부르는 호칭 */}
         <div className={styles.inputGroup}>
-          {(focusedField === 'deceased' || deceased_nickname) && (
+          {(focusedField === 'deceased' || deceasedNickname) && (
             <label className={styles.floatingLabel}>고인을 부르는 호칭</label>
           )}
           <input
             type="text"
-            value={deceased_nickname}
+            value={deceasedNickname}
             onFocus={() => setFocusedField('deceased')}
             onBlur={() => setFocusedField(null)}
             onChange={(e) => setDeceasedNickname(e.target.value)}
             className={styles.input}
             placeholder={
-              focusedField !== 'deceased' && !deceased_nickname
+              focusedField !== 'deceased' && !deceasedNickname
                 ? '고인을 부르는 호칭'
                 : ''
             }
           />
-          {deceased_nickname && (
+          {deceasedNickname && (
             <button
               className={styles.clearButton}
               onClick={() => setDeceasedNickname('')}
@@ -67,25 +67,25 @@ export default function Step2_Nicknames() {
 
         {/* 고인이 나를 부르던 호칭 */}
         <div className={styles.inputGroup}>
-          {(focusedField === 'user' || user_nickname) && (
+          {(focusedField === 'user' || userNickname) && (
             <label className={styles.floatingLabel}>
               고인이 나를 부르던 호칭
             </label>
           )}
           <input
             type="text"
-            value={user_nickname}
+            value={userNickname}
             onFocus={() => setFocusedField('user')}
             onBlur={() => setFocusedField(null)}
             onChange={(e) => setUserNickname(e.target.value)}
             className={styles.input}
             placeholder={
-              focusedField !== 'user' && !user_nickname
+              focusedField !== 'user' && !userNickname
                 ? '고인이 나를 부르던 호칭'
                 : ''
             }
           />
-          {user_nickname && (
+          {userNickname && (
             <button
               className={styles.clearButton}
               onClick={() => setUserNickname('')}
@@ -103,7 +103,7 @@ export default function Step2_Nicknames() {
       <button
         className={styles.confirmButton}
         onClick={handleSubmit}
-        disabled={!deceased_nickname.trim() || !user_nickname.trim()}
+        disabled={!deceasedNickname.trim() || !userNickname.trim()}
       >
         다음
       </button>
