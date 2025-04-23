@@ -21,9 +21,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(new AudioWebSocketHandler(), "be/ws/react")
                 .addInterceptors(jwtCookieInterceptor)
                 .setAllowedOrigins("*");
-
-//        registry.addHandler(new TtsWebSocketHandler, "be/ws/python")
-//                .setAllowedOrigins("*");
     }
 
 }

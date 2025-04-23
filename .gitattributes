@@ -1,4 +1,16 @@
 /gradlew text eol=lf
-*.bat text eol=crlf
 *.jar binary
+python/pretrained_models/** text eol=lf
+
+
+# 모든 텍스트 파일을 LF로 통일
+* text eol=lf
+
+# Windows용 배치 파일은 CRLF로 유지
+*.bat text eol=crlf
+
+# .jar 파일은 바이너리로 처리 (줄바꿈 변환 방지)
+*.jar binary
+
+# pretrained_models 하위 Python 파일은 LF 고정
 python/pretrained_models/** text eol=lf

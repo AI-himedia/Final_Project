@@ -3,11 +3,13 @@ package com.aix.againhello.call.controller;
 import com.aix.againhello.call.dto.*;
 import com.aix.againhello.call.service.AudioProcessingService;
 import com.aix.againhello.call.service.CallService;
+import com.aix.againhello.call.service.PythonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +19,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
+import java.util.Collections;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +42,9 @@ public class CallController {
     @Autowired
     private AudioProcessingService audioProcessingService;
 
+    @Autowired
+    private PythonService pythonService;
+
     @Value("${file.call}")
     private String baseDirectory;
 
@@ -43,6 +53,7 @@ public class CallController {
 
     @Value("${file.output.dir}")
     private String outputDir;
+
 
     /**
      * 전화 서비스 신청 및 화자 분리
@@ -103,14 +114,46 @@ public class CallController {
             // 파일이 존재하면 스트리밍
             Resource resource = new InputStreamResource(new FileInputStream(file));
 
+            // 파일 확장자 확인
+            String fileName = file.getName();
+            String fileExtension = getFileExtension(fileName);
+            String contentType = getContentType(fileExtension);
+
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("audio/wav"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename*=UTF-8''" + URLEncoder.encode(fileName, StandardCharsets.UTF_8))
                     .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()))
                     .body(resource);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();  // 예외 처리
+        }
+    }
+
+    // 파일 확장자 추출
+    private String getFileExtension(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex == -1) {
+            return "";
+        }
+        return filename.substring(dotIndex + 1).toLowerCase();
+    }
+
+    // MIME 타입을 파일 확장자에 맞춰 반환
+    private String getContentType(String extension) {
+        switch (extension) {
+            case "wav":
+                return "audio/wav";
+            case "mp3":
+                return "audio/mpeg";
+            case "ogg":
+                return "audio/ogg";
+            case "flac":
+                return "audio/flac";
+            case "aac":
+                return "audio/aac";
+            default:
+                return "application/octet-stream";  // 알 수 없는 형식은 기본 바이너리 파일로 처리
         }
     }
 
@@ -169,6 +212,26 @@ public class CallController {
         List<CallDeceasedInfoDTO> deceasedList = callService.getCallServiceDeceasedListByUser(userCode);
         return ResponseEntity.ok(deceasedList);
 
+    }
+
+
+    /**
+     * 오디오 메신저 - client 에서 받은 사용자 발화 python 으로 전달
+     * */
+    @PostMapping("/audio")
+    public ResponseEntity<?> handleAudio(
+            @RequestParam("subscriptionCode") String subscriptionCode,
+            @RequestParam("audio") MultipartFile audio
+    ) {
+        try {
+            System.out.println("오디오 메신저 에서 받은 subscriptionCode: " + subscriptionCode);
+            PythonResponseDTO response = pythonService.sendToPython(subscriptionCode, audio);
+            return ResponseEntity.ok().body(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
     }
 
 }

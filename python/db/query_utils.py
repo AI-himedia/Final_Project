@@ -68,6 +68,7 @@ def get_similar_messages_with_embedding(
             cur.execute(query, (embedding, deceased_code, embedding, similarity_threshold, embedding, top_k))
             return cur.fetchall()
 
+
 def get_vector():
     with get_db_connection() as conn:
         with conn.cursor() as cur:
