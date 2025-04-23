@@ -9,8 +9,8 @@ import psycopg2
 import uvicorn
 import os
 # from tts.call.fastapi_websocket_server import router as ws_router
-# from tts.call.new_fastapi_ws_server import router as new_ws_router
-from tts.audio_chat.audio_chat import router as audio_chat_router
+from tts.call.new_fastapi_ws_server import call_router as call_router
+from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
 app = FastAPI()
 
 
@@ -35,7 +35,7 @@ for router in routers:
 # app.include_router(user.router)
 # app.include_router(memory.router)
     # app.include_router(ws_router)
-    # app.include_router(new_ws_router)
+    app.include_router(call_router)
     app.include_router(audio_chat_router)
 
 @app.get("/")

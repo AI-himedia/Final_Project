@@ -11,35 +11,37 @@ import subprocess
 
 
 
-from db.postgresql_connector import get_db_connection
-from db.query_utils import get_latest_embedding
+# from db.postgresql_connector import get_db_connection
+# from db.query_utils import get_latest_embedding
 
 
 
 
 
-def embedding_select(subscription_code):
-    try:
-        with get_db_connection() as conn:
-            embedding_data = get_latest_embedding(conn, subscription_code)
-        if embedding_data is None:
-            return {
-                "status": "error",
-                "message": "해당 구독 코드에 대한 임베딩 정보가 없습니다."
-            }
-        # 임베딩 데이터를 캐싱하는 함수 호출
-        cache_embedding_data(subscription_code ,embedding_data)
+# def embedding_select(subscription_code):
+#     try:
+#         with get_db_connection() as conn:
+#             embedding_data = get_latest_embedding(conn, subscription_code)
+#         if embedding_data is None:
+#             return {
+#                 "status": "error",
+#                 "message": "해당 구독 코드에 대한 임베딩 정보가 없습니다."
+#             }
+#         # 임베딩 데이터를 캐싱하는 함수 호출
+#         cache_embedding_data(subscription_code ,embedding_data)
 
-        return {
-            "status": "success",
-            "message": "임베딩 로딩 및 캐싱 완료"
-        }
+#         return {
+#             "status": "success",
+#             "message": "임베딩 로딩 및 캐싱 완료"
+#         }
 
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"조회 중 오류 발생: {str(e)}"
-        }
+#     except Exception as e:
+#         return {
+#             "status": "error",
+#             "message": f"조회 중 오류 발생: {str(e)}"
+#         }
+    
+
     
 
 
@@ -90,7 +92,7 @@ def ensure_model_ready():
 
 def run_tts(text: str, subscription_code: int) -> bytes:
     ensure_model_ready()
-    embedding_select(subscription_code)
+    # embedding_select(subscription_code)
     embedding = get_embedding(subscription_code)
 
     if embedding is None:

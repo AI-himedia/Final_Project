@@ -35,6 +35,7 @@ import TTSAudioPlayer from '../test/TTSAudioPlayer';
 import Step7_AudioPreview from '../pages/DeceasedProfile/Step7_AudioPreview';
 import Step7_SMS from '../pages/DeceasedProfile/Step7_SmsPreview';
 import AudioChatService from '../test/audioChat/AudioChatService';
+import CallService from '../test/call/CallService';
 
 export const AppRoutes = () => (
   <Routes>
@@ -77,6 +78,7 @@ export const AppRoutes = () => (
 
     {/* 테스트용 라우트 */}
     <Route path="/audiochat" element={<AudioChatService />} />
+    <Route path="/calltest" element={<CallService />} />
 
     {/* 실패 시 리디렉션 */}
     <Route
