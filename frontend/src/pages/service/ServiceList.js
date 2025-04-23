@@ -42,10 +42,12 @@ export default function ServiceList() {
         if (serviceType === 'call') {
           apiUrl = `/call/user/${userCode}/deceased-list`;
           const response = await axiosInstance.get(apiUrl);
+          console.log(response);
           setDeceasedList(response.data);
         } else if (serviceType === 'sms') {
           apiUrl = `/sms/init-check/${userCode}`;
           const response = await axiosInstance.get(apiUrl);
+          console.log(response);
           setDeceasedList(response.data.subscriptionSummaryDTOList || []);
         } else {
           setDeceasedList([]);
@@ -95,7 +97,11 @@ export default function ServiceList() {
                         state: { subscriptionCode, deceasedName },
                       });
                     } else if (serviceType === 'call') {
-                      navigate('/call');
+                      console.log(
+                        'Navigating to /call with subscriptionCode:',
+                        subscriptionCode
+                      );
+                      navigate('/call', { state: { subscriptionCode } });
                     }
                   }
                 }}
