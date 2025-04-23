@@ -15,14 +15,22 @@ const CallPage = () => {
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const location = useLocation();
 
-  const { subscriptionCode } = location.state || {};
+  // location.state가 있을 경우 subscriptionCode를 추출하고, 없을 경우 undefined로 설정
+  const initialSubscriptionCode = location.state?.subscriptionCode;
+  const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
+    initialSubscriptionCode
+  );
 
   useEffect(() => {
-    // subscriptionCode가 변경될 때 (예: props로 받는 경우) 상태 업데이트
-    if (location.state?.subscriptionCode) {
-      subscriptionCode(location.state.subscriptionCode);
+    // location.state의 subscriptionCode가 변경될 때 상태 업데이트
+    if (location.state?.subscriptionCode !== currentSubscriptionCode) {
+      setCurrentSubscriptionCode(location.state.subscriptionCode);
     }
-  }, [location.state?.subscriptionCode]);
+    console.log(
+      'CallPage useEffect - currentSubscriptionCode:',
+      currentSubscriptionCode
+    );
+  }, [location.state?.subscriptionCode, currentSubscriptionCode]);
 
   const handleToggleCall = async () => {
     if (isTTSPlaying) {
@@ -63,7 +71,7 @@ const CallPage = () => {
 
       try {
         // AudioApi 함수 호출 시 currentSubscriptionCode 사용
-        const data = await AudioApi(audioBlob, subscriptionCode);
+        const data = await AudioApi(audioBlob, currentSubscriptionCode);
         setReplyText(data.text);
 
         const audioBase64 = data.audio;
