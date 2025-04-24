@@ -90,14 +90,13 @@ const CallService = () => {
         console.log("오디오 재생 완료됨");
         setIsTTSPlaying(false);
         
-        setTimeout(() => {
-          console.log("발화 재시작");
-          startAudioCapture(socketRef, false);
-        }, 500);
+        // setTimeout(() => {
+        //   console.log("발화 재시작");
+        //   startAudioCapture(socketRef, false);
+        // }, 500);
       };
     }
   }, [audioRef.current]);
-
 
 
   const startCall = async () => {
@@ -117,7 +116,7 @@ const CallService = () => {
       if (typeof event.data === "string") {
         const msg = JSON.parse(event.data);
         
-        if (msg.type === "stt_start") {
+        if (msg.type === "stt_end") {
           console.log("마이크 중단");
           
           await stopAudioCapture();
@@ -132,7 +131,11 @@ const CallService = () => {
           initMediaSource();
           
         } else if(msg.type === "tts_end") {
-          console.log("TTS 수신 완료. 재생 완료될 때까지 대기");
+          console.log("TTS 수신 완료. 마이크 오픈");
+          setTimeout(() => {
+            console.log("발화 재시작");
+            startAudioCapture(socketRef, false);
+          }, 500);
         }
       }else if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
 

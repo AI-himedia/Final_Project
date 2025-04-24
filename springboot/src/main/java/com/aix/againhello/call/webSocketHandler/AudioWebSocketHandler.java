@@ -109,7 +109,7 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
             }
 
             if ("stt_start".equals(signal)) {
-                session.sendMessage(new TextMessage("{\"type\": \"stt_start\"}"));
+                session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
                 System.out.println("React로 STT 종료 알림 전송");
             }
 

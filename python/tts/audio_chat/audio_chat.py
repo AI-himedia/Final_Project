@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from tts.audio_chat.google_stt_chat_version import run_stt
 from api.response_generator import ChatRequest, generate_response
-from tts.audio_chat.tts_audio_message import run_tts
+from tts.audio_chat.audio_message_tts import run_tts
 import base64
 
 

@@ -11,8 +11,7 @@ from api import routers
 import uvicorn
 from tts.call.new_fastapi_ws_server import call_router as call_router
 from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
-from tts.tts_test import ensure_model_loaded
-
+from model.tts_model_loader import ensure_model_loaded
 
 # Windows에서는 asyncio 서브프로세스 지원을 위해 꼭 필요함
 if sys.platform == "win32":

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from db.postgresql_connector import get_db_connection
 from db.query_utils import get_latest_embedding
-from tts.audio_chat.tts_audio_message import cache_embedding_data
+from tts.audio_chat.audio_message_tts import cache_embedding_data
 
 embedding_router = APIRouter()
 
