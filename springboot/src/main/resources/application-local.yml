@@ -14,8 +14,8 @@ server:
 
 file:
   sms:
-  call: \Users\201-06\Final_Project\springboot\output
-
+#  call: \Users\201-06\Final_Project\springboot\output
+  call: /Users/dijeung/Desktop/Final_Project/springboot/output
 
 app:
   props:

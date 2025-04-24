@@ -1,10 +1,8 @@
-# .github/workflows/springboot.yml
-
 name: Spring Boot Docker Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [cjh]
     paths:
       - "springboot/**"
       - ".github/workflows/springboot.yml"
@@ -19,6 +17,14 @@ jobs:
 
       - name: Gradle Wrapper 권한 수정
         run: chmod +x ./springboot/gradlew
+
+      - name: Gradle 의존성 캐시 설정
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('springboot/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Gradle 빌드
         run: |
@@ -43,14 +49,13 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            printf "%s" "${{ secrets.SPRINGBOOT_ENV }}" | base64 -d > /home/ubuntu/springboot.env
-
+            # Docker에서 환경 변수를 직접 설정
             docker stop springboot || true
             docker rm springboot || true
 
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
             docker run -d --name springboot \
-              --env-file /home/ubuntu/springboot.env \
+              -e SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }} \
               -p 8080:8080 \
               ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
