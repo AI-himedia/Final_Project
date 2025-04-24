@@ -36,8 +36,11 @@ export function setupMediaSource(audioRef, onSourceBufferReady) {
   const mediaSource = new MediaSource();
   const url = URL.createObjectURL(mediaSource);
   audioRef.current.src = url;
+  audioRef.current.load();
 
   mediaSource.addEventListener("sourceopen", () => {
+    console.log("[setupMediaSource] sourceopen 이벤트 발생");
+    
     if (mediaSource.sourceBuffers.length > 0) {
       console.warn("이미 SourceBuffer 있음 → 중복 생성 방지");
       return;

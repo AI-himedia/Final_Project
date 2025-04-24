@@ -7,7 +7,7 @@ import torch
 from tts.cli.SparkTTS import SparkTTS
 import numpy as np
 import subprocess
-
+from tts.tts_test import ensure_model_loaded
 
 
 
@@ -68,22 +68,23 @@ def get_embedding(subscription_code: int):
 # 모델 및 프롬프트 준비
 spark_model = None
 
-def ensure_environment_ready():
-    if not os.path.exists(MODEL_SAVE_DIR):
-        print("Spark-TTS 모델 다운로드 시작")
-        snapshot_download(
-            repo_id="SparkAudio/Spark-TTS-0.5B",
-            local_dir=MODEL_SAVE_DIR,
-            repo_type="model"
-        )
-        print("모델 다운로드 완료")
+# def ensure_environment_ready():
+#     if not os.path.exists(MODEL_SAVE_DIR):
+#         print("Spark-TTS 모델 다운로드 시작")
+#         snapshot_download(
+#             repo_id="SparkAudio/Spark-TTS-0.5B",
+#             local_dir=MODEL_SAVE_DIR,
+#             repo_type="model"
+#         )
+#         print("모델 다운로드 완료")
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+#     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def ensure_model_ready():
     global spark_model
-    ensure_environment_ready()
+    # ensure_environment_ready
+    ensure_model_loaded
     if spark_model is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)

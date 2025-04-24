@@ -5,14 +5,18 @@ import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from tts.call.stt_google_api import run_streaming_stt
 from api.response_generator import generate_response, ChatRequest
+import websockets.legacy.client
+print("[디버그] legacy.client 모듈 불러옴:", websockets.legacy.client)
+
 import time
 import base64
 from dotenv import load_dotenv
 import websockets
-import websockets.legacy.client
-import requests
-from tts.elevenlabs.generate_tts import generate_tts_audio
+import subprocess
+import asyncio
 import re
+import base64
+import time
 
 call_router = APIRouter()
 
@@ -145,7 +149,10 @@ async def process_llm_and_tts(websocket: WebSocket, final_result):
         reply = llm_response["message"]
         print("[new 전화서비스 LLM] 답장:", reply)
 
-        await stream_tts_audio(websocket, reply)
+        try:
+            await stream_tts_audio(websocket, reply)
+        except Exception as tts_error:
+            print("[TTS 처리 중 오류]", repr(tts_error))
     
     except Exception as e:
         print("[LLM → TTS 흐름 오류]:", e)
@@ -158,8 +165,90 @@ def split_into_sentences(text):
     return [s for s in sentences if s.strip()]
 
 
+# async def stream_tts_audio(websocket, reply):
+#     print("[전화서비스 TTS] ElevenLabs TTS 시작")
+#     t0 = time.perf_counter()
+
+#     model_id = "eleven_multilingual_v2"
+#     api_key = os.getenv("ELEVENLABS_API_KEY")
+#     voice_id = "Y0kMLRNxCTef2wtDgX1R"
+#     uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input?model_id={model_id}"
+
+#     sentences = split_into_sentences(reply)
+#     first_sentence = sentences.pop(0) if sentences else ""
+
+#     async with websockets.connect(uri) as eleven_ws:
+#         await eleven_ws.send(json.dumps({
+#             "text": first_sentence,
+#             "voice_settings": {
+#                 "stability": 0.4,
+#                 "similarity_boost": 0.85
+#             },
+#             "xi_api_key": api_key
+#         }))
+
+#         for sentence in sentences:
+#             await eleven_ws.send(json.dumps({"text": sentence}))
+#             await asyncio.sleep(0.1)
+
+#         await eleven_ws.send(json.dumps({"text": "", "isFinal": True}))
+
+#         while True:
+#             try:
+#                 message = await eleven_ws.recv()
+#                 parsed = json.loads(message)
+
+#                 if "audio" in parsed and parsed["audio"]:
+#                     try:
+#                         chunk = base64.b64decode(parsed["audio"])
+#                         await websocket.send_bytes(chunk)
+#                     except Exception as decode_error:
+#                         print(f"[TTS 디코딩 오류]: {decode_error}")
+
+#                 elif parsed.get("isFinal"):
+#                     print("[전화서비스 TTS] 최종 chunk 수신 완료")
+#                     break
+
+#             except Exception as e:
+#                 print(f"[ElevenLabs 수신 오류]: {e}")
+#                 break
+
+
+#     await websocket.send_text(json.dumps({"type": "tts_end"}))
+#     t1 = time.perf_counter()
+#     print(f"[TTS] 오디오 스트리밍 총 소요 시간: {t1 - t0:.2f}초")
+#     print("[전화서비스 TTS] 오디오 스트리밍 완료")
+
+async def start_ffmpeg_webm_stream():
+    print("[ffmpeg] 실행 준비")
+    FFMPEG_PATH = r"C:\Users\201-06\ffmpeg-7.1.1-essentials_build\bin\ffmpeg.exe"
+    try:
+        t0 = time.perf_counter()
+        process = await asyncio.wait_for(
+            asyncio.create_subprocess_exec(
+                FFMPEG_PATH,
+                "-i", "-",
+                "-f", "webm",
+                "pipe:1",
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            ),
+            timeout=3  # 3초 이상 걸리면 문제
+        )
+        t1 = time.perf_counter()
+        print(f"[ffmpeg] 프로세스 생성 완료: {t1 - t0:.2f}초")
+        return process
+    except asyncio.TimeoutError:
+        print("[ffmpeg] 프로세스 생성 타임아웃 - PIPE가 문제일 가능성 높음")
+    except Exception as e:
+        print("[ffmpeg] 프로세스 시작 실패:", repr(e))
+        raise
+
+
 async def stream_tts_audio(websocket, reply):
-    print("[전화서비스 TTS] ElevenLabs TTS 시작")
+    print("[TTS] ElevenLabs WebSocket → ffmpeg 실시간 WebM 변환 시작")
+    t0 = time.perf_counter()
 
     model_id = "eleven_multilingual_v2"
     api_key = os.getenv("ELEVENLABS_API_KEY")
@@ -169,8 +258,10 @@ async def stream_tts_audio(websocket, reply):
     sentences = split_into_sentences(reply)
     first_sentence = sentences.pop(0) if sentences else ""
 
-    async with websockets.connect(uri) as eleven_ws:
-        # 첫 문장과 함께 설정 전송
+    print("[디버그] legacy client로 connect 시도:", uri)
+    async with websockets.legacy.client.connect(uri) as eleven_ws:
+        print("[디버그] 연결 성공")
+        # 첫 문장 전송 + 설정
         await eleven_ws.send(json.dumps({
             "text": first_sentence,
             "voice_settings": {
@@ -180,37 +271,68 @@ async def stream_tts_audio(websocket, reply):
             "xi_api_key": api_key
         }))
 
-        # 나머지 문장들 스트리밍 전송
         for sentence in sentences:
             await eleven_ws.send(json.dumps({"text": sentence}))
             await asyncio.sleep(0.1)
 
         await eleven_ws.send(json.dumps({"text": "", "isFinal": True}))
 
-        while True:
-            try:
-                message = await eleven_ws.recv()
-                parsed = json.loads(message)
+        # ffmpeg 실행
+        ffmpeg = await start_ffmpeg_webm_stream()
 
-                if "audio" in parsed and parsed["audio"]:
-                    try:
-                        chunk = base64.b64decode(parsed["audio"])
-                        await websocket.send_bytes(chunk)
-                    except Exception as decode_error:
-                        print(f"[TTS 디코딩 오류]: {decode_error}")
+        # 연결 직후 첫 chunk를 보내기 위한 준비
+        first_chunk_sent = False
 
-                elif parsed.get("isFinal"):
-                    print("[전화서비스 TTS] 최종 chunk 수신 완료")
+        async def forward_audio_to_ffmpeg():
+            nonlocal first_chunk_sent
+            while True:
+                try:
+                    message = await eleven_ws.recv()
+                    parsed = json.loads(message)
+
+                    if "audio" in parsed and parsed["audio"]:
+                        try:
+                            chunk = base64.b64decode(parsed["audio"])
+
+
+                            if not first_chunk_sent:
+                                print("[ffmpeg] 첫 chunk 전송 시작:", len(chunk))
+                                first_chunk_sent = True
+
+                            ffmpeg.stdin.write(chunk)
+                            await ffmpeg.stdin.drain()
+                        except Exception as decode_err:
+                            print("[TTS 디코딩 오류]", decode_err)
+
+                    elif parsed.get("isFinal"):
+                        print("[TTS] 최종 chunk 수신 완료")
+                        try:
+                            ffmpeg.stdin.close()
+                        except:
+                            pass
+                        break
+                except Exception as e:
+                    print("[TTS WebSocket 오류]", e)
                     break
 
+        async def read_and_forward_webm():
+            try:
+                while True:
+                    webm_chunk = await ffmpeg.stdout.read(4096)
+                    print(f"[ffmpeg] 웹엠 청크 크기: {len(webm_chunk)}")
+                    if not webm_chunk:
+                        break
+                    await websocket.send_bytes(webm_chunk)
+            
             except Exception as e:
-                print(f"[ElevenLabs 수신 오류]: {e}")
-                break
+                print("[ffmpeg stdout 오류]", e)
+
+        await asyncio.gather(forward_audio_to_ffmpeg(), read_and_forward_webm())
 
     await websocket.send_text(json.dumps({"type": "tts_end"}))
-    print("[전화서비스 TTS] 오디오 스트리밍 완료")
-
-
+    t1 = time.perf_counter()
+    print(f"[TTS] 오디오 스트리밍 총 소요 시간: {t1 - t0:.2f}초")
+    print("[TTS] WebM 스트리밍 완료")
 
 if __name__ == "__main__":
     uvicorn.run(
