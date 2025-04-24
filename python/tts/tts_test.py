@@ -18,6 +18,7 @@ import uuid
 from tempfile import NamedTemporaryFile
 import aiofiles
 import aioboto3
+from model.tts_model_loader import ensure_model_loaded, get_loaded_model
 
 load_dotenv()
 
@@ -33,7 +34,7 @@ OUTPUT_DIR = os.path.join(current_dir, "results")
 
 
 # 캐시용 전역 변수
-spark_model = None
+# spark_model = None
 cached_global_token_ids = None
 
 
@@ -62,30 +63,35 @@ def download_audio_from_s3_to_memory(bucket_name: str, object_key: str) -> Bytes
     except Exception as e:
         raise Exception(f"S3 다운로드 실패: {e}")
 
-#모델 준비
-def ensure_model_loaded():
-    global spark_model
-    ensure_environment_ready()  # 모델 파일이 없다면 다운로드
+# #모델 준비
+# def ensure_model_loaded():
+#     global spark_model
+#     ensure_environment_ready()  # 모델 파일이 없다면 다운로드
 
-    if spark_model is None:
-        print("모델 메모리 로딩 시작")
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
-        print("모델 로딩 완료")
+#     if spark_model is None:
+#         print("모델 메모리 로딩 시작")
+#         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+#         print("모델 로딩 완료")
+#         return spark_model
+    
+# def get_loaded_model():
+#     global spark_model
+#     return spark_model
 
-# 모델 다운로드
-def ensure_environment_ready():
-    if not os.path.exists(MODEL_SAVE_DIR) or not os.path.exists(os.path.join(MODEL_SAVE_DIR, "config.json")):
-        print("Spark-TTS 모델 다운로드 시작")
-        snapshot_download(
-            repo_id="SparkAudio/Spark-TTS-0.5B",
-            local_dir=MODEL_SAVE_DIR,
-            repo_type="model"
-        )
-        print("모델 다운로드 완료")
-    else:
-        print(":흰색_확인_표시: 이미 모델이 존재합니다. 다운로드 생략.")
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+# # 모델 다운로드
+# def ensure_environment_ready():
+#     if not os.path.exists(MODEL_SAVE_DIR) or not os.path.exists(os.path.join(MODEL_SAVE_DIR, "config.json")):
+#         print("Spark-TTS 모델 다운로드 시작")
+#         snapshot_download(
+#             repo_id="SparkAudio/Spark-TTS-0.5B",
+#             local_dir=MODEL_SAVE_DIR,
+#             repo_type="model"
+#         )
+#         print("모델 다운로드 완료")
+#     else:
+#         print(":흰색_확인_표시: 이미 모델이 존재합니다. 다운로드 생략.")
+#     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # 오디오 변환
 def convert_prompt_audio_memory(input_buffer: BytesIO) -> BytesIO:
@@ -128,7 +134,8 @@ def Ready_S3File(s3_url: str) -> BytesIO:
 #         raise
 
 def embedding(processed_audio: BytesIO) -> list:
-    global spark_model
+    ensure_model_loaded()
+    spark_model = get_loaded_model()
     print("임베딩 생성 중...")
 
     

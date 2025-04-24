@@ -38,7 +38,7 @@
 
 
 const silenceThreshold = 0.05;            // 진폭 기준
-const silenceRequiredFrames = 16000 * 2;  // 2초 (16kHz)
+const silenceRequiredFrames = 16000 ;  // 1초 (16kHz)
 let silenceStartFrame = null;
 let frameCount = 0;
 
@@ -57,22 +57,13 @@ class PCMProcessor extends AudioWorkletProcessor {
     if (!input || input.length === 0) return true;
 
     const channelData = input[0];
+
     const avg = channelData.reduce((sum, val) => sum + Math.abs(val), 0) / channelData.length;
     const isSilent = avg < silenceThreshold;
 
     const currentFrame = frameCount;
     frameCount += channelData.length;
   
-    // if (isSilent) {
-    //   if (silenceStartFrame === null) {
-    //     silenceStartFrame = currentFrame;
-    //   } else if (currentFrame - silenceStartFrame > silenceRequiredFrames) {
-    //     this.port.postMessage({ type: "autoEnd" });
-    //     silenceStartFrame = null; // 리셋
-    //   }
-    // } else {
-    //   silenceStartFrame = null;
-    // }
     if (isSilent) {
       if (silenceStartFrame === null) {
         silenceStartFrame = currentFrame;
