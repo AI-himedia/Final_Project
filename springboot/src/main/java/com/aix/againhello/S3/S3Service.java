@@ -34,7 +34,7 @@ public class S3Service {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }
 
-        String originalFilename = multipartFile.getOriginalFilename();
+        String originalFilename = multipartFile.getOriginalFilename().toLowerCase();
         if (originalFilename == null ||
                 (!originalFilename.endsWith(".mp3") &&
                         !originalFilename.endsWith(".wav") &&

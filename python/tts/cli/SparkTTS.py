@@ -19,9 +19,9 @@ from typing import Tuple
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-from sparktts.utils.file import load_config
-from sparktts.models.audio_tokenizer import BiCodecTokenizer
-from sparktts.utils.token_parser import LEVELS_MAP, GENDER_MAP, TASK_TOKEN_MAP
+from tts.cli.sparktts.utils.file import load_config
+from tts.cli.sparktts.models.audio_tokenizer import BiCodecTokenizer
+from tts.cli.sparktts.utils.token_parser import LEVELS_MAP, GENDER_MAP, TASK_TOKEN_MAP
 
 
 class SparkTTS:
