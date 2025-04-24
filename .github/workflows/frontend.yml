@@ -48,5 +48,5 @@ jobs:
       - name: Docker 이미지 자동 삭제 (기존 이미지 삭제)
         run: |
           # 이전 Docker 이미지를 삭제
-          docker images --filter "dangling=true" -q | xargs -r docker rmi
-          docker image prune -f
+          docker images --filter "dangling=true" -q | xargs -r docker rmi || true
+          docker image prune -f || true
