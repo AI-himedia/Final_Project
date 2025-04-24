@@ -45,8 +45,8 @@ jobs:
             # Docker 컨테이너 실행 (80번 포트에서 React 앱 서빙)
             docker run -d --name frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
 
-      - name: Docker 이미지 자동 삭제 (기존 이미지 삭제)
-        run: |
-          # 이전 Docker 이미지를 삭제
-          docker images --filter "dangling=true" -q | xargs -r docker rmi || true
-          docker image prune -f || true
+      # - name: Docker 이미지 자동 삭제 (기존 이미지 삭제)
+      #   run: |
+      #     # 이전 Docker 이미지를 삭제
+      #     docker images --filter "dangling=true" -q | xargs -r docker rmi
+      #     docker image prune -f
