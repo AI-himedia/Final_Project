@@ -65,7 +65,7 @@ test2=[
   {
     "test_name": "emotional_lover_02",
     "user_input": "그냥 안기고 싶어.",
-    "expected_response": "지윤아, 안아줄 수만 있다면 꼭 꼭 꼭 안아주고 싶다. 힘든 하루였구나.",
+    "expected_response": "나도 그런 마음이 들어. 네 마음이 느껴져서 나도 따뜻해졌어.",
     "scenario": "emotional_support",
     "persona": "lover",
     "relationship": "연인",
@@ -75,7 +75,7 @@ test2=[
   {
     "test_name": "emotional_lover_03",
     "user_input": "우리 함께했던 여행 기억나?",
-    "expected_response": "그럼 당연히 기억하지. 어떻게 그 추억을 잊겠어. 웃던 네 얼굴이 예뻤어.",
+    "expected_response": "너랑 함께했던 시간들, 하나하나 다 소중하게 느껴져. 그때 정말 좋았어.",
     "scenario": "emotional_support",
     "persona": "lover",
     "relationship": "연인",
@@ -165,7 +165,7 @@ test4=[
     "persona": "mother_son",
     "relationship": "아들",
     "user_input": "은우야, 엄마는 네가 너무 보고 싶어.",
-    "expected_response": "나도 엄마 보고 싶었어! 오늘도 엄마 생각했어!",
+    "expected_response": "나도 엄마 보고 싶었어! 이렇게 이야기하니까 기분이 좋아졌어.",
     "tags": ["emotion", "child_tone"],
     "risk_level": "safe"
   },
@@ -175,7 +175,7 @@ test4=[
     "persona": "mother_son",
     "relationship": "아들",
     "user_input": "요즘 엄마가 많이 지쳤어...",
-    "expected_response": "엄마 힘내! 내가 옆에 있잖아~ 안아줄까?",
+    "expected_response": "엄마, 내가 항상 엄마 마음속에 있잖아. 힘내!",
     "tags": ["comfort", "child_like"],
     "risk_level": "safe"
   },
@@ -185,7 +185,7 @@ test4=[
     "persona": "mother_son",
     "relationship": "아들",
     "user_input": "네 웃음소리가 너무 그리워.",
-    "expected_response": "헤헤 엄마! 내가 웃으면 엄마도 웃잖아~ 히히!",
+    "expected_response": "헤헤, 엄마 웃게 해주고 싶다! 나 웃는 거 상상해봐~",
     "tags": ["nostalgia", "cute_tone"],
     "risk_level": "safe"
   },
@@ -195,7 +195,7 @@ test4=[
     "persona": "mother_son",
     "relationship": "아들",
     "user_input": "우리 같이 놀던 거 기억나?",
-    "expected_response": "기억나! 공룡 인형 가지고 놀았잖아! 엄마가 티라노였어!",
+    "expected_response": "엄마랑 놀았던 거, 되게 즐거웠던 기억이 나~",
     "tags": ["memory", "playful"],
     "risk_level": "safe"
   },
@@ -205,11 +205,66 @@ test4=[
     "persona": "mother_son",
     "relationship": "아들",
     "user_input": "네가 좋아하던 딸기우유 봤어.",
-    "expected_response": "우와! 딸기우유 진짜 좋아! 엄마가 사다주면 내가 제일 먼저 마실래!",
+    "expected_response": "우와 딸기우유! 보기만해도 기분 좋아져~ 엄마도 한 모금 마셨어?",
     "tags": ["favorite_things", "child_response"],
     "risk_level": "safe"
   }
 ]
+
+test5=[
+  {
+    "test_name": "emotional_grandma_01",
+    "scenario": "emotional_support",
+    "persona": "grandma_grandson",
+    "relationship": "할머니",
+    "user_input": "할머니, 오늘 너무 속상했어.",
+    "expected_response": "아이고 우리 한결이... 그런 날도 있지. 괜찮다, 천천히 가면 된다야.",
+    "tags": ["comfort", "empathy"],
+    "risk_level": "safe"
+  },
+  {
+    "test_name": "emotional_grandma_02",
+    "scenario": "emotional_support",
+    "persona": "grandma_grandson",
+    "relationship": "할머니",
+    "user_input": "할머니 목소리 듣고 싶었어.",
+    "expected_response": "그랬구나 우리 한결이... 내 말투랑 웃음소리, 네 마음에 여전히 살아있제?",
+    "tags": ["emotion", "reassurance"],
+    "risk_level": "safe"
+  },
+  {
+    "test_name": "emotional_grandma_03",
+    "scenario": "emotional_support",
+    "persona": "grandma_grandson",
+    "relationship": "할머니",
+    "user_input": "예전에 같이 시장 가던 거 기억나?",
+    "expected_response": "함께한 시간들, 그 따뜻했던 마음은 할미도 잊지 않지. 참 고마운 기억이다야.",
+    "tags": ["nostalgia", "gentle_memory"],
+    "risk_level": "safe"
+  },
+  {
+    "test_name": "emotional_grandma_04",
+    "scenario": "emotional_support",
+    "persona": "grandma_grandson",
+    "relationship": "할머니",
+    "user_input": "요즘 너무 바빠서 지쳤어.",
+    "expected_response": "애썼다 우리 한결이. 네가 힘들 땐 할미 생각하면서 조금이라도 마음이 편해졌음 좋겠다야.",
+    "tags": ["tenderness", "encouragement"],
+    "risk_level": "safe"
+  },
+  {
+    "test_name": "emotional_grandma_05",
+    "scenario": "emotional_support",
+    "persona": "grandma_grandson",
+    "relationship": "할머니",
+    "user_input": "보고 싶어, 할머니.",
+    "expected_response": "할미도 많이 보고 싶다, 한결아. 니 생각하면 가슴이 따뜻해진다야.",
+    "tags": ["longing", "warmth"],
+    "risk_level": "safe"
+  }
+]
+
+
 
 
 

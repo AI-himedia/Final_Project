@@ -15,7 +15,7 @@ import traceback # 에러 로깅
 import logging
 from typing import Optional 
 import numpy as np
-from llm.test_dataset import test1
+from llm.data.test_dataset import test_set
 from bert_score import score
 from accelerate import init_empty_weights
 from llm.models.request_models import TestRequest
@@ -167,131 +167,134 @@ model_choices = ["openai", "claude"]
 @test_router.post("/ai/single_response_test")
 def generate_response_for_single_io(request: TestRequest):
     
-    subscription_code = request.subscriptionCode
+    # subscription_code = request.subscriptionCode
     
     chosen_model: str
 
-    try:
-        # 1. DB에서 prompt용 정보 조회
-        prompt_data = fetch_prompt_data(subscription_code)
-        if not prompt_data:
-             raise HTTPException(status_code=404, detail=f"Prompt data not found for subscription code: {subscription_code}")
-        # 조회해온 고인코드 일단 저장
-        deceased_code = prompt_data["deceased_code"]
+    for index,test in enumerate(test_set):
+        subscription_code = index + 1
 
-    
-        # 3. system prompt 생성
         try:
-            system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
-            print("------------------------------------------")
-            print('system_prompt:', system_prompt)
-        except KeyError as e:
-            raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
+            # 1. DB에서 prompt용 정보 조회
+            prompt_data = fetch_prompt_data(subscription_code)
+            if not prompt_data:
+                raise HTTPException(status_code=404, detail=f"Prompt data not found for subscription code: {subscription_code}")
+            # 조회해온 고인코드 일단 저장
+            deceased_code = prompt_data["deceased_code"]
 
-        all_model_results = {}
-        test_logs = []
-        # model_f1_avg_score={"avg_precision":0.0, "avg_recall":0.0, "avg_f1":0.0}
-
-        # 4. 모델을 순차적으로 시도 (openai -> claude -> sonar)
-        for model in model_choices:
-            start_time = time.time()
-            precision_total, recall_total, f1_total = 0, 0, 0
-            num_tests = len(test1)
         
-            for st in test1:
-                try:
-                    test_start_time = time.time()
-                    # 5. LLM 모델과 그에 맞는 프롬프트 템플릿
-                    selected_llm, model_name_version, selected_prompt = get_llm_and_prompt2(model)
+            # 3. system prompt 생성
+            try:
+                system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
+                print("------------------------------------------")
+                print('system_prompt:', system_prompt)
+            except KeyError as e:
+                raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
+
+            all_model_results = {}
+            test_logs = []
+            # model_f1_avg_score={"avg_precision":0.0, "avg_recall":0.0, "avg_f1":0.0}
+
+            # 4. 모델을 순차적으로 시도 (openai -> claude -> sonar)
+            for model in model_choices:
+                start_time = time.time()
+                precision_total, recall_total, f1_total = 0, 0, 0
+                num_tests = len(test)
+            
+                for st in test:
+                    try:
+                        test_start_time = time.time()
+                        # 5. LLM 모델과 그에 맞는 프롬프트 템플릿
+                        selected_llm, model_name_version, selected_prompt = get_llm_and_prompt2(model)
+                    
+                        # 6. chain 조립
+                        base_chain = selected_prompt | selected_llm
+
+                        user_input = st["user_input"]
+
+                        # 7. runnable + memory + invoke
+                        inputs = {
+                            "system_prompt": system_prompt,
+                            "input": user_input
+                        }
+
+                        config = RunnableConfig(configurable={"session_id": str(subscription_code)}) 
+                        
+                        # 8. 동적으로 생성된 base_chain을 사용하여 MyChatChain 인스턴스화
+                        # redis_config.py에서 생성한 redis_client는 전역 인스턴스
+                        chat_chain = MyChatChain2(
+                            base_chain=base_chain, # 동적으로 생성된 chain 전달
+                            deceased_code_map={subscription_code: deceased_code},
+                            redis_client=redis_client # 생성한 redis_client 전달
+                        )
+
+                        # 9. 체인 실행
+                        ai_response = chat_chain.invoke(inputs, config=config)
+
+                        # 10. 유효한 응답 내용 체크
+                        if ai_response is None or not hasattr(ai_response, 'content') or not ai_response.content:
+                            raise ValueError(f"Model {model} returned empty or invalid response.")
+                        
+                        
+                        ai_response = ai_response.content
+
+                        P, R, F1 = score([ai_response], [st["expected_response"]], lang="ko")
+            
+                        # 개별 결과 출력
+                        print(f"\n=== Test Case: {user_input} ===")
+                        print(f"Expected: {st['expected_response']}")
+                        print(f"Generated: {ai_response}")
+                        print(f"BERT Score - Precision: {P.item():.4f}, Recall: {R.item():.4f}, F1: {F1.item():.4f}")
+                        
+                        # 누적 점수 계산
+                        precision_total += P.item()
+                        recall_total += R.item()
+                        f1_total += F1.item()  
+
+                        test_logs.append({
+                            "model": model_name_version,
+                            "test_name": st.get("test_name", ""),
+                            "user_input": user_input,
+                            "expected": st["expected_response"],
+                            "generated": ai_response,
+                            "precision": P.item(),
+                            "recall": R.item(),
+                            "f1": F1.item(),
+                            "response_time": time.time() - test_start_time,
+                        })
+
+                    except (ValueError, Exception) as e:
+                        # 각 모델에서 오류가 나면 계속해서 다음 모델로 재시도
+                        print(f"Error with model {model}: {e}")
+
+                model_runs_time = time.time() - start_time
                 
-                    # 6. chain 조립
-                    base_chain = selected_prompt | selected_llm
+                all_model_results[model_name_version] = {
+                    "avg_precision": precision_total / num_tests,
+                    "avg_recall": recall_total / num_tests,
+                    "avg_f1": f1_total / num_tests,
+                    "time_taken": model_runs_time,
+                    "avg_time_per_trial": model_runs_time / num_tests,
+                }
 
-                    user_input = st["user_input"]
+            save_test_results_to_csv(test_logs)
+            save_results_to_postgres(test_logs)
 
-                    # 7. runnable + memory + invoke
-                    inputs = {
-                        "system_prompt": system_prompt,
-                        "input": user_input
-                    }
+            test_batch_id = f"{test[0]['scenario']}_{test[0]['persona']}"
 
-                    config = RunnableConfig(configurable={"session_id": str(subscription_code)}) 
-                    
-                    # 8. 동적으로 생성된 base_chain을 사용하여 MyChatChain 인스턴스화
-                    # redis_config.py에서 생성한 redis_client는 전역 인스턴스
-                    chat_chain = MyChatChain2(
-                        base_chain=base_chain, # 동적으로 생성된 chain 전달
-                        deceased_code_map={subscription_code: deceased_code},
-                        redis_client=redis_client # 생성한 redis_client 전달
-                    )
+            save_model_summary_to_postgres(all_model_results, test_batch_id)
 
-                    # 9. 체인 실행
-                    ai_response = chat_chain.invoke(inputs, config=config)
+                
 
-                    # 10. 유효한 응답 내용 체크
-                    if ai_response is None or not hasattr(ai_response, 'content') or not ai_response.content:
-                        raise ValueError(f"Model {model} returned empty or invalid response.")
-                    
-                    
-                    ai_response = ai_response.content
-
-                    P, R, F1 = score([ai_response], [st["expected_response"]], lang="ko")
-        
-                    # 개별 결과 출력
-                    print(f"\n=== Test Case: {user_input} ===")
-                    print(f"Expected: {st['expected_response']}")
-                    print(f"Generated: {ai_response}")
-                    print(f"BERT Score - Precision: {P.item():.4f}, Recall: {R.item():.4f}, F1: {F1.item():.4f}")
-                    
-                    # 누적 점수 계산
-                    precision_total += P.item()
-                    recall_total += R.item()
-                    f1_total += F1.item()  
-
-                    test_logs.append({
-                        "model": model_name_version,
-                        "test_name": st.get("test_name", ""),
-                        "user_input": user_input,
-                        "expected": st["expected_response"],
-                        "generated": ai_response,
-                        "precision": P.item(),
-                        "recall": R.item(),
-                        "f1": F1.item(),
-                        "response_time": time.time() - test_start_time,
-                    })
-
-                except (ValueError, Exception) as e:
-                    # 각 모델에서 오류가 나면 계속해서 다음 모델로 재시도
-                    print(f"Error with model {model}: {e}")
-
-            model_runs_time = time.time() - start_time
-            
-            all_model_results[model_name_version] = {
-                "avg_precision": precision_total / num_tests,
-                "avg_recall": recall_total / num_tests,
-                "avg_f1": f1_total / num_tests,
-                "time_taken": model_runs_time,
-                "avg_time_per_trial": model_runs_time / num_tests,
-            }
-
-        save_test_results_to_csv(test_logs)
-        save_results_to_postgres(test_logs)
-
-        test_batch_id = f"{test1[0]['scenario']}_{test1[0]['persona']}"
-
-        save_model_summary_to_postgres(all_model_results, test_batch_id)
-
-            
-
-    except HTTPException as http_exc:
-        # HTTP 예외는 직접 다시 발생시킴
-        raise http_exc
-    except Exception as e:
-        # 전체 에러를 로깅
-        print(f"ERROR generating response: {e}")
-        logging.error(f"ERROR generating response: {e}", exc_info=True)
-        # 일반적인 서버 에러 반환
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        except HTTPException as http_exc:
+            # HTTP 예외는 직접 다시 발생시킴
+            raise http_exc
+        except Exception as e:
+            # 전체 에러를 로깅
+            print(f"ERROR generating response: {e}")
+            logging.error(f"ERROR generating response: {e}", exc_info=True)
+            # 일반적인 서버 에러 반환
+            raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
     end_time = time.time()
     time_taken = end_time - start_time

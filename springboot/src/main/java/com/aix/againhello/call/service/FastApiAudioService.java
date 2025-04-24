@@ -56,7 +56,7 @@ public class FastApiAudioService {
         }
     }
 
-    public AudioProcessResponseDTO sendS3UrlAndSubCodeToPython(String fileUrl, int subscriptionCode) throws IOException {
+    public AudioProcessResponseDTO sendS3UrlAndSubCodeToPython(String fileUrl, int subscriptionCode, int serviceCode) throws IOException {
         // FastAPI 엔드포인트 URL
         String pythonApiUrl = ServerUrlConstants.PYTHON_URL + "synthesize";
 
@@ -65,7 +65,8 @@ public class FastApiAudioService {
         String jsonBody = objectMapper.writeValueAsString(
                 Map.of(
                         "s3_url", fileUrl,
-                        "subscription_code", subscriptionCode
+                        "subscription_code", subscriptionCode,
+                        "service_code", serviceCode
                 )
         );
 

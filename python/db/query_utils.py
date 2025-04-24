@@ -247,6 +247,15 @@ def insert_raw_file(subscription_code: int, chat_urls: list[str]):
             """, (subscription_code, chat_urls))
         conn.commit()
 
+def insert_raw_file_and_voice_id(subscription_code: int, s3_url: str, voice_id: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO raw_file (subscription_code, audio_file_paths, voice_id)
+                VALUES (%s, %s, %s)
+            """, (subscription_code, s3_url, voice_id))
+        conn.commit()
+
 def voice_raw_file(conn, subscription_code: int, s3_url: str, embedding_data: dict, sms_paths: Optional[List[str]] = None):
     with conn.cursor() as cur:
         query = """
