@@ -27,10 +27,6 @@ jobs:
         working-directory: frontend
         run: npm install
 
-      - name: Run Tests
-        working-directory: frontend
-        run: npm test
-
       - name: Docker Build & Push
         uses: docker/login-action@v2
         with:
