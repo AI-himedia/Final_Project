@@ -14,7 +14,7 @@ server:
 
 file:
   sms:
-  call: /Users/dijeung/Desktop/Final_Project/springboot/output
+  call: /dev/final/springboot/output
 
 
 app:
