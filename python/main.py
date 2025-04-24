@@ -1,3 +1,5 @@
+import asyncio
+import sys
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
@@ -8,10 +10,17 @@ from api import routers
 import psycopg2
 import uvicorn
 import os
-# from tts.call.fastapi_websocket_server import router as ws_router
 from tts.call.new_fastapi_ws_server import call_router as call_router
 from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
+
+
+# Windows에서는 asyncio 서브프로세스 지원을 위해 꼭 필요함
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
+
 app = FastAPI()
+
 
 
 # CORS 설정
