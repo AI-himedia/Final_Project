@@ -189,6 +189,7 @@ public class AudioProcessingService {
      */
     public SaveResponseDTO saveSelectedSpeakers(SelectedSpeakersDTO request) throws IOException, InterruptedException, UnsupportedAudioFileException {
         int subscriptionCode = request.getSubscriptionCode();
+        int serviceCode = request.getServiceCode();
         log.info("선택된 화자 저장 시작. 구독 코드: {}", subscriptionCode);
         if (subscriptionCode <= 0) {
             throw new IllegalArgumentException("유효하지 않은 구독 코드입니다.");
@@ -256,7 +257,7 @@ public class AudioProcessingService {
 
             String s3Url = null;
             try {
-                s3Url = uploadFileToS3(combinedFilePath.toFile(), subscriptionCode);
+                s3Url = uploadFileToS3(combinedFilePath.toFile(), subscriptionCode, serviceCode);
                 log.info("S3 업로드 및 FastAPI 호출 완료. S3 URL: {}", s3Url);
 
                 deleteDirectoryRecursively(baseOutputDir);
@@ -297,7 +298,7 @@ public class AudioProcessingService {
      * @throws IOException 파일 처리 오류 시
      * @throws RuntimeException FastAPI 호출 실패 등 내부 처리 오류 시
      */
-    private String uploadFileToS3(File file, int subscriptionCode) throws IOException {
+    private String uploadFileToS3(File file, int subscriptionCode, int serviceCode) throws IOException {
         log.debug("S3 업로드 및 FastAPI 전송 시작. 파일: {}, 구독 코드: {}", file.getName(), subscriptionCode);
 
         // MultipartFile로 변환
@@ -313,7 +314,7 @@ public class AudioProcessingService {
         // FastAPI로 S3 URL과 subscriptionCode 전송
         try {
             log.debug("FastAPI로 S3 URL 전송 시도...");
-            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendS3UrlAndSubCodeToPython(fileUrl, subscriptionCode);
+            AudioProcessResponseDTO pythonResponse = fastApiAudioService.sendS3UrlAndSubCodeToPython(fileUrl, subscriptionCode, serviceCode);
             log.info("FastAPI 응답 수신: {}", pythonResponse);
 
             if ("success".equals(pythonResponse.getStatus())) {

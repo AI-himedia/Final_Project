@@ -5,13 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from llm.chat.embedding_model import embedding_model  # 전역 임베딩 모델 로딩용 import
+from tts.audio_chat.tts_audio_message import ensure_model_ready
 from dotenv import load_dotenv
 from api import routers
 import uvicorn
 from tts.call.new_fastapi_ws_server import call_router as call_router
 from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
-from tts.tts_test import ensure_model_loaded
-
+from model.tts_model_loader import ensure_model_loaded
 
 # Windows에서는 asyncio 서브프로세스 지원을 위해 꼭 필요함
 if sys.platform == "win32":
