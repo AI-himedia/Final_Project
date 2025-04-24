@@ -4,7 +4,7 @@ name: React Docker Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [cjh]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend.yml"
@@ -26,9 +26,8 @@ jobs:
       - name: Docker 이미지 빌드 및 푸시
         run: |
           echo "${{ secrets.FRONTEND_ENV }}" > frontend/.env
-          TAG_NAME="v1.0-${{ github.sha }}"
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${TAG_NAME} ./frontend
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${TAG_NAME}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }} ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
@@ -41,12 +40,6 @@ jobs:
             docker stop frontend || true
             docker rm frontend || true
             # 최신 Docker 이미지 가져오기
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${TAG_NAME}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
             # Docker 컨테이너 실행 (80번 포트에서 React 앱 서빙)
-            docker run -d --name frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${TAG_NAME}
-
-      # - name: Docker 이미지 자동 삭제 (기존 이미지 삭제)
-      #   run: |
-      #     # 이전 Docker 이미지를 삭제
-      #     docker images --filter "dangling=true" -q | xargs -r docker rmi
-      #     docker image prune -f
+            docker run -d --name frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
