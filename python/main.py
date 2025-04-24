@@ -11,6 +11,7 @@ import os
 # from tts.call.fastapi_websocket_server import router as ws_router
 from tts.call.new_fastapi_ws_server import call_router as call_router
 from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
+from tts.tts_test import ensure_model_loaded
 app = FastAPI()
 
 
@@ -43,4 +44,5 @@ def root():
     return {"message": "FastAPI 메인 라우터"}
 
 if __name__ == "__main__":
+    ensure_model_loaded()
     uvicorn.run(app, host="0.0.0.0", port=8000)
