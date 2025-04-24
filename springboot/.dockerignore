@@ -1,0 +1,36 @@
+# Gradle 관련
+.gradle
+build
+
+# IntelliJ IDEA 관련
+.idea/
+*.iml
+
+# Eclipse 관련
+.settings/
+.project
+.classpath
+
+# Maven 관련 (만약 Maven 프로젝트라면)
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+mvnw
+mvnw.cmd
+target/
+
+# Spring Boot 실행 파일
+*.jar
+*.war
+
+# 로깅 파일
+*.log
+
+# 임시 파일 및 디렉토리
+tmp/
+temp/
+.tmp/
+.temp/
+
+# 숨김 파일 (OS 관련)
+.DS_Store
+._*

@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import { AudioApi } from '../../../api/AudioApi';
-import Swal from 'sweetalert2';
 import { MdKeyboardVoice } from 'react-icons/md';
 import styles from './CallPage.module.css';
 import { useLocation } from 'react-router-dom';
+import { axiosInstance } from '../../../api/AxiosInstance';
 
 const CallPage = () => {
   const { startRecording, stopRecording } = useAudioRecorder();
@@ -15,11 +15,28 @@ const CallPage = () => {
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const location = useLocation();
 
-  // location.state가 있을 경우 subscriptionCode를 추출하고, 없을 경우 undefined로 설정
   const initialSubscriptionCode = location.state?.subscriptionCode;
   const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
     initialSubscriptionCode
   );
+
+  useEffect(() => {
+    if (currentSubscriptionCode) {
+      const fetchEmbedding = async () => {
+        try {
+          const response = await axiosInstance.post(
+            `/embedding?subscription_code=${currentSubscriptionCode}`
+          );
+
+          console.log('Embedding 요청 성공:', response.data);
+        } catch (error) {
+          console.error('Embedding 요청 실패:', error);
+        }
+      };
+
+      fetchEmbedding();
+    }
+  }, [currentSubscriptionCode]);
 
   useEffect(() => {
     // location.state의 subscriptionCode가 변경될 때 상태 업데이트

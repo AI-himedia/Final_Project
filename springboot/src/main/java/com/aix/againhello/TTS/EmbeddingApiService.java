@@ -12,7 +12,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmbeddingApiService {
 
-    @GetMapping("/be/embedding") //접속 예시: http://localhost:8080/be/embedding?subscription_code=1
+    @PostMapping("/be/embedding") //접속 예시: http://localhost:8080/be/embedding?subscription_code=1
     public ResponseEntity<String> sendSubscriptionCode(@RequestParam("subscription_code") int subscriptionCode) {
 
         // 1. 요청 데이터 준비
