@@ -103,7 +103,7 @@ def Ready_S3File(s3_url: str) -> BytesIO:
     print("[Ready_S3File] 시작")
     print("S3 주소:", s3_url)
     try:
-        ensure_environment_ready()
+        # ensure_environment_ready()
         bucket, key = parse_s3_url(s3_url)
         original_buffer = download_audio_from_s3_to_memory(bucket, key)
         processed_buffer = convert_prompt_audio_memory(original_buffer)
@@ -131,7 +131,7 @@ def embedding(processed_audio: BytesIO) -> list:
     global spark_model
     print("임베딩 생성 중...")
 
-    ensure_model_loaded()
+    
 
     # 2. 항상 새로 임베딩 생성
     with NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:

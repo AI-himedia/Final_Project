@@ -7,39 +7,41 @@ import torch
 from tts.cli.SparkTTS import SparkTTS
 import numpy as np
 import subprocess
+from tts.tts_test import ensure_model_loaded
+
+
+
+# from db.postgresql_connector import get_db_connection
+# from db.query_utils import get_latest_embedding
 
 
 
 
-from db.postgresql_connector import get_db_connection
-from db.query_utils import get_latest_embedding
 
+# def embedding_select(subscription_code):
+#     try:
+#         with get_db_connection() as conn:
+#             embedding_data = get_latest_embedding(conn, subscription_code)
+#         if embedding_data is None:
+#             return {
+#                 "status": "error",
+#                 "message": "해당 구독 코드에 대한 임베딩 정보가 없습니다."
+#             }
+#         # 임베딩 데이터를 캐싱하는 함수 호출
+#         cache_embedding_data(subscription_code ,embedding_data)
 
+#         return {
+#             "status": "success",
+#             "message": "임베딩 로딩 및 캐싱 완료"
+#         }
 
+#     except Exception as e:
+#         return {
+#             "status": "error",
+#             "message": f"조회 중 오류 발생: {str(e)}"
+#         }
+    
 
-
-def embedding_select(subscription_code):
-    try:
-        with get_db_connection() as conn:
-            embedding_data = get_latest_embedding(conn, subscription_code)
-        if embedding_data is None:
-            return {
-                "status": "error",
-                "message": "해당 구독 코드에 대한 임베딩 정보가 없습니다."
-            }
-        # 임베딩 데이터를 캐싱하는 함수 호출
-        cache_embedding_data(subscription_code ,embedding_data)
-
-        return {
-            "status": "success",
-            "message": "임베딩 로딩 및 캐싱 완료"
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"조회 중 오류 발생: {str(e)}"
-        }
     
 
 
@@ -66,22 +68,23 @@ def get_embedding(subscription_code: int):
 # 모델 및 프롬프트 준비
 spark_model = None
 
-def ensure_environment_ready():
-    if not os.path.exists(MODEL_SAVE_DIR):
-        print("Spark-TTS 모델 다운로드 시작")
-        snapshot_download(
-            repo_id="SparkAudio/Spark-TTS-0.5B",
-            local_dir=MODEL_SAVE_DIR,
-            repo_type="model"
-        )
-        print("모델 다운로드 완료")
+# def ensure_environment_ready():
+#     if not os.path.exists(MODEL_SAVE_DIR):
+#         print("Spark-TTS 모델 다운로드 시작")
+#         snapshot_download(
+#             repo_id="SparkAudio/Spark-TTS-0.5B",
+#             local_dir=MODEL_SAVE_DIR,
+#             repo_type="model"
+#         )
+#         print("모델 다운로드 완료")
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+#     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def ensure_model_ready():
     global spark_model
-    ensure_environment_ready()
+    # ensure_environment_ready
+    ensure_model_loaded
     if spark_model is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
@@ -90,7 +93,7 @@ def ensure_model_ready():
 
 def run_tts(text: str, subscription_code: int) -> bytes:
     ensure_model_ready()
-    embedding_select(subscription_code)
+    # embedding_select(subscription_code)
     embedding = get_embedding(subscription_code)
 
     if embedding is None:

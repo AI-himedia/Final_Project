@@ -16,8 +16,6 @@ const CallService = () => {
   const sourceBufferRef = useRef(null);
   const appendQueueRef = useRef([]);
 
-  const micStartTimeRef = useRef(null);
-
   const webSocketUrl = "ws://localhost:8080/be/ws/react";
   
   
@@ -64,16 +62,19 @@ const CallService = () => {
               setManualPlayRequired(true);
               return;
             }
-            audioRef.current.onplay = () => {
-              const now = performance.now();
-              const elapsed = (now - micStartTimeRef.current).toFixed(2);
-              console.log(`[재생 시점] 실제 재생까지 소요 시간: ${elapsed}ms`);
-            };
-            audioRef.current.play().catch((e) => {
-                console.warn("[재생] 자동 재생 실패 → 수동 필요:", e);
+          
+            audioRef.current.play()
+              .then(() => console.log("오디오 재생 시작됨"))
+              .catch((e) => {
+                console.warn("자동 재생 실패. 수동 재생 필요:", e);
                 setManualPlayRequired(true);
-            });
+              });
           }, 50);
+  
+          // if (mediaSourceRef.current?.readyState === "open") {
+          //   mediaSourceRef.current.endOfStream();
+          //   console.log("MediaSource 정상 종료됨 (from updateend)");
+          // }
         }
       });
   
@@ -89,6 +90,10 @@ const CallService = () => {
       audioRef.current.onended = () => {
         console.log("오디오 재생 완료됨");
         setIsTTSPlaying(false);
+
+        mediaSourceRef.current = null;
+        sourceBufferRef.current = null;
+        appendQueueRef.current = [];
         
         setTimeout(() => {
           console.log("발화 재시작");
@@ -106,7 +111,6 @@ const CallService = () => {
     
     // TTS 실행 -> 사용자 Audio 다시 받기
     initMediaSource();
-    micStartTimeRef.current = performance.now();
     startAudioCapture(socketRef, false);
 
     
@@ -127,15 +131,20 @@ const CallService = () => {
             audioRef.current.pause();
             audioRef.current.src = "";
           }
-          appendQueueRef.current = [];
+          // mediaSourceRef.current = null;
+          // sourceBufferRef.current = null;
+          // appendQueueRef.current = [];
           
-          initMediaSource();
+          // initMediaSource();
           
         } else if(msg.type === "tts_end") {
           console.log("TTS 수신 완료. 재생 완료될 때까지 대기");
         }
       }else if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
-
+        // ArrayBuffer로 변환해서 appendBuffer에 추가
+        // const buffer = event.data instanceof Blob
+        //   ? await event.data.arrayBuffer()
+        //   : event.data;
         const buffer = event.data instanceof Blob ? await event.data.arrayBuffer() : event.data;
         const queue = appendQueueRef.current;
         queue.push(buffer);
@@ -161,6 +170,14 @@ const CallService = () => {
     setIsCalling(true);
   };
 
+  //       if (sourceBufferRef.current && !sourceBufferRef.current.updating) {
+  //         const nextBuffer = queue.shift();
+  //         if (nextBuffer) sourceBufferRef.current.appendBuffer(nextBuffer);
+  //       }
+  //     }
+  //   };
+  //   setIsCalling(true);
+  // };
 
   // 통화 종료 - 마이크/AudioContext 정지, WebSocket 닫기
   const endCall = async () => {

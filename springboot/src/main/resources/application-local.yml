@@ -16,7 +16,6 @@ file:
   sms:
   call: /dev/final/springboot/output
 
-
 app:
   props:
     social:
