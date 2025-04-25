@@ -1,12 +1,13 @@
-# Python 3.12
-FROM python:3.11-slim
+# Python 버전 지정 (빌드 아규먼트)
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
 # 필요한 패키지 설치
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # FastAPI 앱 복사
 COPY . .
