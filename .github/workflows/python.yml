@@ -34,6 +34,7 @@ jobs:
           format: table
           exit-code: 0
           severity: CRITICAL,HIGH
+          scanners: vuln
 
       - name: Docker 이미지 푸시
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
