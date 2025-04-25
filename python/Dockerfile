@@ -5,9 +5,14 @@ FROM python:${PYTHON_VERSION}-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 필요한 패키지 설치
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Pipenv 설치
+RUN pip install --no-cache-dir pipenv
+
+# Pipfile 및 Pipfile.lock 복사
+COPY Pipfile Pipfile.lock ./
+
+# 가상 환경 생성 및 패키지 설치
+RUN pipenv sync --dev
 
 # FastAPI 앱 복사
 COPY . .
@@ -16,4 +21,4 @@ COPY . .
 EXPOSE 8000
 
 # 애플리케이션 실행
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
