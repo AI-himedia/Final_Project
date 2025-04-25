@@ -148,6 +148,7 @@ async def process_stt(websocket: WebSocket, audio_queue, subscription_code):
 
 async def process_llm_and_tts(websocket: WebSocket, final_result, subscription_code):
     try:
+
         print("[전화서비스 LLM] LLM 호출")
         chat_input = ChatRequest(subscriptionCode=subscription_code, userInput=final_result, serviceType="call")
         llm_response = generate_response(chat_input)
@@ -230,7 +231,7 @@ async def start_ffmpeg_webm_stream():
         t0 = time.perf_counter()
         process = await asyncio.wait_for(
             asyncio.create_subprocess_exec(
-                "ffmpeg",
+                'ffmpeg',
                 "-i", "-",
                 "-f", "webm",
                 "pipe:1",
@@ -256,7 +257,7 @@ async def stream_tts_audio(websocket, reply, subscription_code):
 
     model_id = "eleven_multilingual_v2"
     api_key = os.getenv("ELEVENLABS_API_KEY")
-    voice_id = "Y0kMLRNxCTef2wtDgX1R"
+    # voice_id = "Y0kMLRNxCTef2wtDgX1R"
     voice_id = get_embedding(subscription_code)
     uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input?model_id={model_id}"
 

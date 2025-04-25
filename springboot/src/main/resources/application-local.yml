@@ -1,9 +1,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/againhello
-#    url: jdbc:postgresql://localhost:5432/postgres
+    #    url: jdbc:postgresql://localhost:5432/postgres
     username: ${POSTGRESQL_USERNAME}
-
 
     password: ${POSTGRESQL_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -14,8 +13,9 @@ server:
 
 file:
   sms:
-  call: \Users\201-06\Final_Project\springboot\output
-
+  #  call: \Users\201-06\Final_Project\springboot\output
+  # call: /Users/dijeung/Desktop/Final_Project/springboot/output
+  call: ${AUDIO_PLAY_ADDRESS}
 
 app:
   props:

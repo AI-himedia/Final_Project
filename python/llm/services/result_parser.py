@@ -21,6 +21,7 @@ def parse_response(text: str) -> dict:
                 raise ValueError(f"'{key}' 필드가 응답에 없습니다.")
 
         return parsed
+    
     except json.JSONDecodeError as e:
         print("JSON 파싱 에러:", e)
         raise ValueError("응답 형식이 잘못되어 파싱에 실패했습니다.")

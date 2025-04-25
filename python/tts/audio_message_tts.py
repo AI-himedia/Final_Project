@@ -18,6 +18,8 @@ def cache_embedding_data(subscription_code: int, embedding_data) :
 def get_embedding(subscription_code: int):
     return user_embedding_cache.get(subscription_code, None)
 
+def cache_voice_id(subscription_code: int, voice_id) :
+    user_embedding_cache[subscription_code] = voice_id
 
 def run_tts(text: str, subscription_code: int) -> bytes:
     ensure_model_loaded()

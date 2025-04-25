@@ -247,6 +247,15 @@ def insert_raw_file(subscription_code: int, chat_urls: list[str]):
             """, (subscription_code, chat_urls))
         conn.commit()
 
+def insert_raw_file_and_voice_id(subscription_code: int, s3_url: str, voice_id: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO raw_file (subscription_code, audio_file_paths, voice_id)
+                VALUES (%s, %s, %s)
+            """, (subscription_code, s3_url, voice_id))
+        conn.commit()
+
 def voice_raw_file(conn, subscription_code: int, s3_url: str, embedding_data: dict, sms_paths: Optional[List[str]] = None):
     with conn.cursor() as cur:
         query = """
@@ -279,3 +288,54 @@ def get_latest_embedding(conn, subscription_code: int):
         """, (subscription_code,))
         result = cur.fetchone()
         return result[0] if result else None
+    
+
+def get_latest_voice_id(subscription_code: int):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT voice_id
+                FROM raw_file
+                WHERE subscription_code = %s
+                ORDER BY update_date DESC
+                LIMIT 1
+            """, (subscription_code,))
+            result = cur.fetchone()
+            return result[0] if result else None
+    
+
+def save_results_to_postgres(results):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            for row in results:
+                cur.execute("""
+                    INSERT INTO test_logs (
+                        model, test_name, user_input, expected, generated,
+                        precision, recall, f1, response_time
+                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                """, (
+                    row["model"], row["test_name"], row["user_input"], row["expected"],
+                    row["generated"], row["precision"], row["recall"],
+                    row["f1"], row["response_time"]
+                ))
+            conn.commit()
+
+def save_model_summary_to_postgres(results_dict: dict, test_batch: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            for model_name, result in results_dict.items():
+                cur.execute("""
+                    INSERT INTO model_test_summary (
+                        model_name, avg_precision, avg_recall, avg_f1,
+                        time_taken, avg_time_per_trial, test_batch
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    model_name,
+                    result["avg_precision"],
+                    result["avg_recall"],
+                    result["avg_f1"],
+                    result["time_taken"],
+                    result["avg_time_per_trial"],
+                    test_batch
+                ))
+            conn.commit()

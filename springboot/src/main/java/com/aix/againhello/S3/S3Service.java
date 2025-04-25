@@ -34,7 +34,7 @@ public class S3Service {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }
 
-        String originalFilename = multipartFile.getOriginalFilename();
+        String originalFilename = multipartFile.getOriginalFilename().toLowerCase();
         if (originalFilename == null ||
                 (!originalFilename.endsWith(".mp3") &&
                         !originalFilename.endsWith(".wav") &&
@@ -78,6 +78,7 @@ public class S3Service {
 
             // 성공 여부 확인
             if (response.sdkHttpResponse().isSuccessful()) {
+//                return generatePresignedUrl(fileName);
                 return "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
             } else {
                 throw new RuntimeException("파일 업로드 실패");

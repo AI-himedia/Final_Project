@@ -119,6 +119,18 @@ def Ready_S3File(s3_url: str) -> BytesIO:
         print("함수 실행 중 오류 발생:", str(e))
         raise
 
+def get_buffer_from_S3(s3_url: str) -> BytesIO:
+    print("[Ready_S3File] 시작")
+    print("S3 주소:", s3_url)
+    try:
+        # ensure_environment_ready()
+        bucket, key = parse_s3_url(s3_url)
+        buffer = download_audio_from_s3_to_memory(bucket, key)
+        return buffer
+    except Exception as e:
+        print("함수 실행 중 오류 발생:", str(e))
+        raise
+
 
 # def Ready_S3File(s3_url: str) -> BytesIO:
 #     print("[Ready_S3File] 시작")
