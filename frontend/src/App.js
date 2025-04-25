@@ -1,4 +1,4 @@
-// App.js 수정
+// App.js 수정.
 import { useMemo } from 'react';
 import './App.css';
 import { useLocation } from 'react-router-dom';
