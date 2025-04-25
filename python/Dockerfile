@@ -1,6 +1,6 @@
 # Python 버전 지정 (빌드 아규먼트)
 ARG PYTHON_VERSION=3.11
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu24.04
+FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
 
 # 작업 디렉토리 설정
 WORKDIR /app
