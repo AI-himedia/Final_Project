@@ -37,10 +37,19 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker 이미지 빌드 및 푸시
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
+      - name: Docker 이미지 빌드
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot
+
+      - name: Docker 이미지 취약점 스캔
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
+          format: table
+          exit-code: 0
+          severity: CRITICAL,HIGH
+
+      - name: Docker 이미지 푸시
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
