@@ -1,16 +1,19 @@
 # Python 버전 지정 (빌드 아규먼트)
 ARG PYTHON_VERSION=3.11
+
+# CUDA와 cuDNN, Ubuntu 24.04 이미지 사용
 FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Python 3.11 설치
+# Python 3.11 및 pip 설치
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3.11 \
     python3.11-dev \
-    python3-pip \
+    python3.11-distutils \
+    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11 \
     && rm -rf /var/lib/apt/lists/*
 
 # Pipenv 설치
