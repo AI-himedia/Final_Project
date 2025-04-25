@@ -2,7 +2,7 @@ import asyncio
 import json
 import queue
 from websockets.legacy.server import serve, WebSocketServerProtocol
-from python.tts.call.stt_google_api import run_streaming_stt
+from python.stt.call_stt import run_streaming_stt
 
 
 async def handler(websocket: WebSocketServerProtocol):

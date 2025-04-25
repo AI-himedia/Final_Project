@@ -48,7 +48,7 @@ def convert_webm_to_wav(audio_bytes):
 
 def debug_audio_volume(audio_bytes):
     audio = AudioSegment.from_file(BytesIO(audio_bytes))
-    print(f"[DEBUG] 녹음 길이: {len(audio)}ms, 평균 볼륨: {audio.dBFS:.2f}dB")
+    print(f"[음성채팅 STT] 녹음 길이: {len(audio)}ms, 평균 볼륨: {audio.dBFS:.2f}dB")
 
 
 def run_stt(audio_bytes: bytes) -> str:
@@ -66,7 +66,7 @@ def run_stt(audio_bytes: bytes) -> str:
 
     audio = speech.RecognitionAudio(content=pcm_audio)
 
-    print("[STT] Google STT 요청 시작")
+    print("[음성채팅 STT] Google STT 요청 시작")
     response = client.recognize(config=config, audio=audio)
 
     transcript = ""
@@ -75,5 +75,5 @@ def run_stt(audio_bytes: bytes) -> str:
         if alternatives:
             transcript += alternatives[0].transcript.strip() + " "
 
-    print("[STT] 최종 인식 결과:", transcript.strip())
+    print("[음성채팅 STT] 최종 인식 결과:", transcript.strip())
     return transcript.strip()

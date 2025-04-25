@@ -2,11 +2,11 @@ import asyncio
 import base64
 import json
 from websockets.exceptions import ConnectionClosed
-from python.tts.call.stt_google_api import run_streaming_stt
+from python.stt.call_stt import run_streaming_stt
 from websockets.server import serve
 from api.response_generator import generate_response, ChatRequest
-from tts_test import run_tts
-from python.tts.call.tts_streaming import stream_tts
+from tts.sparkTTS_voice_embedding import run_tts
+from tts.test.tts_streaming import stream_tts
 
 
 CHUNK_SIZE = 4096

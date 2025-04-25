@@ -2,9 +2,9 @@ import asyncio
 import uvicorn
 import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from python.tts.call.stt_google_api import run_streaming_stt
+from stt.call_stt import run_streaming_stt
 from api.response_generator import generate_response, ChatRequest
-from tts.tts_streaming import stream_tts
+from python.tts.test.tts_streaming import stream_tts
 import time
 
 

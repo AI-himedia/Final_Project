@@ -1,5 +1,8 @@
 package com.aix.againhello.call.webSocketHandler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
@@ -9,25 +12,21 @@ import org.java_websocket.framing.PongFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 
+@Setter
 public class FastApiWebSocketClient extends WebSocketClient {
 
+    private final String subscriptionCode;
     private Consumer<String> messageRelayCallback;
     private Consumer<ByteBuffer> binaryRelayCallback;
 
-    public FastApiWebSocketClient(URI serverUri, Map<String, String> httpHeaders) {
+    public FastApiWebSocketClient(URI serverUri, Map<String, String> httpHeaders,  String subscriptionCode) {
         super(serverUri, new Draft_6455(), httpHeaders, 0);
-    }
-
-    public void setMessageRelayCallback(Consumer<String> callback) {
-        this.messageRelayCallback = callback;
-    }
-
-    public void setBinaryRelayCallback(Consumer<ByteBuffer> callback) {
-        this.binaryRelayCallback = callback;
+        this.subscriptionCode = subscriptionCode;
     }
 
     @Override
@@ -42,6 +41,18 @@ public class FastApiWebSocketClient extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake handshakeData) {
         System.out.println("[FastAPI 연결됨]");
+
+        Map<String, String> auth = new HashMap<>();
+        auth.put("type", "auth");
+        auth.put("subscription_code", subscriptionCode);
+
+        String jsonMessage = null;
+        try {
+            jsonMessage = new ObjectMapper().writeValueAsString(auth);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        send(jsonMessage);
     }
 
     @Override
