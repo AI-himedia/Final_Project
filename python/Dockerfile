@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim
+FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
 WORKDIR /app
 
