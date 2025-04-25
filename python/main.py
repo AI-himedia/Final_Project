@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from llm.chat.embedding_model import embedding_model  # 전역 임베딩 모델 로딩용 import
-from tts.audio_chat.tts_audio_message import ensure_model_ready
 from dotenv import load_dotenv
 from api import routers
 import uvicorn
