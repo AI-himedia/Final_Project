@@ -50,9 +50,7 @@ jobs:
             docker stop python-app || true
             docker rm python-app || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-            # NVIDIA GPU 지원을 위한 --gpus all 추가
-            docker run -d --name python-app -p 8000:8000 \
-              --gpus all \
+            docker run --gpus all -d --name python-app -p 8000:8000 \
               -e GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }} \
               -e LANGCHAIN_TRACING_V2=${{ secrets.LANGCHAIN_TRACING_V2 }} \
               -e LANGSMITH_TRACING_V2=${{ secrets.LANGSMITH_TRACING_V2 }} \
@@ -72,3 +70,4 @@ jobs:
               -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
               -e ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY }} \
               ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
+            docker ps -a
