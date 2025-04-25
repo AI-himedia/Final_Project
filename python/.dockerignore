@@ -1,0 +1,31 @@
+.git
+.svn
+node_modules
+build
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local
+package-lock.json
+yarn.lock
+__pycache__
+target
+bin
+.gradle
+.m2
+vendor
+.DS_Store
+Thumbs.db
+logs
+tmp
+.idea
+.vscode
+.history
+*.log
+test
+reportWebVitals.js
+setupTests.js
+
+# Model
+python/pretrained_models
