@@ -9,6 +9,7 @@ url = "https://download.pytorch.org/whl/cu121"
 verify_ssl = true
 
 [packages]
+soundfile = "==0.12.1"
 psycopg2-binary = "*"
 langchain = "==0.3.23"
 langchain-community = "*"
