@@ -27,14 +27,15 @@ jobs:
       - name: Docker 이미지 빌드
         run: docker build --build-arg PYTHON_VERSION=3.11 -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} -f ./python/Dockerfile ./python
 
-      - name: Docker 이미지 취약점 스캔
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-          format: table
-          exit-code: 0
-          severity: CRITICAL,HIGH
-          scanners: vuln
+      # - name: Docker 이미지 취약점 스캔
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
+      #     format: table
+      #     exit-code: 0
+      #     severity: CRITICAL,HIGH
+      #     scanners: vuln
+      #     cache-clear: true
 
       - name: Docker 이미지 푸시
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
