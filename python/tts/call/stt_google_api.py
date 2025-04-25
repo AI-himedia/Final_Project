@@ -19,7 +19,8 @@ config = speech.RecognitionConfig(
 streaming_config = speech.StreamingRecognitionConfig(
     config=config,
     interim_results=True,  # 중간 결과도 받을 수 있도록 설정
-    single_utterance=False,
+    # single_utterance=False,
+    single_utterance=True, # 발화 종료 자동 감지
 )
 
 

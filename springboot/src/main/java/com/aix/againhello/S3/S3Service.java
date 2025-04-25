@@ -78,6 +78,7 @@ public class S3Service {
 
             // 성공 여부 확인
             if (response.sdkHttpResponse().isSuccessful()) {
+//                return generatePresignedUrl(fileName);
                 return "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
             } else {
                 throw new RuntimeException("파일 업로드 실패");
