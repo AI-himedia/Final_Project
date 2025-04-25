@@ -28,13 +28,21 @@ jobs:
       - name: Build Docker Image
         run: docker build --build-arg PYTHON_VERSION=3.11 -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} ./python
 
-      # Docker 이미지 취약점 스캔 (Trivy 사용 예시)
+      # Docker 이미지 취약점 스캔 (Trivy 사용, SARIF 보고서 생성)
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-          exit-code: 1 # 취약점 발견 시 워크플로우 실패 처리 (선택 사항)
-          severity: CRITICAL,HIGH # 심각도 수준 설정 (선택 사항)
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: 1 # 취약점 발견 시 워크플로우 실패 처리
+          severity: CRITICAL,HIGH # 심각도 수준 설정
+
+      # SARIF 결과를 GitHub Security 탭에 업로드
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
 
       # Docker 이미지 푸시
       - name: Push Docker Image
