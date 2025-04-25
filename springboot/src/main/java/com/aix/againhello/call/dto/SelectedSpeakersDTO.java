@@ -13,6 +13,7 @@ import java.util.List;
 public class SelectedSpeakersDTO {
 
     private int subscriptionCode;
+    private int serviceCode;
     private List<SelectedSpeakerDTO> selections = new ArrayList<>();
 
 }

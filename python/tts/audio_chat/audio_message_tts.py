@@ -7,7 +7,7 @@ import torch
 from tts.cli.SparkTTS import SparkTTS
 import numpy as np
 import subprocess
-from tts.tts_test import ensure_model_loaded
+from model.tts_model_loader import ensure_model_loaded, get_loaded_model
 
 
 
@@ -65,8 +65,7 @@ def cache_embedding_data(subscription_code: int, embedding_data) :
 def get_embedding(subscription_code: int):
     return user_embedding_cache.get(subscription_code, None)
 
-# 모델 및 프롬프트 준비
-spark_model = None
+
 
 # def ensure_environment_ready():
 #     if not os.path.exists(MODEL_SAVE_DIR):
@@ -81,19 +80,21 @@ spark_model = None
 #     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-def ensure_model_ready():
-    global spark_model
-    # ensure_environment_ready
-    ensure_model_loaded
-    if spark_model is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
+# def ensure_model_ready():
+#     global spark_model
+#     # ensure_environment_ready
+#     ensure_model_loaded
+#     if spark_model is None:
+#         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
 
 
 
 def run_tts(text: str, subscription_code: int) -> bytes:
-    ensure_model_ready()
+    # ensure_model_ready()
     # embedding_select(subscription_code)
+    ensure_model_loaded()
+    spark_model = get_loaded_model()
     embedding = get_embedding(subscription_code)
 
     if embedding is None:

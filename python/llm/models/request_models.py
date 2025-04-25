@@ -35,3 +35,6 @@ class ChatRequest(BaseModel):
     userInput: str
     serviceType: str
 
+class TestRequest(BaseModel):
+    subscriptionCode: int
+    
