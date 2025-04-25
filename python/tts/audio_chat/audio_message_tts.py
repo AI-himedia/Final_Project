@@ -61,9 +61,13 @@ def cache_embedding_data(subscription_code: int, embedding_data) :
     tensor = torch.tensor(embedding_data, dtype=torch.long)
     user_embedding_cache[subscription_code] = tensor
 
+def cache_voice_id(subscription_code: int, voice_id) :
+    user_embedding_cache[subscription_code] = voice_id
+
 
 def get_embedding(subscription_code: int):
     return user_embedding_cache.get(subscription_code, None)
+
 
 
 

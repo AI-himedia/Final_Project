@@ -18,32 +18,32 @@ class S3Request(BaseModel):
 @TTSReady_router.post("/ai/synthesize")
 def synthesize(request: S3Request):
 
-    # if request.service_code == 3:
-    #     try:
-    #         # 1. 임베딩 생성
-    #         embedding = Ready_S3File(request.s3_url)
+    if request.service_code == 2:
+        try:
+            # 1. 임베딩 생성
+            embedding = Ready_S3File(request.s3_url)
 
-    #         # 2. DB 저장
-    #         with get_db_connection() as conn:
-    #             code = voice_raw_file(
-    #                 conn,
-    #                 subscription_code=request.subscription_code,
-    #                 s3_url=request.s3_url,
-    #                 embedding_data=embedding
-    #             )
+            # 2. DB 저장
+            with get_db_connection() as conn:
+                code = voice_raw_file(
+                    conn,
+                    subscription_code=request.subscription_code,
+                    s3_url=request.s3_url,
+                    embedding_data=embedding
+                )
 
-    #         return {
-    #             "status": "success",
-    #             "message": "사용자 정보 저장 완료",
-    #         }
+            return {
+                "status": "success",
+                "message": "사용자 정보 저장 완료",
+            }
 
-    #     except Exception as e:
-    #         return {
-    #             "status": "error",
-    #             "message": f"변환 중 오류 발생: {str(e)}"
-    #         }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"변환 중 오류 발생: {str(e)}"
+            }
         
-    # elif request.service_code == 2:
+    elif request.service_code == 3:
         load_dotenv()
         API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
