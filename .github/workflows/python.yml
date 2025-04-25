@@ -8,6 +8,7 @@ on:
       - ".github/workflows/python.yml"
       - "Pipfile"
       - "Pipfile.lock"
+      - "Dockerfile"
 
 jobs:
   Python_Deploy:
@@ -24,7 +25,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Docker 이미지 빌드
-        run: docker build --build-arg PYTHON_VERSION=3.11 -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} ./python
+        run: docker build --build-arg PYTHON_VERSION=3.11 -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} -f Dockerfile ./python
 
       - name: Docker 이미지 취약점 스캔
         uses: aquasecurity/trivy-action@master
