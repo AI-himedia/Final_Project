@@ -47,7 +47,11 @@ def ensure_model_loaded():
 
     if spark_model is None:
         print("모델 메모리 로딩 시작")
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        # 배포 테스트로 잠시 CPU 이용
+        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cpu")
+        
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
         print("모델 로딩 완료")
         return spark_model
