@@ -25,18 +25,29 @@ public class JwtCookieInterceptor implements HandshakeInterceptor {
             WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception{
 
+
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest req = servletRequest.getServletRequest();
-            String token = getTokenFromCookie(req, "access");
 
+            // 1. 토큰 인증
+            String token = getTokenFromCookie(req, "access");
             if (token == null || !jwtUtil.isValidToken(token)) {
                 return false;
             }
 
             String userEmail = jwtUtil.extractEmail(token);
             attributes.put("userEmail", userEmail);
-        }
+            System.out.println("[인터셉터] 유저 이메일: " + userEmail);
 
+            // 2. subscriptionCode
+            String subscriptionCode = req.getParameter("subscriptionCode");
+            if (subscriptionCode != null) {
+                attributes.put("subscriptionCode", subscriptionCode);
+                System.out.println("[인터셉터] 구독 코드 저장됨: " + subscriptionCode);
+            } else {
+                System.out.println("[인터셉터] 구독 코드 없음");
+            }
+        }
         return true;
     }
 
@@ -46,7 +57,6 @@ public class JwtCookieInterceptor implements HandshakeInterceptor {
             ServerHttpResponse response,
             WebSocketHandler wsHandler,
             Exception exception) {
-
     }
 
     private String getTokenFromCookie(HttpServletRequest request, String name) {

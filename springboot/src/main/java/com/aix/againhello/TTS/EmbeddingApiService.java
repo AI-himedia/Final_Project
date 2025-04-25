@@ -12,7 +12,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmbeddingApiService {
 
-    @GetMapping("/be/embedding") //접속 예시: http://localhost:8080/be/embedding?subscription_code=1
+    @PostMapping("/be/embedding") //접속 예시: http://localhost:8080/be/embedding?subscription_code=1
     public ResponseEntity<String> sendSubscriptionCode(@RequestParam("subscription_code") int subscriptionCode) {
 
         // 1. 요청 데이터 준비
@@ -33,10 +33,10 @@ public class EmbeddingApiService {
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-            return ResponseEntity.ok("✅ FastAPI 응답: " + response.getBody());
+            return ResponseEntity.ok("FastAPI 응답: " + response.getBody());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("❌ 요청 실패: " + e.getMessage());
+                    .body("요청 실패: " + e.getMessage());
         }
     }
 }

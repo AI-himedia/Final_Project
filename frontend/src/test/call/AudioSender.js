@@ -47,11 +47,11 @@ const AudioSender = () => {
       const { type, buffer } = event.data;
     
       if (type === "autoEnd") {
-        console.log("무음 2초 감지됨 → end 이벤트 서버 전송");
+        console.log("무음 감지됨 → end 이벤트 서버 전송");
         socketRef.current.send(JSON.stringify({ event: "end" }));
         return;
       }
-    
+
       // audio 처리
       if (type === "audio" && socketRef.current?.readyState === WebSocket.OPEN && !isTTSPlaying) {
         socketRef.current.send(new Uint8Array(buffer));

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 import uvicorn
-from tts.tts_test import Ready_S3File
+from tts.sparkTTS_voice_embedding import Ready_S3File
 from db.postgresql_connector import get_db_connection
 from db.query_utils import voice_raw_file
 

@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import AudioSender from "./AudioSender";
 import { setupMediaSource } from "./TTSStreamPlayer"
-
+import { useLocation } from 'react-router-dom';
+import { axiosInstance } from '../../api/AxiosInstance';
+import styles from './CallService.module.css';
 
 
 const CallService = () => {
@@ -18,9 +20,46 @@ const CallService = () => {
 
   const micStartTimeRef = useRef(null);
 
-  const webSocketUrl = "ws://localhost:8080/be/ws/react";
+  // const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}"
+  const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=5"
   
+  // ---- !!!! 준호씨 일단 제가 CallPage.js 에 있는 SubscriptionCode 가져오는 코드 그대로 긁어왔어요.
+  const location = useLocation();
+  const initialSubscriptionCode = location.state?.subscriptionCode;
+  const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
+    initialSubscriptionCode
+  );
+
+  useEffect(() => {
+      if (currentSubscriptionCode) {
+        const fetchEmbedding = async () => {
+          try {
+            const response = await axiosInstance.post(
+              `/embedding?subscription_code=${currentSubscriptionCode}`
+            );
   
+            console.log('Embedding 요청 성공:', response.data);
+          } catch (error) {
+            console.error('Embedding 요청 실패:', error);
+          }
+        };
+  
+        fetchEmbedding();
+      }
+    }, [currentSubscriptionCode]);
+  
+    useEffect(() => {
+      // location.state의 subscriptionCode가 변경될 때 상태 업데이트
+      if (location.state?.subscriptionCode !== currentSubscriptionCode) {
+        setCurrentSubscriptionCode(location.state.subscriptionCode);
+      }
+      console.log(
+        'CallService useEffect - currentSubscriptionCode:',
+        currentSubscriptionCode
+      );
+    }, [location.state?.subscriptionCode, currentSubscriptionCode]);
+  // ----------여기까지 긁어옴!
+
   const initMediaSource = () => {
     setupMediaSource(audioRef, (sourceBufferRefFromSetup, mediaSource) => {
       sourceBufferRef.current = sourceBufferRefFromSetup.current;
@@ -102,13 +141,25 @@ const CallService = () => {
   const startCall = async () => {
     socketRef.current = new WebSocket(webSocketUrl);
     socketRef.current.binaryType = "arraybuffer";
+
+    socketRef.current.onopen = () => {
+      console.log("[WebSocket] 연결 완료됨");
+    };
+  
+    socketRef.current.onclose = (e) => {
+      console.warn("[WebSocket] 연결 종료됨:", e);
+    };
+  
+    socketRef.current.onerror = (e) => {
+      console.error("[WebSocket] 오류 발생:", e);
+    };
+
     
     // TTS 실행 -> 사용자 Audio 다시 받기
     initMediaSource();
     micStartTimeRef.current = performance.now();
     startAudioCapture(socketRef, false);
 
-    
     // WebSocket 수신 처리
     socketRef.current.onmessage = async (event) => {
       console.log("[React 수신 원본]:", event.data);
@@ -195,20 +246,36 @@ const CallService = () => {
   
 
   return (
-    <div>
+    <div className={styles.callPageContainer}>
+      <div className={styles.topRightIcons}></div>
       <h2>전화 서비스</h2>
-      <button onClick={handleToggleCall}>
-        {isCalling ? "통화 종료" : "통화 시작"}
-      </button>
-      <audio ref={audioRef} autoPlay />
-      {manualPlayRequired && (
-        <div>
-          <p>브라우저 정책으로 인해 자동 재생이 차단되었습니다.</p>
-          <button onClick={handleManualPlay}>
-            오디오 수동 재생
-          </button>
-        </div>
-      )}
+      <div className={styles.centralCircle}>
+        <img
+          src="/assets/voice_chatting.png"
+          alt="Call Interface"
+          className={styles.centralCircleImage}
+        />
+      </div>
+      <div className={styles.bottomControls}>
+        <button
+          className={styles.bottomLeft}
+          onClick={handleToggleCall}
+        >
+          {isCalling 
+          ? <img src={`/assets/call_end.png`} alt="통화 종료" />
+          : <img src={`/assets/call_start.png`} alt="통화 시작" />
+          }
+        </button>
+        <audio ref={audioRef} autoPlay />
+        {manualPlayRequired && (
+          <div className={styles.bottomRight}>
+            <p>브라우저 정책으로 인해 자동 재생이 차단되었습니다.</p>
+            <button onClick={handleManualPlay}>
+              수동 재생
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
