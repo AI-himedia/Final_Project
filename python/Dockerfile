@@ -1,9 +1,16 @@
 # Python 버전 지정 (빌드 아규먼트)
 ARG PYTHON_VERSION=3.11
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu${PYTHON_VERSION}-slim
+
+# 올바른 nvidia/cuda 이미지 태그 사용
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 # 작업 디렉토리 설정
 WORKDIR /app
+
+# 시스템에 Python 3.11 설치
+RUN apt-get update && \
+    apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-distutils && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
 
 # Pipenv 설치
 RUN pip install --no-cache-dir pipenv
