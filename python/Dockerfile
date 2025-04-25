@@ -8,7 +8,7 @@ COPY Pipfile Pipfile.lock /app/
 RUN pip install --no-cache-dir pipenv && \
     pipenv sync --dev
 
-COPY ./python /app
+COPY . /app
 
 EXPOSE 8000
 
