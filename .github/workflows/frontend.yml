@@ -17,6 +17,10 @@ jobs:
       - name: 코드 체크아웃
         uses: actions/checkout@v3
 
+      - name: FRONTEND_ENV 로드
+        run: |
+          echo "${{ secrets.FRONTEND_ENV }}" > frontend/.env
+
       - name: Node Modules 캐시 처리
         uses: actions/cache@v3
         with:
@@ -35,15 +39,7 @@ jobs:
 
       - name: Docker Build & Push
         run: |
-          docker build \
-            --build-arg REACT_APP_API_URL="${{ secrets.REACT_APP_API_URL }}" \
-            --build-arg REACT_APP_FRONT_URL="${{ secrets.REACT_APP_FRONT_URL }}" \
-            --build-arg REACT_APP_KAKAO_REST_API_KEY="${{ secrets.REACT_APP_KAKAO_REST_API_KEY }}" \
-            --build-arg REACT_APP_KAKAO_CLIENT_SECRET="${{ secrets.REACT_APP_KAKAO_CLIENT_SECRET }}" \
-            --build-arg REACT_APP_KAKAO_REDIRECT_URI="${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" \
-            --build-arg REACT_APP_TOSS_CLIENT_KEY="${{ secrets.REACT_APP_TOSS_CLIENT_KEY }}" \
-            --build-arg REACT_APP_TOSS_CUSTOMER_KEY="${{ secrets.REACT_APP_TOSS_CUSTOMER_KEY }}" \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }} ./frontend
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }} ./frontend
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행
@@ -57,11 +53,5 @@ jobs:
             docker rm frontend || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
             docker run -d --name frontend -p 80:80 \
-              -e REACT_APP_API_URL="${{ secrets.REACT_APP_API_URL }}" \
-              -e REACT_APP_FRONT_URL="${{ secrets.REACT_APP_FRONT_URL }}" \
-              -e REACT_APP_KAKAO_REST_API_KEY="${{ secrets.REACT_APP_KAKAO_REST_API_KEY }}" \
-              -e REACT_APP_KAKAO_CLIENT_SECRET="${{ secrets.REACT_APP_KAKAO_CLIENT_SECRET }}" \
-              -e REACT_APP_KAKAO_REDIRECT_URI="${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" \
-              -e REACT_APP_TOSS_CLIENT_KEY="${{ secrets.REACT_APP_TOSS_CLIENT_KEY }}" \
-              -e REACT_APP_TOSS_CUSTOMER_KEY="${{ secrets.REACT_APP_TOSS_CUSTOMER_KEY }}" \
+              --env-file ./frontend/.env \
               ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ github.sha }}
