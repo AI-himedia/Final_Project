@@ -17,39 +17,27 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
 
-      # Docker 로그인
-      - name: Docker Login
+      - name: Docker 로그인
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Docker 이미지 빌드
-      - name: Build Docker Image
+      - name: Docker 이미지 빌드
         run: docker build --build-arg PYTHON_VERSION=3.11 -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} ./python
 
-      # Docker 이미지 취약점 스캔 (Trivy 사용, SARIF 보고서 생성)
-      - name: Scan Docker Image for Vulnerabilities
+      - name: Docker 이미지 취약점 스캔 (Trivy 사용, Table 형식)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-          format: sarif
-          output: trivy-results.sarif
-          exit-code: 1 # 취약점 발견 시 워크플로우 실패 처리
-          severity: CRITICAL,HIGH # 심각도 수준 설정
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
 
-      # SARIF 결과를 GitHub Security 탭에 업로드
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: trivy-results.sarif
-
-      # Docker 이미지 푸시
-      - name: Push Docker Image
+      - name: Docker 이미지 푸시
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
 
-      # EC2에서 Docker 컨테이너 실행 (SSH 접속)
-      - name: Run Docker container on EC2
+      - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
