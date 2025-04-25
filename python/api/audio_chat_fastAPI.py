@@ -1,8 +1,8 @@
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
-from tts.audio_chat.google_stt_chat_version import run_stt
+from stt.audio_chat_stt import run_stt
 from api.response_generator import ChatRequest, generate_response
-from tts.audio_chat.audio_message_tts import run_tts
+from tts.audio_message_tts import run_tts
 import base64
 
 
@@ -10,7 +10,7 @@ import base64
 audio_chat_router = APIRouter()
 
 @audio_chat_router.post("/ai/api/process-audio")
-async def process_audio(subscriptionCode: str = Form(...), audio: UploadFile = File(...)):
+async def process_audio(subscriptionCode: int = Form(...), audio: UploadFile = File(...)):
     
     try:
         # 1. 오디오 수신

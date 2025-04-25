@@ -178,32 +178,32 @@ def cache_embedding_data(embedding_data: list):
 def now():
     return datetime.datetime.now().strftime('%H:%M:%S')
 
-# TTS 메인 함수
-async def run_tts(text: str) -> bytes:
-    global spark_model, cached_global_token_ids
+# # TTS 메인 함수
+# async def run_tts(text: str) -> bytes:
+#     global spark_model, cached_global_token_ids
     
-    if spark_model is None or cached_global_token_ids is None:
-        raise RuntimeError("TTS 환경이 초기화되지 않았습니다.")
+#     if spark_model is None or cached_global_token_ids is None:
+#         raise RuntimeError("TTS 환경이 초기화되지 않았습니다.")
 
-    print(f"\n[{now()}] TTS 생성 시작")
+#     print(f"\n[{now()}] TTS 생성 시작")
 
-    wav_np = spark_model.inference(
-        text=text,
-        global_token_ids=cached_global_token_ids
-    )
+#     wav_np = spark_model.inference(
+#         text=text,
+#         global_token_ids=cached_global_token_ids
+#     )
 
-    print(f"[{now()}]TTS inference 완료")
-    wav_int16 = np.int16(wav_np * 32767)
+#     print(f"[{now()}]TTS inference 완료")
+#     wav_int16 = np.int16(wav_np * 32767)
 
-    output_buffer = BytesIO()
-    write(output_buffer, 16000, wav_int16)
-    output_buffer.seek(0)
+#     output_buffer = BytesIO()
+#     write(output_buffer, 16000, wav_int16)
+#     output_buffer.seek(0)
 
-    audio_bytes = output_buffer.getvalue() 
-    print(f"[{now()}]TTS 생성 완료 (메모리 버퍼 반환)")
+#     audio_bytes = output_buffer.getvalue() 
+#     print(f"[{now()}]TTS 생성 완료 (메모리 버퍼 반환)")
 
-    async with aiofiles.open("debug_tts.wav", "wb") as f:
-        await f.write(output_buffer.getvalue())
-        print(f"[{now()}]debug_tts.wav 저장 완료")
+#     async with aiofiles.open("debug_tts.wav", "wb") as f:
+#         await f.write(output_buffer.getvalue())
+#         print(f"[{now()}]debug_tts.wav 저장 완료")
 
-    return audio_bytes
+#     return audio_bytes

@@ -2,8 +2,8 @@ import asyncio
 import base64
 import json
 from websockets import serve
-from test_tts import initialize_tts_environment
-from tts_test import cache_embedding_data, ensure_model_loaded, run_tts
+from tts.test.test_tts import initialize_tts_environment
+from tts.sparkTTS_voice_embedding import cache_embedding_data, ensure_model_loaded, run_tts
 
 # 예시 임베딩 (DB에서 가져온 것처럼)
 # 추후에 변경 예정 (웹소켓 서버 여부에 따라)

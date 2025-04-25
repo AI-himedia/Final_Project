@@ -34,10 +34,10 @@ public class EmbeddingApiService {
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-            return ResponseEntity.ok("✅ FastAPI 응답: " + response.getBody());
+            return ResponseEntity.ok("FastAPI 응답: " + response.getBody());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("❌ 요청 실패: " + e.getMessage());
+                    .body("요청 실패: " + e.getMessage());
         }
     }
 }

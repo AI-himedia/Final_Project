@@ -30,13 +30,15 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
     public void afterConnectionEstablished(WebSocketSession session) throws Exception{
 
         String userEmail = (String) session.getAttributes().get("userEmail");
+        String subscriptionCode = (String) session.getAttributes().get("subscriptionCode");
 
         if (userEmail == null) {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Unauthorized"));
             return;
         }
-        System.out.println("[웹소켓] 인증된 사용자 WebSocket 연결: " + userEmail);
+        System.out.println("[웹소켓] 사용자 인증 확인. WebSocket 연결");
         System.out.println("[웹소켓] 클라이언트 연결됨 sessionID: " + session.getId());
+        System.out.println("[웹소켓] 클라이언트 연결됨 subscriptionCode: " + subscriptionCode);
 
         connectedReactSessions.add(session);
         System.out.println("React 세션 등록됨: " + session.getId() + " (총 세션 수: " + connectedReactSessions.size() + ")");
@@ -44,12 +46,13 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
         Map<String, String> headers = new HashMap<>();
         headers.put("Origin", "http://localhost:8080");
 
+
         try {
             if (fastApiClient == null || !fastApiClient.isOpen()) {
-                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"), headers);
+                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"), headers, subscriptionCode);
                 fastApiClient.setMessageRelayCallback(this::relayToReactClients);
                 fastApiClient.setBinaryRelayCallback(this::relayBinaryToReactClients);
-                fastApiClient.setConnectionLostTimeout(300);
+//                fastApiClient.setConnectionLostTimeout(300);
                 fastApiClient.connectBlocking();
                 System.out.println("[FastAPI 연결 성공]");
             }
@@ -112,13 +115,6 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
                 session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
                 System.out.println("React로 STT 종료 알림 전송");
             }
-
-//            if ("tts_end".equals(signal)) {
-//                System.out.println("TTS 종료 → 오디오 클립 React로 전송");
-//                ByteArrayOutputStream audioStream = sessionAudioBuffers.remove(session.getId());
-//                byte[] fullAudio = audioStream.toByteArray();
-//                sendToReactClient(session, fullAudio);
-//            }
 
         } catch (Exception e) {
             System.err.println("JSON 파싱 실패: " + e.getMessage());

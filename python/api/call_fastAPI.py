@@ -3,16 +3,13 @@ import uvicorn
 import json
 import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from tts.call.stt_google_api import run_streaming_stt
+from stt.call_stt import run_streaming_stt
 from api.response_generator import generate_response, ChatRequest
-import websockets.legacy.client
-print("[디버그] legacy.client 모듈 불러옴:", websockets.legacy.client)
-
+from tts.audio_message_tts import get_embedding
 import time
 import base64
 from dotenv import load_dotenv
 import websockets
-import subprocess
 import asyncio
 import re
 import base64
@@ -30,7 +27,16 @@ MIN_AUDIO_CHUNKS = 5
 @call_router.websocket("/be/ws/python")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print("[new 전화 서비스 handler] Spring boot 연결됨")
+
+    data = await websocket.receive_text()
+    msg = json.loads(data)
+
+    if msg.get("type") == "auth":
+        subscription_code_str = msg.get("subscription_code")
+        subscription_code = int(subscription_code_str)
+        print(f"[전화 서비스] subscription_code: {subscription_code} (type: {type(subscription_code)})")
+
+    print("[전화 서비스 handler] Spring boot 연결됨")
 
     try:
         while websocket.client_state.name == "CONNECTED":
@@ -40,7 +46,7 @@ async def websocket_endpoint(websocket: WebSocket):
             received_chunks = [0]
             stt_done = asyncio.Event()
 
-            print("[new 전화 서비스 handler] 오디오 수신 대기 중")
+            print("[전화 서비스 handler] 오디오 수신 대기 중")
             receive_task = asyncio.create_task(
                 receive_audio(websocket, audio_queue, stt_done, received_chunks, audio_received)
             )
@@ -50,23 +56,23 @@ async def websocket_endpoint(websocket: WebSocket):
             while received_chunks[0] < MIN_AUDIO_CHUNKS:
                 await asyncio.sleep(0.1)
 
-            print("\n[new전화 서비스 handler] 새 오디오 입력 대기 중")
-            process_task = asyncio.create_task(process_stt(websocket, audio_queue))
+            print("\n[전화 서비스 handler] 새 오디오 입력 대기 중")
+            process_task = asyncio.create_task(process_stt(websocket, audio_queue, subscription_code))
 
             await asyncio.gather(receive_task, process_task)
 
             if websocket.client_state.name == "DISCONNECTED":
-                print("[new 전화 서비스 handler] 클라이언트가 연결을 종료함")
+                print("[전화 서비스 handler] 클라이언트가 연결을 종료함")
                 break
 
-            print("[new 전화 서비스 handler] 대화 흐름 1회 완료\n")
+            print("[전화 서비스 handler] 대화 흐름 1회 완료\n")
 
     except WebSocketDisconnect:
-        print("[new전화 서비스 handler] 연결 끊김")
+        print("[전화 서비스 handler] 연결 끊김")
 
 
 async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_chunks, audio_received):
-    print("[new 전화서비스] 오디오 큐 수신 시작")
+    print("[전화서비스] 오디오 큐 수신 시작")
     
     try:
         while True:
@@ -75,7 +81,7 @@ async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_ch
                 try:
                     msg = json.loads(data["text"])
                     if msg.get("event") == "end":
-                        print("[new 전화서비스] 클라이언트 종료 명령 수신 → STT 종료")
+                        print("[전화서비스] 클라이언트 종료 명령 수신 → STT 종료")
                         await asyncio.sleep(0.5)
                         
                         if not stt_done.is_set():
@@ -96,11 +102,11 @@ async def receive_audio(websocket: WebSocket, audio_queue, stt_done, received_ch
         if not stt_done.is_set():
             await audio_queue.put(None)
             stt_done.set()
-        print("[new 전화서비스] 오디오 큐 종료")
+        print("[전화서비스] 오디오 큐 종료")
 
 
-async def process_stt(websocket: WebSocket, audio_queue):
-    print("[new 전화서비스] run_streaming_stt() 호출 시작")
+async def process_stt(websocket: WebSocket, audio_queue, subscription_code):
+    print("[전화서비스] run_streaming_stt() 호출 시작")
     t0 = time.perf_counter()
     responses = await run_streaming_stt(audio_queue)
 
@@ -123,33 +129,34 @@ async def process_stt(websocket: WebSocket, audio_queue):
                     final_result = transcript
                     
                     t1 = time.perf_counter()
-                    print("[new 전화서비스]최종 STT 결과:", final_result)
+                    print("[전화서비스]최종 STT 결과:", final_result)
                     print(f"[STT] 총 소요 시간:{t1 - t0:.2f}초)")
                     await websocket.send_text(json.dumps({"type": "stt_end"}))
-                    await process_llm_and_tts(websocket, final_result)
+                    await process_llm_and_tts(websocket, final_result, subscription_code)
                     return
             else:
                 if transcript != last_partial_transcript:
                     last_partial_transcript = transcript
-                    print("[new 전화서비스]중간 STT:", transcript)
+                    print("[전화서비스]중간 STT:", transcript)
 
     if final_result is None and last_partial_transcript:
-        print("[new 전화서비스] 최종 STT 없음. 마지막 중간 결과로 처리:", last_partial_transcript)
+        print("[전화서비스] 최종 STT 없음. 마지막 중간 결과로 처리:", last_partial_transcript)
         await websocket.send_text(json.dumps({"type": "stt_end"}))
         await process_llm_and_tts(websocket, last_partial_transcript)
 
 
 
-async def process_llm_and_tts(websocket: WebSocket, final_result):
+async def process_llm_and_tts(websocket: WebSocket, final_result, subscription_code):
     try:
-        print("[new 전화서비스 LLM] LLM 호출")
-        chat_input = ChatRequest(subscriptionCode=1, userInput=final_result, serviceType="call")
+
+        print("[전화서비스 LLM] LLM 호출")
+        chat_input = ChatRequest(subscriptionCode=subscription_code, userInput=final_result, serviceType="call")
         llm_response = generate_response(chat_input)
         reply = llm_response["message"]
-        print("[new 전화서비스 LLM] 답장:", reply)
+        print("[전화서비스 LLM] 답장:", reply)
 
         try:
-            await stream_tts_audio(websocket, reply)
+            await stream_tts_audio(websocket, reply, subscription_code)
         except Exception as tts_error:
             print("[TTS 처리 중 오류]", repr(tts_error))
     
@@ -220,7 +227,6 @@ def split_into_sentences(text):
 
 async def start_ffmpeg_webm_stream():
     print("[ffmpeg] 실행 준비")
-    # FFMPEG_PATH = r"C:\Users\201-06\ffmpeg-7.1.1-essentials_build\bin\ffmpeg.exe"
     try:
         t0 = time.perf_counter()
         process = await asyncio.wait_for(
@@ -245,23 +251,20 @@ async def start_ffmpeg_webm_stream():
         raise
 
 
-async def stream_tts_audio(websocket, reply):
+async def stream_tts_audio(websocket, reply, subscription_code):
     print("[TTS] ElevenLabs WebSocket → ffmpeg 실시간 WebM 변환 시작")
     t0 = time.perf_counter()
 
     model_id = "eleven_multilingual_v2"
     api_key = os.getenv("ELEVENLABS_API_KEY")
-
-    # DB get voice_id
-
-    voice_id = "aGNMwdILxWrbiV68ONqJ"
+    # voice_id = "Y0kMLRNxCTef2wtDgX1R"
+    voice_id = get_embedding(subscription_code)
     uri = f"wss://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream-input?model_id={model_id}"
 
     sentences = split_into_sentences(reply)
     first_sentence = sentences.pop(0) if sentences else ""
 
 
-    # async with websockets.legacy.client.connect(uri) as eleven_ws:
     async with websockets.connect(uri) as eleven_ws:
         # 첫 문장 전송 + 설정
         await eleven_ws.send(json.dumps({

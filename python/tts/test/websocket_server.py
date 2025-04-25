@@ -6,8 +6,8 @@ import time
 # from websockets.legacy.server import serve, WebSocketServerProtocol
 from websockets.server import serve
 import traceback
-from python.tts.call.stt_google_api import run_streaming_stt
-from tts_test import run_tts, initialize_tts_environment
+from stt.call_stt import run_streaming_stt
+from tts.sparkTTS_voice_embedding import run_tts, initialize_tts_environment
 from api.response_generator import generate_response, ChatRequest
 
 
