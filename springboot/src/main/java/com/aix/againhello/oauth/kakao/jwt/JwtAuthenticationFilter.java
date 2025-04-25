@@ -1,6 +1,8 @@
 // oauth.kakao.JwtAuthenticationFilter
 package com.aix.againhello.oauth.kakao.jwt;
 
+import com.aix.againhello.oauth.kakao.dto.User;
+import com.aix.againhello.oauth.kakao.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -12,15 +14,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtUtil jwtUtil;
+    private final UserService userService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
     }
 
     @Override
@@ -48,16 +53,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtUtil.extractEmail(accessToken);
             request.setAttribute("email", email);
+            if (email == null || email.isEmpty()) {
+                // access token 재발급이 안되고 있어서 수정한 파트
+                try {
+                    logger.warn("access token 만료");
+                    String emailFromRT = jwtUtil.extractEmail(refreshToken);
+                    User user = userService.findByEmail(emailFromRT);
+
+                    if(Objects.equals(user.getRefreshToken(), refreshToken)) {
+                        logger.warn("refresh token 비교 통과");
+                        String newAccessToken = jwtUtil.createAccessToken(emailFromRT);
+                        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+                        request.setAttribute("email", emailFromRT);
+                        logger.warn("access token 재발급");
+                    }
+
+                } catch (Exception ex) {
+                    logger.warn("Refresh token invalid: {}", ex.getMessage());
+                }
+            }
         } catch (Exception e) {
             logger.warn("Access token invalid, trying refresh token");
-            try {
-                String email = jwtUtil.extractEmail(refreshToken);
-                String newAccessToken = jwtUtil.createAccessToken(email);
-                jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
-                request.setAttribute("email", email);
-            } catch (Exception ex) {
-                logger.error("Refresh token invalid: {}", ex.getMessage());
-            }
         }
         filterChain.doFilter(request, response);
     }

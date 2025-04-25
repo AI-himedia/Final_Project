@@ -249,7 +249,7 @@ def generate_response_for_single_io(request: TestRequest):
                         # 누적 점수 계산
                         precision_total += P.item()
                         recall_total += R.item()
-                        f1_total += F1.item()  
+                        f1_total += F1.item()
 
                         test_logs.append({
                             "model": model_name_version,
