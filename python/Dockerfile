@@ -1,6 +1,6 @@
 # Python 버전 지정 (빌드 아규먼트)
 ARG PYTHON_VERSION=3.11
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu24.04
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -8,8 +8,8 @@ WORKDIR /app
 # Python 3.11 설치
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python${PYTHON_VERSION} \
-    python${PYTHON_VERSION}-dev \
+    python3.11 \
+    python3.11-dev \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
