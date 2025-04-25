@@ -48,16 +48,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtUtil.extractEmail(accessToken);
             request.setAttribute("email", email);
+            if (email == null || email.isEmpty()) {
+                try {
+                    logger.warn("access token 만료");
+                    String emailFromRT = jwtUtil.extractEmail(refreshToken);
+                    String newAccessToken = jwtUtil.createAccessToken(emailFromRT);
+                    jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+                    request.setAttribute("email", emailFromRT);
+                    logger.warn("access token 재발급");
+                } catch (Exception ex) {
+                    logger.warn("Refresh token invalid: {}", ex.getMessage());
+                }
+            }
         } catch (Exception e) {
             logger.warn("Access token invalid, trying refresh token");
-            try {
-                String email = jwtUtil.extractEmail(refreshToken);
-                String newAccessToken = jwtUtil.createAccessToken(email);
-                jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
-                request.setAttribute("email", email);
-            } catch (Exception ex) {
-                logger.error("Refresh token invalid: {}", ex.getMessage());
-            }
         }
         filterChain.doFilter(request, response);
     }
