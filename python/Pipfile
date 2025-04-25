@@ -3,11 +3,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[[source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cu121"
-verify_ssl = true
-
 [packages]
 psycopg2-binary = "*"
 langchain = "==0.3.23"
@@ -41,9 +36,9 @@ python-multipart = "*"
 aiofiles = "*"
 aioboto3 = "*"
 redis = "*"
-torch = {version = "*", index = "pytorch"}
-torchvision = {version = "*", index = "pytorch"}
-torchaudio = {version = "*", index = "pytorch"}
+torch = {version = "*", markers = "sys_platform != 'darwin' and platform_machine != 'arm64'"}
+torchvision = {version = "*", markers = "sys_platform != 'darwin' and platform_machine != 'arm64'"}
+torchaudio = {version = "*", markers = "sys_platform != 'darwin' and platform_machine != 'arm64'"}
 websockets = ">=10.0"
 sentence-transformers = "*"
 pgvector = "*"
