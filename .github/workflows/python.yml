@@ -15,19 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 코드 체크아웃
+      - name: Code Checkout
         uses: actions/checkout@v3
-
-      - name: Docker Buildx 설정
-        uses: docker/setup-buildx-action@v2
-
-      - name: Docker 레이어 캐시 복원
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
 
       - name: Docker 로그인
         uses: docker/login-action@v2
@@ -35,17 +24,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker 이미지 빌드 및 푸시 (캐시 사용)
-        uses: docker/build-push-action@v4
-        with:
-          context: ./python
-          file: ./python/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-          build-args: |
-            PYTHON_VERSION=3.11
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Docker 이미지 빌드
+        run: docker build --build-arg PYTHON_VERSION=3.11 -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} -f ./python/Dockerfile ./python
+
+      # - name: Docker 이미지 취약점 스캔
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
+      #     format: table
+      #     exit-code: 0
+      #     severity: CRITICAL,HIGH
+      #     scanners: vuln
+      #     cache-clear: true
+
+      - name: Docker 이미지 푸시
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
