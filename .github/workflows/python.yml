@@ -50,7 +50,12 @@ jobs:
             docker stop python-app || true
             docker rm python-app || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-            docker run --gpus all -d --name python-app -p 8000:8000 \
+            docker run -d --gpus all --runtime=nvidia --ipc=host --privileged --net=host \
+              --name python-app \
+              -e NVIDIA_VISIBLE_DEVICES=all \
+              -e NVIDIA_DRIVER_CAPABILITIES=all \
+              -e DISPLAY=$DISPLAY \
+              -e QT_X11_NO_MITSHM=1 \
               -e GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }} \
               -e LANGCHAIN_TRACING_V2=${{ secrets.LANGCHAIN_TRACING_V2 }} \
               -e LANGSMITH_TRACING_V2=${{ secrets.LANGSMITH_TRACING_V2 }} \
