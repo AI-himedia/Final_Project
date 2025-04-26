@@ -12,18 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# 인증 파일 저장 디렉토리 생성
-RUN mkdir -p /app/gcp_credentials
-
-# Base64로 인코딩된 인증 정보를 디코딩하여 파일로 저장
-RUN echo "$GOOGLE_APPLICATION_CREDENTIALS_CONTENT" | base64 -d > /app/gcp_credentials/hello-again-ai-project.json
-
-# 생성된 파일 내용 확인 (디버깅)
-RUN cat /app/gcp_credentials/hello-again-ai-project.json
-
-# GOOGLE_APPLICATION_CREDENTIALS 환경 변수 설정 (파일 경로)
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials/hello-again-ai-project.json
-
 COPY Pipfile Pipfile.lock /app/
 
 # Python 가상 환경 설정
@@ -41,6 +29,8 @@ RUN pipenv sync --dev
 COPY . /app
 
 RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+
+# 환경 변수 설정 관련 부분 제거
 
 EXPOSE 8000
 
