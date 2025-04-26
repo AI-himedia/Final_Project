@@ -7,9 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     libsndfile1 \
-    # cuda-toolkit-12-4 && \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    ffmpeg \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
