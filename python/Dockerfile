@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3.11
 FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
-# 기본적으로 필요한 패키지 설치
+# 필요한 패키지 업데이트 및 Python 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
@@ -14,25 +14,24 @@ WORKDIR /app
 
 COPY Pipfile Pipfile.lock /app/
 
-# Python 가상 환경 설정
+# 가상 환경 생성 및 활성화
 RUN python3 -m venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 # pipenv 설치
-RUN /app/.venv/bin/pip install pipenv
+RUN pip install --no-cache-dir pipenv
 
-# 필요한 패키지들 설치
-RUN /app/.venv/bin/pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# torch 관련 미리 설치
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# pipenv로 필요한 의존성 설치
-RUN /app/.venv/bin/pipenv sync --dev
+# pipenv sync
+RUN pipenv sync --dev
 
 COPY . /app
 
+# torch에서 CUDA 사용 가능한지 체크
 RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available())"
-
-# 환경 변수 설정 관련 부분 제거
 
 EXPOSE 8000
 
-CMD ["/app/.venv/bin/pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
