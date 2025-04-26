@@ -4,13 +4,13 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from llm.chat.embedding_model import embedding_model  # 전역 임베딩 모델 로딩용 import
+from model.embedding_model import embedding_model  # 전역 임베딩 모델 로딩용 import
 from dotenv import load_dotenv
 from api import routers
 import uvicorn
-from tts.call.new_fastapi_ws_server import call_router as call_router
-from tts.audio_chat.audio_chat import audio_chat_router as audio_chat_router
-from model.tts_model_loader import ensure_model_loaded
+from api.call_fastAPI import call_router as call_router
+from api.audio_chat_fastAPI import audio_chat_router as audio_chat_router
+from model.tts_model_loader import ensure_model_loaded  # TTS 모델 로딩
 
 # Windows에서는 asyncio 서브프로세스 지원을 위해 꼭 필요함
 if sys.platform == "win32":

@@ -290,6 +290,20 @@ def get_latest_embedding(conn, subscription_code: int):
         return result[0] if result else None
     
 
+def get_latest_voice_id(subscription_code: int):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT voice_id
+                FROM raw_file
+                WHERE subscription_code = %s
+                ORDER BY update_date DESC
+                LIMIT 1
+            """, (subscription_code,))
+            result = cur.fetchone()
+            return result[0] if result else None
+    
+
 def save_results_to_postgres(results):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
