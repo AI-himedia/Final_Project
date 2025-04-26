@@ -18,9 +18,14 @@ COPY Pipfile Pipfile.lock /app/
 RUN python3 -m venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-# pipenv 설치 및 의존성 설치 (가상 환경 내에서)
+# pipenv 설치
 RUN pip install --no-cache-dir pipenv
-RUN pipenv sync --dev
+
+# torch 관련 미리 설치
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# pipenv sync --skip-lock
+RUN pipenv sync --dev --skip-lock
 
 COPY . /app
 
