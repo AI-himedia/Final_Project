@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir pipenv
 # torch 관련 미리 설치
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# pipenv sync --skip-lock
+# pipenv sync
 RUN pipenv sync --dev
 
 COPY . /app
