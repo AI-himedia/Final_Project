@@ -37,6 +37,9 @@ jobs:
       - name: Docker 이미지 빌드 및 푸시
         run: |
           echo "${{ secrets.PYTHON_ENV }}" > python/.env
+          echo "GOOGLE_APPLICATION_CREDENTIALS (Base64): ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
+          echo 'Decoded GOOGLE_APPLICATION_CREDENTIALS:'
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d
           docker build \
             --build-arg GOOGLE_APPLICATION_CREDENTIALS_CONTENT="${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" \
             --build-arg PYTHON_VERSION=3.11 \
