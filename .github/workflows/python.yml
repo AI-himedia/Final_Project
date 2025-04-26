@@ -50,11 +50,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            printf "%s" "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d > /home/ubuntu/hello-again-ai-project.json
+
             docker stop python-app || true
             docker rm python-app || true
+
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
+
             docker run -d --name python-app --gpus all --runtime=nvidia --ipc=host --privileged --net=host \
-              --env-file GOOGLE_APPLICATION_CREDENTIALS=/home/ubuntu/hello-again-ai-project.json \
+              --env-file /home/ubuntu/hello-again-ai-project.json \
               -e LANGCHAIN_TRACING_V2="${{ secrets.LANGCHAIN_TRACING_V2 }}" \
               -e LANGSMITH_TRACING_V2="${{ secrets.LANGSMITH_TRACING_V2 }}" \
               -e LANGSMITH_ENDPOINT="${{ secrets.LANGSMITH_ENDPOINT }}" \
