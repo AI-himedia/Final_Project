@@ -2,10 +2,6 @@ import redis
 import os
 from fastapi import HTTPException
 
-import os
-from fastapi import HTTPException
-import redis
-
 try:
     redis_host = os.getenv("REDIS_HOST", "15.165.139.92")
     redis_port = int(os.getenv("REDIS_PORT", 6379))
