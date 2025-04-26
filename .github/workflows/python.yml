@@ -76,3 +76,4 @@ jobs:
               -e ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY }} \
               ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
             docker ps -a
+            docker exec python-app env
