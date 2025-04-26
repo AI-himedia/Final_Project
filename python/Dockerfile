@@ -1,6 +1,8 @@
 ARG PYTHON_VERSION=3.11
 FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
+ARG GOOGLE_APPLICATION_CREDENTIALS_CONTENT
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
@@ -10,6 +12,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# 인증 파일 저장 디렉토리 생성
+RUN mkdir -p /app/gcp_credentials
+
+# 키 파일 내용을 컨테이너 내부 파일로 저장
+RUN echo "$GOOGLE_APPLICATION_CREDENTIALS_CONTENT" > /app/gcp_credentials/hello-again-ai-project.json
+
+# GOOGLE_APPLICATION_CREDENTIALS 환경 변수 설정 (파일 경로)
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials/hello-again-ai-project.json
 
 COPY Pipfile Pipfile.lock /app/
 
