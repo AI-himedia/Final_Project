@@ -51,4 +51,22 @@ jobs:
             docker rm python-app || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
             docker run -d --name python-app --gpus all --runtime=nvidia --ipc=host --privileged --net=host \
+              -e GOOGLE_APPLICATION_CREDENTIALS="${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" \
+              -e LANGCHAIN_TRACING_V2="${{ secrets.LANGCHAIN_TRACING_V2 }}" \
+              -e LANGSMITH_TRACING_V2="${{ secrets.LANGSMITH_TRACING_V2 }}" \
+              -e LANGSMITH_ENDPOINT="${{ secrets.LANGSMITH_ENDPOINT }}" \
+              -e LANGSMITH_API_KEY="${{ secrets.LANGSMITH_API_KEY }}" \
+              -e LANGSMITH_PROJECT="${{ secrets.LANGSMITH_PROJECT }}" \
+              -e PERPLEXITY_KEY="${{ secrets.PERPLEXITY_KEY }}" \
+              -e CLAUDE_KEY="${{ secrets.CLAUDE_KEY }}" \
+              -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+              -e DB_HOST="${{ secrets.DB_HOST }}" \
+              -e DB_PORT="${{ secrets.DB_PORT }}" \
+              -e DB_NAME="${{ secrets.DB_NAME }}" \
+              -e DB_USER="${{ secrets.DB_USER }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" \
+              -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e ELEVENLABS_API_KEY="${{ secrets.ELEVENLABS_API_KEY }}" \
               ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
