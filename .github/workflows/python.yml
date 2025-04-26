@@ -58,5 +58,5 @@ jobs:
 
             docker run -d --name python-app --gpus all --runtime=nvidia --ipc=host --privileged --net=host \
               -v /home/ubuntu:/app \
-              --env-file /app/python.env \
+              --env-file /home/ubuntu/python.env \
               ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
