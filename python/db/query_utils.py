@@ -311,12 +311,12 @@ def save_results_to_postgres(results):
                 cur.execute("""
                     INSERT INTO test_logs (
                         model, test_name, user_input, expected, generated,
-                        precision, recall, f1, response_time
-                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        precision, recall, f1, toxicity, response_time
+                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """, (
                     row["model"], row["test_name"], row["user_input"], row["expected"],
                     row["generated"], row["precision"], row["recall"],
-                    row["f1"], row["response_time"]
+                    row["f1"], row["toxicity"], row["response_time"]
                 ))
             conn.commit()
 
@@ -326,14 +326,15 @@ def save_model_summary_to_postgres(results_dict: dict, test_batch: str):
             for model_name, result in results_dict.items():
                 cur.execute("""
                     INSERT INTO model_test_summary (
-                        model_name, avg_precision, avg_recall, avg_f1,
+                        model_name, avg_precision, avg_recall, avg_f1, toxicity_num
                         time_taken, avg_time_per_trial, test_batch
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     model_name,
                     result["avg_precision"],
                     result["avg_recall"],
                     result["avg_f1"],
+                    result["toxicity_num"],
                     result["time_taken"],
                     result["avg_time_per_trial"],
                     test_batch

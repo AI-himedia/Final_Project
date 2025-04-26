@@ -47,7 +47,7 @@ torchaudio = {version = "*", index = "pytorch"}
 websockets = ">=10.0"
 sentence-transformers = "*"
 pgvector = "*"
-
+soundfile = "*"
 
 [dev-packages]
 

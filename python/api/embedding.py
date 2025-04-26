@@ -11,7 +11,7 @@ class Request(BaseModel):
     subscription_code: int
     service_code: int
 
-@embedding_router.get("/ai/embedding")
+@embedding_router.post("/ai/embedding")
 def embedding_select(request: Request):
 
     if request.service_code==2:

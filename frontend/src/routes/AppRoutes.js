@@ -66,6 +66,7 @@ export const AppRoutes = () => (
     <Route element={<PrivateRoute />}>
       <Route path="/service/list/call" element={<ServiceList />} />
       <Route path="/service/list/sms" element={<ServiceList />} />
+      {/* <Route path="/service/list/voiceChat" element={<ServiceList />} /> */}
       <Route path="/service/terms/check" element={<ServiceCheck />} />
       <Route path="/service/terms/product" element={<ProductPage />} />
     </Route>

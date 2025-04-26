@@ -172,6 +172,7 @@ export default function Step7_Call() {
 
     const requestData = {
       subscriptionCode: Number(subscriptionCode),
+      serviceCode: localStorage.getItem('@againhello/service-code'),
       selections: selectedSpeakers,
     };
 

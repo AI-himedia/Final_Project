@@ -39,7 +39,7 @@ export default function ServiceList() {
     const fetchData = async () => {
       try {
         let apiUrl = '';
-        if (serviceType === 'call') {
+        if (serviceType === 'call' || serviceType === 'voice_chat') {
           apiUrl = `/call/user/${userCode}/deceased-list`;
           const response = await axiosInstance.get(apiUrl);
           console.log(response);

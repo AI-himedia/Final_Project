@@ -25,7 +25,7 @@ const CallPage = () => {
       const fetchEmbedding = async () => {
         try {
           const response = await axiosInstance.post(
-            `/embedding?subscription_code=${currentSubscriptionCode}`
+            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=2`
           );
 
           console.log('Embedding 요청 성공:', response.data);
@@ -42,6 +42,7 @@ const CallPage = () => {
     // location.state의 subscriptionCode가 변경될 때 상태 업데이트
     if (location.state?.subscriptionCode !== currentSubscriptionCode) {
       setCurrentSubscriptionCode(location.state.subscriptionCode);
+
     }
     console.log(
       'CallPage useEffect - currentSubscriptionCode:',
