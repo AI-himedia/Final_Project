@@ -48,7 +48,7 @@ def ensure_model_loaded():
     if spark_model is None:
         print("모델 메모리 로딩 시작")
         
-        # 배포 테스트로 잠시 CPU 이용
+        # 배포 테스트로 잠시 GPU 이용
         # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # device = torch.device("cpu")
         device = torch.device("cuda")
