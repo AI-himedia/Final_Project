@@ -26,7 +26,6 @@ jobs:
 
       - name: Docker 이미지 빌드 및 푸시
         run: |
-          echo "${{ secrets.PYTHON_ENV }}" > python/.env
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} -f ./python/Dockerfile ./python
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
 
