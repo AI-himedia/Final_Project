@@ -15,10 +15,12 @@ WORKDIR /app
 # 인증 파일 저장 디렉토리 생성
 RUN mkdir -p /app/gcp_credentials
 
-# GOOGLE_APPLICATION_CREDENTIALS 환경 변수를 EC2 경로로 설정 (파일 경로는 EC2에서 전달받습니다)
-ENV GOOGLE_APPLICATION_CREDENTIALS="/home/ubuntu/hello-again-ai-project.json"
+# Base64로 인코딩된 인증 정보를 디코딩하여 파일로 저장
+RUN echo "$GOOGLE_APPLICATION_CREDENTIALS_CONTENT" | base64 -d > /app/gcp_credentials/hello-again-ai-project.json
 
-# Pipfile과 관련된 의존성 설치
+# GOOGLE_APPLICATION_CREDENTIALS 환경 변수 설정 (파일 경로)
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials/hello-again-ai-project.json
+
 COPY Pipfile Pipfile.lock /app/
 
 # Python 가상 환경 설정

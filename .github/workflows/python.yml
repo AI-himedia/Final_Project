@@ -38,20 +38,11 @@ jobs:
         run: |
           echo "${{ secrets.PYTHON_ENV }}" > python/.env
           docker build \
+            --build-arg GOOGLE_APPLICATION_CREDENTIALS_CONTENT="${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" \
             --build-arg PYTHON_VERSION=3.11 \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} \
             -f ./python/Dockerfile ./python
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-
-      # - name: Docker 이미지 취약점 스캔
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-      #     format: table
-      #     exit-code: 0
-      #     severity: CRITICAL,HIGH
-      #     scanners: vuln
-      #     cache-clear: true
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
@@ -60,15 +51,13 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            printf "%s" "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d > /home/ubuntu/hello-again-ai-project.json
-
             docker stop python-app || true
             docker rm python-app || true
 
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
 
             docker run -d --name python-app --gpus all --runtime=nvidia --ipc=host --privileged --net=host \
-              --env-file /home/ubuntu/hello-again-ai-project.json \
+              -e GOOGLE_APPLICATION_CREDENTIALS="/app/gcp_credentials/hello-again-ai-project.json" \
               -e LANGCHAIN_TRACING_V2="${{ secrets.LANGCHAIN_TRACING_V2 }}" \
               -e LANGSMITH_TRACING_V2="${{ secrets.LANGSMITH_TRACING_V2 }}" \
               -e LANGSMITH_ENDPOINT="${{ secrets.LANGSMITH_ENDPOINT }}" \
