@@ -6,7 +6,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from llm.chat.prompt_template import SYSTEM_PROMPT_TEMPLATE 
 from llm.chat.chain_config import get_llm_and_prompt
 from llm.chat.memory_chain import MyChatChain
-from model import embedding_model
+from model.embedding_model import embedding_model
 from llm.models.request_models import ChatRequest
 from db.query_utils import fetch_prompt_data, get_similar_messages_with_embedding, get_vector, save_results_to_postgres, save_model_summary_to_postgres
 from config.redis_config import redis_client
