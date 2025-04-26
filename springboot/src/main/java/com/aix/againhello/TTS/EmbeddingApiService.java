@@ -13,11 +13,12 @@ import java.util.Map;
 public class EmbeddingApiService {
 
     @PostMapping("/be/embedding") //접속 예시: http://localhost:8080/be/embedding?subscription_code=1
-    public ResponseEntity<String> sendSubscriptionCode(@RequestParam("subscription_code") int subscriptionCode) {
+    public ResponseEntity<String> sendSubscriptionCode(@RequestParam("subscription_code") int subscriptionCode, @RequestParam("service_code") int serviceCode) {
 
         // 1. 요청 데이터 준비
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("subscription_code", subscriptionCode);
+        requestBody.put("service_code", serviceCode);
 
         // 2. 헤더 설정
         HttpHeaders headers = new HttpHeaders();

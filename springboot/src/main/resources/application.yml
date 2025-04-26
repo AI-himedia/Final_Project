@@ -38,7 +38,7 @@ mybatis:
 
 jwt:
   secret: ${JWT_SECRET}
-  access-token-validity-in-seconds: 900
+  access-token-validity-in-seconds: 20
   refresh-token-validity-in-seconds: 604800
 
 aws:

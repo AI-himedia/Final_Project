@@ -14,11 +14,14 @@ export default function ProductPage() {
     : [];
 
   const isSmsDisabled = disabledServices.includes(1);
-  const isCallDisabled = disabledServices.includes(2);
+  const isVoiceChatDisabled = disabledServices.includes(2);
+  const isCallDisabled = disabledServices.includes(3);
+  
 
   const handleServiceClick = (type) => {
     if (
       (type === 'sms' && isSmsDisabled) ||
+      (type === 'voice_chat' && isVoiceChatDisabled) ||
       (type === 'call' && isCallDisabled)
     )
       return;
@@ -26,10 +29,10 @@ export default function ProductPage() {
     setSelectedService(type);
 
     // 로컬스토리지 저장 로직
-    const serviceCode = type === 'sms' ? 1 : 2;
+    const serviceCode = type === 'sms' ? 1 : 'voice_chat' ? 2 : 3;
     if (deceasedCode) {
       localStorage.setItem('@againhello/deceased-code', deceasedCode);
-      localStorage.setItem('@againhello/service-code', String(serviceCode));
+      localStorage.setItem('@againhello/service-code', serviceCode);
     }
   };
 
@@ -71,6 +74,39 @@ export default function ProductPage() {
           </div>
         </div>
 
+        {/* 보이스챗 서비스 카드 */}
+        <div
+          className={`Notice_Card ${
+            selectedService === 'voice_chat' ? 'selected' : ''
+          } ${isVoiceChatDisabled ? 'disabled' : ''}`}
+          onClick={() => handleServiceClick('voice_chat')}
+        >
+          <div className="Notice_Left">
+            <img
+              src="/assets/product_call.png"
+              alt="서비스 아이콘"
+              className="Notice_Icon"
+            />
+            <div className="Notice_TextBox">
+              <h3 className="Notice_Title">보이스챗 서비스 요금</h3>
+              <p className="Notice_Description">
+                월 5,000원으로 보이스챗
+                <br />
+                서비스를 이용할 수 있어요.
+              </p>
+            </div>
+          </div>
+          <div className="Notice_Right">
+            <div
+              className={`Notice_Tag ${
+                isVoiceChatDisabled ? 'Unavailable' : 'Available'
+              }`}
+            >
+              {isVoiceChatDisabled ? '이미 신청됨' : '신청가능'}
+            </div>
+          </div>
+        </div>
+
         {/* 통화 서비스 카드 */}
         <div
           className={`Notice_Card ${
@@ -87,7 +123,7 @@ export default function ProductPage() {
             <div className="Notice_TextBox">
               <h3 className="Notice_Title">통화 서비스 요금</h3>
               <p className="Notice_Description">
-                월 5,000원으로 통화
+                월 10,000원으로 통화
                 <br />
                 서비스를 이용할 수 있어요.
               </p>
@@ -105,7 +141,7 @@ export default function ProductPage() {
         </div>
 
         <p className="Notice_FooterText">
-          * 고인 한 분당 최대 2개 서비스를 이용하실 수 있으며,
+          * 고인 한 분당 최대 3개 서비스를 이용하실 수 있으며,
           <br />
           서비스 1개씩 따로 결제 및 신청 해주시기 바랍니다.
         </p>

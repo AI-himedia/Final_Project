@@ -39,10 +39,11 @@ export default function ServiceCheck() {
 
   const serviceMap = {
     1: '문자',
-    2: '전화',
+    2: '보이스쳇',
+    3: '전화'
   };
 
-  const allServices = [1, 2];
+  const allServices = [1, 2, 3];
 
   return (
     <>
@@ -58,12 +59,12 @@ export default function ServiceCheck() {
         )}
 
         {showSkeleton || !hasService ? (
-          <SkeletonList count={3} />
+          <SkeletonList count={5} />
         ) : hasService.length > 0 ? (
           <div className={styles.CardContainer}>
             {hasService.map((service, idx) => {
               const isFullySubscribed =
-                service.services.includes(1) && service.services.includes(2);
+                service.services.includes(1) && service.services.includes(2) && service.services.includes(3);
 
               return (
                 <div key={idx}>
