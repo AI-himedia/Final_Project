@@ -18,13 +18,14 @@ COPY Pipfile Pipfile.lock /app/
 RUN python3 -m venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-# 필요한 패키지들 설치
-RUN pip install --no-cache-dir pipenv
+# pipenv 설치
+RUN /app/.venv/bin/pip install pipenv
 
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# 필요한 패키지들 설치
+RUN /app/.venv/bin/pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # pipenv로 필요한 의존성 설치
-RUN pipenv sync --dev
+RUN /app/.venv/bin/pipenv sync --dev
 
 COPY . /app
 
@@ -34,4 +35,4 @@ RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available()
 
 EXPOSE 8000
 
-CMD ["pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/.venv/bin/pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
