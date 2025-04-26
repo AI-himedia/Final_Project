@@ -18,6 +18,7 @@ RUN mkdir -p /app/gcp_credentials
 
 # 키 파일 내용을 컨테이너 내부 파일로 저장
 RUN echo "$GOOGLE_APPLICATION_CREDENTIALS_CONTENT" > /app/gcp_credentials/hello-again-ai-project.json
+RUN cat /app/gcp_credentials/hello-again-ai-project.json
 
 # GOOGLE_APPLICATION_CREDENTIALS 환경 변수 설정 (파일 경로)
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials/hello-again-ai-project.json
