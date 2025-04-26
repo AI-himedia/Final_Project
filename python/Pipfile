@@ -37,9 +37,10 @@ python-multipart = "*"
 aiofiles = "*"
 aioboto3 = "*"
 redis = "*"
-torch = {version = "*", index = "pytorch"}
-torchvision = {version = "*", index = "pytorch"}
-torchaudio = {version = "*", index = "pytorch"}
+torch = {version = "==2.5.1", index = "pytorch"}
+torchvision = {version = "==0.20.1", index = "pytorch"}
+torchaudio = {version = "==2.5.1", index = "pytorch"}
+
 websockets = ">=10.0"
 sentence-transformers = "*"
 pgvector = "*"
