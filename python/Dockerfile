@@ -18,6 +18,9 @@ RUN mkdir -p /app/gcp_credentials
 # Base64로 인코딩된 인증 정보를 디코딩하여 파일로 저장
 RUN echo "$GOOGLE_APPLICATION_CREDENTIALS_CONTENT" | base64 -d > /app/gcp_credentials/hello-again-ai-project.json
 
+# 생성된 파일 내용 확인 (디버깅)
+RUN cat /app/gcp_credentials/hello-again-ai-project.json
+
 # GOOGLE_APPLICATION_CREDENTIALS 환경 변수 설정 (파일 경로)
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_credentials/hello-again-ai-project.json
 
