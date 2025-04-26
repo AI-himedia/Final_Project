@@ -54,7 +54,7 @@ jobs:
             docker rm python-app || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
             docker run -d --name python-app --gpus all --runtime=nvidia --ipc=host --privileged --net=host \
-              -e GOOGLE_APPLICATION_CREDENTIALS="/home/ubuntu/hello-again-ai-project.json" \
+              --env-file GOOGLE_APPLICATION_CREDENTIALS=/home/ubuntu/hello-again-ai-project.json \
               -e LANGCHAIN_TRACING_V2="${{ secrets.LANGCHAIN_TRACING_V2 }}" \
               -e LANGSMITH_TRACING_V2="${{ secrets.LANGSMITH_TRACING_V2 }}" \
               -e LANGSMITH_ENDPOINT="${{ secrets.LANGSMITH_ENDPOINT }}" \
