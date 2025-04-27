@@ -17,7 +17,8 @@ import java.util.List;
 @Service
 public class SubscriptionService {
     private static final int SMS_SERVICE_CODE = 1;
-    private static final int CALL_SERVICE_CODE = 2;
+    private static final int VOICE_CHAT_SERVICE_CODE = 2;
+    private static final int CALL_SERVICE_CODE = 3;
 
     @Autowired
     private SubscriptionMapper subscriptionMapper;
@@ -31,7 +32,7 @@ public class SubscriptionService {
      *
      * @param userCode 사용자 코드
      * @return deceasedCode 고인 코드
-     * serviceCode 서비스 코드 sms: 1/ call: 2
+     * serviceCode 서비스 코드 sms: 1/ voiceChat: 2/ call: 3
      * deceasedName 고인 이름
      */
     public List<SubscriptionInfoResponse> getSubscriptionList(int userCode) {
@@ -48,7 +49,7 @@ public class SubscriptionService {
      * 결제 성공시
      *
      * @param userCode 사용자 코드
-     * @param serviceCode 서비스 코드 sms: 1/ call: 2
+     * @param serviceCode 서비스 코드 sms: 1/ voiceChat: 2/ call: 3
      * @param deceasedCode 고인 코드 Nullable
      * @return  고인 코드
      */
@@ -61,7 +62,7 @@ public class SubscriptionService {
         }
 
         // 2. 서비스 코드가 1 또는 2인지
-        if (serviceCode !=SMS_SERVICE_CODE && serviceCode !=CALL_SERVICE_CODE) {
+        if (serviceCode !=SMS_SERVICE_CODE && serviceCode !=CALL_SERVICE_CODE && serviceCode !=VOICE_CHAT_SERVICE_CODE) {
             throw new ServiceException("유효하지 않은 서비스입니다.");
         }
 
