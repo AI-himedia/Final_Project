@@ -1,3 +1,4 @@
+
 ARG PYTHON_VERSION=3.11
 FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
@@ -34,4 +35,5 @@ RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available()
 
 EXPOSE 8000
 
-CMD ["pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 절대 경로로 pipenv 지정
+CMD ["/app/.venv/bin/pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
