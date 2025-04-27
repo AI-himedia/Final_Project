@@ -29,7 +29,16 @@ export default function ProductPage() {
     setSelectedService(type);
 
     // 로컬스토리지 저장 로직
-    const serviceCode = type === 'sms' ? 1 : 'voice_chat' ? 2 : 3;
+    const serviceMap = {
+      sms: 1,
+      voice_chat: 2,
+      call: 3
+    };
+    
+    const serviceCode = serviceMap[type];
+
+    // const serviceCode = type === 'sms' ? 1 : type === 'voice_chat' ? 2 : 3;
+    
     if (deceasedCode) {
       localStorage.setItem('@againhello/deceased-code', deceasedCode);
       localStorage.setItem('@againhello/service-code', serviceCode);
