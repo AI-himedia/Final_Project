@@ -1,58 +1,50 @@
-# .github/workflows/python.yml
-
 name: Python Docker Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [cjh] # 또는 사용하는 브랜치명
     paths:
       - "python/**"
       - ".github/workflows/python.yml"
+      - "requirements.txt"
+      - "python/Dockerfile"
 
 jobs:
-  Python_Deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Code Checkout
+      - name: Checkout
         uses: actions/checkout@v3
 
-      # Python 환경 설정
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-
-      # 의존성 설치
-      - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r python/requirements.txt  # requirements.txt 경로 수정
-
-      # Docker 이미지 빌드 및 푸시
-      - name: Docker Build & Push
+      - name: Docker 로그인
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker 이미지 빌드 및 푸시
+      - name: Docker 빌드 및 푸시
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }} ./python  # python 디렉토리 경로 수정
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }} -f ./python/Dockerfile ./python
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
 
-      - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
-        uses: appleboy/ssh-action@master
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH 접속 및 배포
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 기존 컨테이너가 있으면 중지 및 삭제
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
             docker stop python-app || true
             docker rm python-app || true
-            # 최신 Docker 이미지 가져오기
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
-            # Docker 컨테이너 실행 (8000번 포트에서 FastAPI 앱 서빙)
-            docker run -d --name python-app -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
+            docker run -d --name python-app \
+              --env-file /home/ubuntu/python.env \
+              -v /home/ubuntu/hello-again-ai-project.json:/app/hello-again-ai-project.json \
+              -p 8000:8000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
