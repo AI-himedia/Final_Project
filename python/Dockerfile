@@ -12,27 +12,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY Pipfile Pipfile.lock /app/
+# 가상 환경 생성
+RUN python3 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
 
-# pipenv 전역 설치 (시스템 Python에)
-RUN pip3 install --no-cache-dir pipenv
+# Pipfile.lock 대신 requirements.txt 사용 (아래 명령으로 생성 가능)
+# pipenv requirements > requirements.txt
+COPY requirements.txt /app/
 
-# 가상 환경 생성 및 의존성 설치
-RUN pipenv install --dev
+# pip으로 의존성 설치
+RUN pip install --no-cache-dir -r requirements.txt
 
-# torch 관련 패키지 설치 (pipenv 환경 내부에)
-RUN pipenv run pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# torch 관련 패키지 설치
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 COPY . /app
 
 # torch에서 CUDA 사용 가능한지 체크
-RUN pipenv run python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+RUN python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
 
 EXPOSE 8000
 
-# 새로운 시작 스크립트 생성
-RUN echo '#!/bin/bash\npipenv run uvicorn main:app --host 0.0.0.0 --port 8000' > /app/start.sh && \
-    chmod +x /app/start.sh
-
-# 스크립트 실행
-CMD ["/app/start.sh"]
+# 직접 실행
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
