@@ -33,4 +33,4 @@ RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available()
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["bash", "-c", "uvicorn main:app --host 0.0.0.0 --port 8000"]

@@ -58,9 +58,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            docker system prune -af
-            docker stop python-app || true
-            docker rm python-app || true
+            docker stop python-app || true && docker rm python-app || true
 
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/python:${{ github.sha }}
 
