@@ -14,4 +14,5 @@ public interface CallMapper {
     void insertRawFile(RawFileDTO rawFile);
     int updateDeceasedData(DeceasedDataDTO deceasedDataDto);
     List<CallDeceasedInfoDTO> findDeceasedListForCallServiceByUser(int userCode);
+    List<CallDeceasedInfoDTO> findDeceasedListForCallStreamingServiceByUser(int userCode);
 }

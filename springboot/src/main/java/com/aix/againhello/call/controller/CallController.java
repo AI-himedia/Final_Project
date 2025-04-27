@@ -204,12 +204,22 @@ public class CallController {
     }
 
     /**
-     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     * 사용자별 보이스챗 서비스 구독 고인 목록 및 최근 통화 시간 조회
      */
     @GetMapping("/user/{userCode}/deceased-list")
     public ResponseEntity<List<CallDeceasedInfoDTO>> getDeceasedListForUser(@PathVariable int userCode) {
 
         List<CallDeceasedInfoDTO> deceasedList = callService.getCallServiceDeceasedListByUser(userCode);
+        return ResponseEntity.ok(deceasedList);
+    }
+
+    /**
+     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     */
+    @GetMapping("/user/{userCode}/deceased-list-for-streaming")
+    public ResponseEntity<List<CallDeceasedInfoDTO>> getDeceasedListForCallStreaming(@PathVariable int userCode) {
+
+        List<CallDeceasedInfoDTO> deceasedList = callService.getCallServiceDeceasedListForStreamingByUser(userCode);
         return ResponseEntity.ok(deceasedList);
 
     }
