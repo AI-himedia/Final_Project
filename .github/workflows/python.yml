@@ -46,5 +46,5 @@ jobs:
             docker run -d --name python-app \
               --env-file /home/ubuntu/python.env \
               -v /home/ubuntu/hello-again-ai-project.json:/app/hello-again-ai-project.json \
-              -p 8080:8000 \
+              -p 8000:8000 \
               ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
