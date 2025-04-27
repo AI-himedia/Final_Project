@@ -4,6 +4,8 @@
 import './UpButton.web.css';
 import './UpButton.mobile.css';
 
+import top_arrow from '../../assets/top_arrow.png';
+
 // React
 import { useEffect, useState } from 'react';
 
@@ -33,10 +35,7 @@ export default function UpButton() {
     <ul className={`Up_Show ${showButton ? 'visible' : 'hidden'}`}>
       <li>
         <button className="Up_Button" onClick={scrollToTop}>
-          <span
-            className="icon"
-            style={{ backgroundImage: 'url("/assets/top_arrow.png")' }}
-          />
+          <img src={top_arrow} alt="Top Arrow" className="icon" />
         </button>
       </li>
     </ul>

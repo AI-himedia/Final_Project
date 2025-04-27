@@ -3,6 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import './Product.mobile.css';
 import { HeaderProduct } from '../../../components/Header/variants';
 
+import product_sms from '../../../assets/product_sms.png';
+import product_voicechat from '../../../assets/product_voicechat.png';
+import product_call from '../../../assets/product_call.png';
+
 export default function ProductPage() {
   const [searchParams] = useSearchParams();
   const [selectedService, setSelectedService] = useState(null);
@@ -70,12 +74,12 @@ export default function ProductPage() {
         >
           <div className="Notice_Left">
             <img
-              src="/assets/product_sms.png"
+              src={product_sms}
               alt="서비스 아이콘"
               className="Notice_Icon"
             />
             <div className="Notice_TextBox">
-              <h3 className="Notice_Title">문자 서비스 요금</h3>
+              <h3 className="Notice_Title">문자채팅 서비스 요금</h3>
               <p className="Notice_Description">
                 월 3,900원으로 문자
                 <br />
@@ -103,7 +107,7 @@ export default function ProductPage() {
         >
           <div className="Notice_Left">
             <img
-              src="/assets/product_call.png"
+              src={product_voicechat}
               alt="서비스 아이콘"
               className="Notice_Icon"
             />
@@ -136,7 +140,7 @@ export default function ProductPage() {
         >
           <div className="Notice_Left">
             <img
-              src="/assets/product_call.png"
+              src={product_call}
               alt="서비스 아이콘"
               className="Notice_Icon"
             />

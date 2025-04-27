@@ -6,6 +6,7 @@ import styles from './Deceased.module.css';
 import { FaPause } from 'react-icons/fa';
 import { FaPlay } from 'react-icons/fa';
 import { axiosInstance } from '../../api/AxiosInstance';
+import { Toast } from '../../utils/Swal';
 
 export default function Step7_Call() {
   const { state } = useLocation();
@@ -166,7 +167,10 @@ export default function Step7_Call() {
   // 대화 만들기 시작
   const handleCreateConversation = async () => {
     if (selectedSpeakers.length === 0) {
-      alert('화자를 선택해주세요!');
+      Toast.fire({
+        icon: 'warning',
+        title: '화자를 선택해주세요!',
+      });
       return;
     }
 
@@ -187,7 +191,10 @@ export default function Step7_Call() {
       navigate('/');
     } catch (error) {
       console.error('오류 발생:', error);
-      alert('서버 요청 중 오류가 발생했습니다.');
+      Toast.fire({
+        icon: 'warning',
+        title: '서버 요청 중 오류가 발생했습니다.',
+      });
     }
   };
 
