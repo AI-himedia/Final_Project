@@ -14,7 +14,9 @@ export default function Footer() {
   const navigate = useNavigate();
 
   const handleCallClick = () => {
-    navigate('/service/list/call', { state: { serviceType: 'call' } });
+    navigate('/service/list', {
+      state: { serviceType: 'call', showModal: true },
+    });
   };
 
   const handleSmsClick = () => {
@@ -31,7 +33,7 @@ export default function Footer() {
       </Link>
       <div
         className={`Footer_Item ${
-          location.pathname.startsWith('/service/list/call') ? 'active' : ''
+          location.pathname.startsWith('/service/list') ? 'active' : ''
         }`}
         onClick={handleCallClick}
         style={{ cursor: 'pointer' }}

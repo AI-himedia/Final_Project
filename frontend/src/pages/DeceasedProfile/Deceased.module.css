@@ -119,7 +119,7 @@
   }
 
   .confirmButtonWrapper {
-    margin-top: auto; /* 내용이 끝난 후 버튼을 하단에 배치 */
+    margin-top: auto;
   }
 
   .confirmButton {

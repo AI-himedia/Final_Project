@@ -46,7 +46,9 @@ export default function Step6_FileUpload() {
   } = useDeceasedProfile();
 
   const allowedExtensions =
-    serviceCode === '2' ? audioVideoExtensions : imageTextExtensions;
+    serviceCode === '2' || serviceCode === '3'
+      ? audioVideoExtensions
+      : imageTextExtensions;
 
   useEffect(() => {
     const cleanupAudio = async () => {
@@ -152,9 +154,9 @@ export default function Step6_FileUpload() {
     // }
 
     // call 서비스일 경우,
-    if (serviceCode === '2') {
+    if (serviceCode === '2' || serviceCode === '3') {
       const audioFiles = files.filter((file) =>
-        ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'wav', 'm4a'].includes(
+        ['mp3', 'aac', 'ac3', 'ogg', 'flac', 'm4a'].includes(
           file.name.split('.').pop().toLowerCase()
         )
       );
@@ -186,7 +188,7 @@ export default function Step6_FileUpload() {
       if (serviceCode === '1') {
         await axiosInstance.post('/sms/service/start', formData);
         navigate('/deceased/profile/step7-sms');
-      } else if (serviceCode === '2') {
+      } else if (serviceCode === '2' || serviceCode === '3') {
         const response = await axiosInstance.post(
           '/call/service/start-and-separate',
           formData
@@ -207,7 +209,7 @@ export default function Step6_FileUpload() {
           고인과 관련된
           <br />
           파일을 첨부해주세요.
-          {serviceCode === '2' ? (
+          {serviceCode === '2' || serviceCode === '3' ? (
             <p className={styles.helperText}>
               업로드 가능한 파일 형식:
               <br />

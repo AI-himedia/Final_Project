@@ -148,3 +148,40 @@
 .AddButton:hover {
   background-color: #007aff;
 }
+
+/* 옵션 버튼을 감싸는 박스 */
+.OptionButtonContainer {
+  position: fixed;
+  bottom: 7.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  padding: 20px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 90%;
+  max-width: 400px;
+}
+
+/* 옵션 버튼 개별 스타일 */
+.OptionButton {
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #2e80ff;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+/* 버튼 hover 효과 */
+.OptionButton:hover {
+  background-color: #e0e0e0;
+}
