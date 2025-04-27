@@ -14,7 +14,7 @@ export const routeMeta = {
     showUpButton: false,
   },
   '/signup': {
-    showHeader: true,
+    showHeader: false,
     showFooter: false,
     showSidebar: false,
     showUpButton: false,
@@ -103,7 +103,7 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
-  
+
   '/sms/chat': {
     showHeader: false,
     showFooter: false,

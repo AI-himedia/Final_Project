@@ -16,7 +16,6 @@ export default function ProductPage() {
   const isSmsDisabled = disabledServices.includes(1);
   const isVoiceChatDisabled = disabledServices.includes(2);
   const isCallDisabled = disabledServices.includes(3);
-  
 
   const handleServiceClick = (type) => {
     if (
@@ -32,17 +31,29 @@ export default function ProductPage() {
     const serviceMap = {
       sms: 1,
       voice_chat: 2,
-      call: 3
+      call: 3,
     };
-    
+
     const serviceCode = serviceMap[type];
 
     // const serviceCode = type === 'sms' ? 1 : type === 'voice_chat' ? 2 : 3;
-    
+
     if (deceasedCode) {
       localStorage.setItem('@againhello/deceased-code', deceasedCode);
       localStorage.setItem('@againhello/service-code', serviceCode);
     }
+
+    // 결제 금액 설정
+    let paymentAmount = 0;
+    if (type === 'sms') {
+      paymentAmount = 3900;
+    } else if (type === 'voice_chat') {
+      paymentAmount = 5000;
+    } else if (type === 'call') {
+      paymentAmount = 10000;
+    }
+
+    console.log('결제 금액:', paymentAmount);
   };
 
   return (
@@ -83,7 +94,7 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* 보이스챗 서비스 카드 */}
+        {/* 음챗 서비스 카드 */}
         <div
           className={`Notice_Card ${
             selectedService === 'voice_chat' ? 'selected' : ''
@@ -97,9 +108,9 @@ export default function ProductPage() {
               className="Notice_Icon"
             />
             <div className="Notice_TextBox">
-              <h3 className="Notice_Title">보이스챗 서비스 요금</h3>
+              <h3 className="Notice_Title">음성채팅 서비스 요금</h3>
               <p className="Notice_Description">
-                월 5,000원으로 보이스챗
+                월 5,000원으로 음성 채팅
                 <br />
                 서비스를 이용할 수 있어요.
               </p>

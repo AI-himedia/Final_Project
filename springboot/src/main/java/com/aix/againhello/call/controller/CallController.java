@@ -45,7 +45,7 @@ public class CallController {
     @Autowired
     private PythonService pythonService;
 
-    @Value("${file.call}")
+    @Value("${file.sms.call}")
     private String baseDirectory;
 
     @Value("${file.upload.dir}")

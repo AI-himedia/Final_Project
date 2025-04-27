@@ -8,7 +8,12 @@ export const useTossPayment = () => {
 
   const handlePayment = async (selectedService) => {
     // 결제 금액 설정
-    const amount = selectedService === 'sms' ? 3900 : 'voice_chat' ? 5000 : 10000;
+    const amount =
+      selectedService === 'sms'
+        ? 3900
+        : selectedService === 'voice_chat'
+        ? 5000
+        : 10000;
 
     // 환경 변수에서 클라이언트 키와 고객 키 가져오기
     const clientKey = process.env.REACT_APP_TOSS_CLIENT_KEY;
@@ -28,7 +33,12 @@ export const useTossPayment = () => {
         value: amount,
       },
       orderId: `order-${Date.now()}`,
-      orderName: selectedService === 'sms' ? '문자 서비스' : 'voice_chat' ? '보이스챗' : '통화 서비스',
+      orderName:
+        selectedService === 'sms'
+          ? '문자 채팅 서비스'
+          : 'voice_chat'
+          ? '음성 채팅 서비스'
+          : '통화 서비스',
       customerName: fullName,
       customerEmail: email,
       successUrl: `${window.location.origin}/success`,

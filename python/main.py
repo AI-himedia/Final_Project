@@ -21,17 +21,17 @@ if sys.platform == "win32":
 app = FastAPI()
 
 # .env 로드 (중복 호출 제거)
-load_dotenv()
+# load_dotenv()
 
-@app.on_event("startup")
-async def startup_event():
-    # 환경 변수 로드
-    google_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "환경 변수가 없습니다.")
-    openai_key = os.getenv("OPENAI_API_KEY", "환경 변수가 없습니다.")
+# @app.on_event("startup")
+# async def startup_event():
+#     # 환경 변수 로드
+#     google_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "환경 변수가 없습니다.")
+#     openai_key = os.getenv("OPENAI_API_KEY", "환경 변수가 없습니다.")
     
-    # 환경 변수 출력
-    print(f"GOOGLE_APPLICATION_CREDENTIALS: {google_credentials}")
-    print(f"OPENAI_API_KEY: {openai_key}")
+#     # 환경 변수 출력
+#     print(f"GOOGLE_APPLICATION_CREDENTIALS: {google_credentials}")
+#     print(f"OPENAI_API_KEY: {openai_key}")
 
 
 # CORS 설정
