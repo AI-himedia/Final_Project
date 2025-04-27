@@ -64,12 +64,7 @@ export default function SignUpPage() {
       };
       await axiosInstance.post('/member/signup', submitForm);
 
-      await Toast.fire({
-        icon: 'success',
-        title: '다시 로그인해주세요.',
-      });
-
-      navigate('/');
+      navigate('/', { state: { signupSuccess: true } });
     } catch (err) {
       await Toast.fire({
         icon: 'error',

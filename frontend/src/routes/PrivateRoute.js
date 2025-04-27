@@ -1,7 +1,7 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import { useEffect, useRef } from 'react';
+import { Toast } from '../utils/Swal';
 
 export default function PrivateRoute() {
   const user = useSelector((state) => state.user.user);
@@ -14,14 +14,9 @@ export default function PrivateRoute() {
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !hasShownAlert.current) {
       hasShownAlert.current = true;
-      Swal.fire({
-        toast: true,
-        position: 'top',
+      Toast.fire({
         icon: 'warning',
         title: '로그인이 필요한 페이지입니다',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
       });
     }
   }, [isLoading, isAuthenticated]);

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Toast } from '../utils/Swal';
 
 const TTSAudioPlayer = () => {
   const socketRef = useRef(null);
@@ -33,7 +34,10 @@ const TTSAudioPlayer = () => {
             console.log('TTS 오디오 재생 시작');
           } catch (err) {
             console.error('오디오 재생 실패:', err);
-            alert('브라우저에서 오디오 자동 재생 차단');
+            Toast.fire({
+              icon: 'warning',
+              title: '브라우저에서 오디오 자동 재생이 차단되었습니다.',
+            });
             setManualPlayRequired(true);
           }
 
@@ -68,10 +72,12 @@ const TTSAudioPlayer = () => {
       setManualPlayRequired(false);
     } catch (err) {
       console.error('수동 재생 실패:', err);
-      alert('재생에 실패했습니다. 브라우저 설정을 확인해주세요.');
+      Toast.fire({
+        icon: 'warning',
+        title: '재생에 실패했습니다. 브라우저 설정을 확인해주세요.',
+      });
     }
   };
-
 
   return (
     <div>

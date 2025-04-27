@@ -4,6 +4,7 @@ import { MdOutlineFileUpload } from 'react-icons/md';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { axiosInstance } from '../../api/AxiosInstance';
 import { useEffect, useRef } from 'react';
+import { Toast } from '../../utils/Swal';
 
 const audioVideoExtensions = [
   'mp3',
@@ -72,14 +73,20 @@ export default function Step6_FileUpload() {
 
     const ext = uploaded.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(ext)) {
-      alert('지원하지 않는 파일 형식입니다.');
+      Toast.fire({
+        icon: 'warning',
+        title: '지원하지 않는 파일 형식입니다.',
+      });
       return;
     }
 
     if (ext === 'txt') {
       const sizeInMB = uploaded.size / (1024 * 1024);
       if (sizeInMB > MAX_TXT_SIZE_MB) {
-        alert(`텍스트 파일은 ${MAX_TXT_SIZE_MB}MB 이하만 업로드 가능합니다.`);
+        Toast.fire({
+          icon: 'warning',
+          title: `텍스트 파일은 ${MAX_TXT_SIZE_MB}MB 이하만 업로드 가능합니다.`,
+        });
         return;
       }
     }
@@ -94,14 +101,17 @@ export default function Step6_FileUpload() {
         )
       ).length;
       if (currentAudioCount >= MAX_AUDIO_COUNT) {
-        alert(`오디오 파일은 최대 ${MAX_AUDIO_COUNT}개까지 등록 가능합니다.`);
+        Toast.fire({
+          icon: 'warning',
+          title: `오디오 파일은 최대 ${MAX_AUDIO_COUNT}개까지 등록 가능합니다.`,
+        });
         return;
       }
     }
 
     addFile(uploaded);
     if (fileInputRef.current) {
-      fileInputRef.current.value = null; // input 값 초기화
+      fileInputRef.current.value = null;
     }
   };
 
@@ -177,7 +187,7 @@ export default function Step6_FileUpload() {
         },
       };
 
-      audioFiles.forEach((file) => formData.append('audioFiles', file)); // 모든 오디오 파일 추가
+      audioFiles.forEach((file) => formData.append('audioFiles', file));
       formData.append(
         'request',
         new Blob([JSON.stringify(requestData)], { type: 'application/json' })
@@ -198,7 +208,10 @@ export default function Step6_FileUpload() {
         });
       }
     } catch (err) {
-      alert('서버 요청 중 오류가 발생했습니다.');
+      Toast.fire({
+        icon: 'warning',
+        title: `서버 요청 중 오류가 발생했습니다.`,
+      });
     }
   };
 

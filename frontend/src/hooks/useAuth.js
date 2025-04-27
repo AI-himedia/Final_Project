@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from '../redux/Slice/userSlice';
 import { axiosInstance } from '../api/AxiosInstance';
-import Swal from 'sweetalert2';
+import { Toast } from '../utils/Swal';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -22,14 +22,9 @@ export const useAuth = () => {
 
           const urlParams = new URLSearchParams(window.location.search);
           if (urlParams.get('login') === 'success') {
-            Swal.fire({
-              toast: true,
-              position: 'top',
+            Toast.fire({
               icon: 'success',
               title: '로그인 성공!',
-              showConfirmButton: false,
-              timer: 3000,
-              timerProgressBar: true,
             });
 
             const nextURL = window.location.pathname + window.location.hash;
