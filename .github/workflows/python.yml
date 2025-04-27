@@ -41,9 +41,9 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
-            docker stop your-container-name || true
-            docker rm your-container-name || true
-            docker run -d --name your-container-name \
-              --env-file /home/ubuntu/your-app/.env \
+            docker stop python-app || true
+            docker rm python-app || true
+            docker run -d --name python-app \
+              --env-file /home/ubuntu/python.env \
               -p 8080:8000 \
               ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
