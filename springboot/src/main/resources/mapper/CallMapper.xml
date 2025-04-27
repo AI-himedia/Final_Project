@@ -58,7 +58,7 @@
         WHERE deceased_code = #{deceasedCode}
     </update>
 
-    <!-- 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회 -->
+    <!-- 사용자별 보이스챗 서비스 구독 고인 목록 및 최근 통화 시간 조회 -->
     <select id="findDeceasedListForCallServiceByUser" parameterType="int" resultType="com.aix.againhello.call.dto.CallDeceasedInfoDTO">
         SELECT
             dd.deceased_code      AS deceasedCode,
@@ -76,6 +76,33 @@
         WHERE
             s.user_code = #{userCode}
           AND s.service_code = 2
+        GROUP BY
+            dd.deceased_code,
+            dd.deceased_name,
+            dd.deceased_nickname,
+            s.subscription_code
+        ORDER BY
+            latestCallTime DESC NULLS LAST
+    </select>
+
+    <!-- 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회 -->
+    <select id="findDeceasedListForCallStreamingServiceByUser" parameterType="int" resultType="com.aix.againhello.call.dto.CallDeceasedInfoDTO">
+        SELECT
+            dd.deceased_code      AS deceasedCode,
+            dd.deceased_name      AS deceasedName,
+            dd.deceased_nickname  AS deceasedNickname,
+            s.subscription_code   AS subscriptionCode,
+            MAX(c.message_time)   AS latestCallTime
+        FROM
+            deceased_data dd
+                JOIN
+            subscription s ON dd.deceased_code = s.deceased_code
+                LEFT JOIN
+            contents c ON s.subscription_code = c.subscription_code
+                AND c.service_type = 'call'
+        WHERE
+            s.user_code = #{userCode}
+          AND s.service_code = 3
         GROUP BY
             dd.deceased_code,
             dd.deceased_name,

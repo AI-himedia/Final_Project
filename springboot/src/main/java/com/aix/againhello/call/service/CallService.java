@@ -170,7 +170,7 @@ public class CallService {
     }
 
     /**
-     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     * 사용자별 보이스챗 서비스 구독 고인 목록 및 최근 통화 시간 조회
      */
     @Transactional(readOnly = true)
     public List<CallDeceasedInfoDTO> getCallServiceDeceasedListByUser(int userCode) {
@@ -180,6 +180,20 @@ public class CallService {
         }
 
         return callMapper.findDeceasedListForCallServiceByUser(userCode);
+
+    }
+
+    /**
+     * 사용자별 전화 서비스 구독 고인 목록 및 최근 통화 시간 조회
+     */
+    @Transactional(readOnly = true)
+    public List<CallDeceasedInfoDTO> getCallServiceDeceasedListForStreamingByUser(int userCode) {
+
+        if (!userMapper.existsById(userCode)) {
+            throw new ServiceException("사용자를 찾을 수 없습니다: " + userCode);
+        }
+
+        return callMapper.findDeceasedListForCallStreamingServiceByUser(userCode);
 
     }
 
