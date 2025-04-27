@@ -12,21 +12,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY Pipfile Pipfile.lock /app/
+# Pipfile, Pipfile.lock, requirements.txt 복사
+COPY Pipfile Pipfile.lock requirements.txt /app/
 
 # 가상 환경 생성 및 활성화
 RUN python3 -m venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-# pipenv 설치
-RUN pip install --no-cache-dir pipenv
+# requirements.txt로 의존성 설치
+RUN pip install --no-cache-dir -r requirements.txt
 
-# torch 관련 미리 설치
+# torch 관련 패키지 설치
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# pipenv sync
-RUN pipenv sync --dev
-
+# 프로젝트 전체 복사
 COPY . /app
 
 # torch에서 CUDA 사용 가능한지 체크
@@ -34,4 +33,4 @@ RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available()
 
 EXPOSE 8000
 
-CMD ["pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
