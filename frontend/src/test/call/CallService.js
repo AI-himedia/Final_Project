@@ -35,7 +35,7 @@ const CallService = () => {
         const fetchEmbedding = async () => {
           try {
             const response = await axiosInstance.post(
-              `/embedding?subscription_code=${currentSubscriptionCode}`
+              `/embedding?subscription_code=${currentSubscriptionCode}&service_code=3`
             );
   
             console.log('Embedding 요청 성공:', response.data);
