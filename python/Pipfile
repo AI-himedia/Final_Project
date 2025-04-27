@@ -3,12 +3,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[[source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cu121"
-verify_ssl = true
-
 [packages]
+soundfile = "==0.12.1"
 psycopg2-binary = "*"
 langchain = "==0.3.23"
 langchain-community = "*"
@@ -41,13 +37,13 @@ python-multipart = "*"
 aiofiles = "*"
 aioboto3 = "*"
 redis = "*"
-torch = {version = "*", index = "pytorch"}
-torchvision = {version = "*", index = "pytorch"}
-torchaudio = {version = "*", index = "pytorch"}
+torch = {version = "==2.5.1", index = "pytorch"}
+torchvision = {version = "==0.20.1", index = "pytorch"}
+torchaudio = {version = "==2.5.1", index = "pytorch"}
+
 websockets = ">=10.0"
 sentence-transformers = "*"
 pgvector = "*"
-soundfile = "*"
 
 [dev-packages]
 

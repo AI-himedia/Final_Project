@@ -26,3 +26,6 @@ tmp
 test
 reportWebVitals.js
 setupTests.js
+
+# Model
+python/pretrained_models
