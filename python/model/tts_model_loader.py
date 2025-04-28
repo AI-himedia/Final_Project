@@ -50,6 +50,7 @@ def ensure_model_loaded():
         
         # 배포 테스트로 잠시 GPU 이용
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print("cuda ???? :",torch.cuda.is_available())
         # device = torch.device("cpu")
         # device = torch.device("cuda")
         
