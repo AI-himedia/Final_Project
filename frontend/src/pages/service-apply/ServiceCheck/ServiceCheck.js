@@ -59,7 +59,7 @@ export default function ServiceCheck() {
         )}
 
         {showSkeleton || !hasService ? (
-          <SkeletonList count={5} />
+          <SkeletonList count={3} />
         ) : hasService.length > 0 ? (
           <div className={styles.CardContainer}>
             {hasService.map((service, idx) => {
