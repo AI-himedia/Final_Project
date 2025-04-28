@@ -67,7 +67,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if(Objects.equals(user.getRefreshToken(), refreshToken)) {
                         logger.warn("refresh token 비교 통과");
                         String newAccessToken = jwtUtil.createAccessToken(emailFromRT);
-                        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+//                        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+                        jwtUtil.setJwtCookies(response, newAccessToken, refreshToken);
                         request.setAttribute("email", emailFromRT);
                         logger.warn("access token 재발급");
                     }
