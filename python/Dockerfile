@@ -15,15 +15,15 @@ WORKDIR /app
 COPY requirements.txt .
 
 # 패키지 설치
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 # torch 미리 설치
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # 소스코드 복사
 COPY . .
 
 # torch에서 CUDA 사용 가능한지 체크
- RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available())"
 
 # 포트 오픈 (필요에 따라 수정)
 EXPOSE 8000
