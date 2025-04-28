@@ -41,7 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (request.getCookies() != null) {
+            System.out.println("쿠키개수 : " + request.getCookies().length);
             for (Cookie cookie : request.getCookies()) {
+                System.out.println(cookie);
+                System.out.println(cookie.getName());
+                System.out.println(cookie.getValue());
                 if ("access".equals(cookie.getName())) {
                     accessToken = cookie.getValue();
                 } else if ("refresh".equals(cookie.getName())) {
@@ -58,12 +62,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     logger.warn("access token 만료");
                     String emailFromRT = jwtUtil.extractEmail(refreshToken);
+                    System.out.println(refreshToken);
+                    System.out.println(emailFromRT);
                     User user = userService.findByEmail(emailFromRT);
+                    System.out.println(user);
 
                     if(Objects.equals(user.getRefreshToken(), refreshToken)) {
                         logger.warn("refresh token 비교 통과");
                         String newAccessToken = jwtUtil.createAccessToken(emailFromRT);
-                        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+//                        jwtUtil.addCookie(response, "access", newAccessToken, 60 * 15, true, null, "access");
+                        jwtUtil.setJwtCookies(response, newAccessToken, refreshToken);
                         request.setAttribute("email", emailFromRT);
                         logger.warn("access token 재발급");
                     }
