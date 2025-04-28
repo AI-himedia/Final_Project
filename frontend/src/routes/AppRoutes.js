@@ -32,7 +32,7 @@ import SuccessPage from '../pages/payment/SuccessPage';
 // 테스트 페이지
 import Step7_AudioPreview from '../pages/DeceasedProfile/Step7_AudioPreview';
 import Step7_SMS from '../pages/DeceasedProfile/Step7_SmsPreview';
-import CallService from '../test/call/CallService';
+import CallService from '../pages/service/Call/CallService';
 
 export const AppRoutes = () => (
   <Routes>

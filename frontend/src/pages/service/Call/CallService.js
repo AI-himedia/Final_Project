@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
-import { axiosInstance, baseUrl } from '../../../api/AxiosInstance';
+import { axiosInstance, baseURL} from '../../../api/AxiosInstance'
 import styles from '../VoiceChat/VoiceChatPage.module.css';
 
 const CallService = () => {
@@ -20,7 +20,7 @@ const CallService = () => {
   const micStartTimeRef = useRef(null);
 
   // const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}"
-  const webSocketUrl = `ws://${baseUrl}/ws/react?subscriptionCode=${currentSubscriptionCode}`;
+
 
   // ---- !!!! 준호씨 일단 제가 CallPage.js 에 있는 SubscriptionCode 가져오는 코드 그대로 긁어왔어요.
   const location = useLocation();
@@ -29,14 +29,17 @@ const CallService = () => {
     initialSubscriptionCode
   );
 
+
+  const webSocketUrl = `ws://${baseURL}/ws/react?subscriptionCode=${currentSubscriptionCode}`;
+
   useEffect(() => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
-          const serviceCode = localStorage.getItem('@againhello/service-code');
+          // const serviceCode = localStorage.getItem('@againhello/service-code');
 
           const response = await axiosInstance.post(
-            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=${serviceCode}`
+            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=3`
           );
 
           console.log('Embedding 요청 성공:', response.data);
