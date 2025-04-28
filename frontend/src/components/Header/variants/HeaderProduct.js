@@ -12,6 +12,21 @@ export default function HeaderProduct({ selectedService }) {
 
   const handlePaymentClick = () => {
     if (isServiceSelected) {
+      // 결제 금액 계산
+      let paymentAmount = 0;
+
+      if (selectedService === 'sms') {
+        paymentAmount = 3900;
+      } else if (selectedService === 'voice_chat') {
+        paymentAmount = 5000;
+      } else if (selectedService === 'call') {
+        paymentAmount = 10000;
+      }
+
+      // 결제 금액 로그로 출력
+      console.log('결제 금액:', paymentAmount);
+
+      // 결제 처리
       handlePayment(selectedService);
     }
   };

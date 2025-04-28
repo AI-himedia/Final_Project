@@ -49,9 +49,9 @@ def ensure_model_loaded():
         print("모델 메모리 로딩 시작")
         
         # 배포 테스트로 잠시 GPU 이용
-        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # device = torch.device("cpu")
-        device = torch.device("cuda")
+        # device = torch.device("cuda")
         
         spark_model = SparkTTS(Path(MODEL_SAVE_DIR), device)
         print("모델 로딩 완료")

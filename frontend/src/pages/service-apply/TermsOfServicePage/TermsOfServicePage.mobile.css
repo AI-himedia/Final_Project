@@ -3,34 +3,6 @@
     padding: 24px;
   }
 
-  .Terms_Header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
-  }
-
-  .Terms_NextButton {
-    font-size: 16px;
-    color: #ccc;
-    background: none;
-    border: none;
-  }
-
-  .Terms_NextButton.active {
-    color: #007aff;
-    font-weight: bold;
-  }
-
-  .Terms_Timer {
-    display: inline-block;
-    color: #007aff;
-    border: 1px solid #007aff;
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 14px;
-  }
-
   .Terms_Title {
     margin-bottom: 24px;
   }
@@ -104,5 +76,61 @@
   .Indented {
     padding-left: 3rem;
     display: inline-block;
+  }
+
+  .Terms_RequiredUnderline {
+    color: #000000;
+    text-decoration: underline;
+    text-decoration-color: #000000;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  /* 모달 스타일 */
+  .ModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .ModalContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+  }
+
+  .ModalContent h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
+  .ModalContent p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .ModalContent button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .ModalContent button:hover {
+    background-color: #0056b3;
   }
 }

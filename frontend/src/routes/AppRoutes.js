@@ -10,7 +10,7 @@ import SignUpPage from '../pages/auth/SignUpPage/SignUpPage';
 // 서비스 이용 페이지
 import ServiceList from '../pages/service/ServiceList';
 import ChatPage from '../pages/service/sms/ChatPage';
-import CallPage from '../pages/service/audioChat/CallPage';
+import VoiceChatPage from '../pages/service/VoiceChat/VoiceChatPage';
 
 // 서비스 신청 관련
 import ApplyPage from '../pages/service-apply/ApplyPage/ApplyPage';
@@ -60,13 +60,16 @@ export const AppRoutes = () => (
 
     {/* 통화서비스 */}
     <Route path="/sms/chat" element={<ChatPage />} />
-    <Route path="/call" element={<CallPage />} />
+    <Route path="/voice-chat" element={<VoiceChatPage />} />
+    <Route path="/call" element={<CallService />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>
-      <Route path="/service/list/call" element={<ServiceList />} />
+      <Route path="/service/list" element={<ServiceList />} />
       <Route path="/service/list/sms" element={<ServiceList />} />
-      {/* <Route path="/service/list/voiceChat" element={<ServiceList />} /> */}
+      <Route path="/service/list/voice-chat" element={<ServiceList />} />
+      <Route path="/service/list/call" element={<ServiceList />} />
+
       <Route path="/service/terms/check" element={<ServiceCheck />} />
       <Route path="/service/terms/product" element={<ProductPage />} />
     </Route>

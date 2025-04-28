@@ -1,66 +1,88 @@
-/* src/pages/shared/auth/SignUpPage.module.css */
-
 .Container {
-  max-width: 400px;
-  margin: 60px auto;
-  padding: 32px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  background-color: #fff;
-  font-family: 'Pretendard', sans-serif;
-}
-
-.Container h2 {
-  text-align: center;
-  margin-bottom: 24px;
-  color: #333;
-}
-
-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  min-height: 100vh;
+  padding: 2rem 2rem 0 2rem;
+  font-family: 'Toss Product Sans', sans-serif;
+  box-sizing: border-box;
 }
 
-.FromContainer,
-form > div {
-  display: flex;
-  flex-direction: column;
+.Content {
+  flex-grow: 1;
 }
 
-label {
-  margin-bottom: 6px;
+.Title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin: 1rem 0 3rem 0;
+}
+
+.SubTitle {
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #444;
+  color: #6d6d6d;
+  margin: 0 0 2.5rem 0;
 }
 
-input,
-select {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s;
+.InputGroup {
+  position: relative;
+  margin-top: 2rem;
 }
 
-input:focus,
-select:focus {
-  border-color: #007aff;
+.ClickLabel {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 1rem;
+  color: #a0a9b3;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  background-color: #fff;
+}
+
+.Email,
+.FullName,
+.Select {
+  width: 100%;
+  padding: 8px 2.5rem 8px 0;
+  font-size: 1.2rem;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  border-radius: 0;
   outline: none;
+  transition: border-color 0.2s ease;
+  caret-color: #3b82f6;
+  background-color: transparent;
 }
 
-button[type='submit'] {
-  padding: 12px;
-  background-color: #007aff;
+.Select {
+  font-size: 1.2rem;
+}
+
+.ButtonContainer {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.Button {
+  width: 100%;
+  padding: 1rem 0;
+  margin: 1rem 0 3rem 0;
+  background-color: #2e80ff;
   color: #fff;
+  font-size: 1.2rem;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
-button[type='submit']:hover {
-  background-color: #007aff;
+.Button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.Button:hover {
+  background-color: #2563eb;
 }

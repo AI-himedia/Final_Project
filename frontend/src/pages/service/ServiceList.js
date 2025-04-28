@@ -19,38 +19,58 @@ export default function ServiceList() {
   const [selectedCode, setSelectedCode] = useState(null);
   const [serviceType, setServiceType] = useState(null);
   const [showSkeleton, setShowSkeleton] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
+  const [isModalConfirmed, setIsModalConfirmed] = useState(false);
 
-  // URL 경로에 따라 serviceType 설정
+  // URL 경로에 따라 기본 serviceType 설정
   useEffect(() => {
-    if (location.pathname.startsWith('/service/list/call')) {
-      setServiceType('call');
-    } else if (location.pathname.startsWith('/service/list/sms')) {
+    if (location.pathname.startsWith('/service/list/sms')) {
       setServiceType('sms');
+      setIsModalConfirmed(true);
+      setShowOptions(false);
+    } else if (location.pathname.startsWith('/service/list/call')) {
+      setServiceType('call');
+      setIsModalConfirmed(true);
+      setShowOptions(false);
+    } else if (location.pathname.startsWith('/service/list/voice-chat')) {
+      setServiceType('voice_chat');
+      setIsModalConfirmed(true);
+      setShowOptions(false);
+    } else if (location.pathname.startsWith('/service/list')) {
+      setServiceType(null);
+      setShowOptions(true);
+      setIsModalConfirmed(false);
     } else {
       setServiceType(null);
+      setShowOptions(false);
     }
   }, [location.pathname]);
 
-  // serviceType에 맞는 데이터 로드
   useEffect(() => {
-    if (!userCode || !serviceType) return;
+    if (!userCode || !serviceType || !isModalConfirmed) return;
+
     setLoading(true);
 
     const fetchData = async () => {
       try {
         let apiUrl = '';
-        if (serviceType === 'call' || serviceType === 'voice_chat') {
+        if (serviceType === 'call') {
           apiUrl = `/call/user/${userCode}/deceased-list`;
-          const response = await axiosInstance.get(apiUrl);
-          console.log(response);
-          setDeceasedList(response.data);
+        } else if (serviceType === 'voice_chat') {
+          apiUrl = `/call/user/${userCode}/deceased-list-for-streaming`;
         } else if (serviceType === 'sms') {
           apiUrl = `/sms/init-check/${userCode}`;
-          const response = await axiosInstance.get(apiUrl);
-          console.log(response);
+        }
+
+        if (!apiUrl) return;
+
+        const response = await axiosInstance.get(apiUrl);
+        console.log(response);
+
+        if (serviceType === 'sms') {
           setDeceasedList(response.data.subscriptionSummaryDTOList || []);
         } else {
-          setDeceasedList([]);
+          setDeceasedList(response.data);
         }
       } catch (error) {
         console.error('API 호출 오류:', error);
@@ -63,7 +83,21 @@ export default function ServiceList() {
     };
 
     fetchData();
-  }, [userCode, serviceType]);
+  }, [userCode, serviceType, isModalConfirmed]);
+
+  const handleOptionSelect = (type) => {
+    setServiceType(type);
+    setIsModalConfirmed(true);
+    setShowOptions(false);
+
+    if (type === 'sms') {
+      navigate(`/service/list/sms`);
+    } else if (type === 'call') {
+      navigate(`/service/list/call`);
+    } else if (type === 'voice_chat') {
+      navigate(`/service/list/voice-chat`);
+    }
+  };
 
   const renderDeceasedList = (list) => {
     if (!list || list.length === 0) {
@@ -102,24 +136,41 @@ export default function ServiceList() {
                         subscriptionCode
                       );
                       navigate('/call', { state: { subscriptionCode } });
+                    } else if (serviceType === 'voice_chat') {
+                      navigate('/voice-chat', { state: { subscriptionCode } });
                     }
                   }
                 }}
                 style={{ position: 'relative', overflow: 'hidden' }}
               >
                 <div className={styles.BadgeTopRight}>
-                  {[1, 2].map((code) => {
+                  {[1, 2, 3].map((code) => {
                     const isCallPage = serviceType === 'call';
                     const isSmsPage = serviceType === 'sms';
+                    const isVoiceChatPage = serviceType === 'voice_chat';
                     const isServiceActive = services.includes(code);
 
-                    if (isCallPage && code === 2) {
+                    // 각 서비스 코드에 대해 음성채팅, 통화, 문자채팅을 올바르게 매핑
+                    if (isVoiceChatPage && code === 2) {
+                      // 2는 음성채팅
                       return (
                         <div
                           key={code}
                           className={`${styles.ServiceBadge} ${styles.Available}`}
                         >
-                          전화
+                          음성채팅
+                        </div>
+                      );
+                    }
+
+                    if (isCallPage && code === 3) {
+                      // 3은 통화
+                      return (
+                        <div
+                          key={code}
+                          className={`${styles.ServiceBadge} ${styles.Available}`}
+                        >
+                          통화
                         </div>
                       );
                     }
@@ -130,7 +181,7 @@ export default function ServiceList() {
                           key={code}
                           className={`${styles.ServiceBadge} ${styles.Available}`}
                         >
-                          문자
+                          문자채팅
                         </div>
                       );
                     }
@@ -141,7 +192,11 @@ export default function ServiceList() {
                           key={code}
                           className={`${styles.ServiceBadge} ${styles.Unavailable}`}
                         >
-                          {code === 1 ? '문자' : '전화'}
+                          {code === 1
+                            ? '문자채팅'
+                            : code === 2
+                            ? '음성채팅'
+                            : '통화'}
                         </div>
                       );
                     }
@@ -195,9 +250,27 @@ export default function ServiceList() {
         </div>
       )}
 
-      {/* 스켈레톤 UI를 항상 1초 이상 표시 */}
-      {showSkeleton ? (
-        <SkeletonList count={10} />
+      {/* 옵션 버튼 */}
+      {showOptions && !isModalConfirmed && (
+        <div className={styles.OptionButtonContainer}>
+          <button
+            className={styles.OptionButton}
+            onClick={() => handleOptionSelect('voice_chat')}
+          >
+            음성 채팅
+          </button>
+          <button
+            className={styles.OptionButton}
+            onClick={() => handleOptionSelect('call')}
+          >
+            통화
+          </button>
+        </div>
+      )}
+
+      {/* 스켈레톤 UI 또는 실제 리스트 */}
+      {showSkeleton || !isModalConfirmed ? (
+        <SkeletonList count={5} />
       ) : (
         renderDeceasedList(deceasedList)
       )}

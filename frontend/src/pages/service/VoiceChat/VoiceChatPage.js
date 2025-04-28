@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import { AudioApi } from '../../../api/AudioApi';
 import { MdKeyboardVoice } from 'react-icons/md';
-import styles from './CallPage.module.css';
+import styles from './VoiceChatPage.module.css';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
 
@@ -24,8 +24,10 @@ const CallPage = () => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
+          const serviceCode = localStorage.getItem('@againhello/service-code');
+
           const response = await axiosInstance.post(
-            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=2`
+            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=${serviceCode}`
           );
 
           console.log('Embedding 요청 성공:', response.data);
@@ -42,7 +44,6 @@ const CallPage = () => {
     // location.state의 subscriptionCode가 변경될 때 상태 업데이트
     if (location.state?.subscriptionCode !== currentSubscriptionCode) {
       setCurrentSubscriptionCode(location.state.subscriptionCode);
-
     }
     console.log(
       'CallPage useEffect - currentSubscriptionCode:',

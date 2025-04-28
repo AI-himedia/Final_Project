@@ -23,131 +23,133 @@ export default function SideMenu() {
     setIsOpen((prev) => !prev);
   };
 
-  return (
-    <>
-      <nav className={`SideMenu_Container ${isOpen ? 'open' : 'closed'}`}>
-        {/* 상단 메뉴바 */}
-        <div className="SideMenu_Frequency">
-          <ul>
-            <li>
-              <Link to="/notice">
-                <MdWindow
-                  sx={{
-                    fontSize: 24,
-                    color: '#666',
-                    filter:
-                      'invert(41%) sepia(1%) saturate(0%) hue-rotate(192deg) brightness(90%) contrast(80%)',
-                    display: 'block',
-                    mx: 'auto',
-                  }}
-                />
+  return null;
 
-                <span>공지사항</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/">
-                <IoMdReorder
-                  sx={{
-                    fontSize: 24,
-                    color: '#666',
-                    filter:
-                      'invert(41%) sepia(1%) saturate(0%) hue-rotate(192deg) brightness(90%) contrast(80%)',
-                    display: 'block',
-                    mx: 'auto',
-                  }}
-                />
+  // return (
+  //   <>
+  //     <nav className={`SideMenu_Container ${isOpen ? 'open' : 'closed'}`}>
+  //       {/* 상단 메뉴바 */}
+  //       <div className="SideMenu_Frequency">
+  //         <ul>
+  //           <li>
+  //             <Link to="/notice">
+  //               <MdWindow
+  //                 sx={{
+  //                   fontSize: 24,
+  //                   color: '#666',
+  //                   filter:
+  //                     'invert(41%) sepia(1%) saturate(0%) hue-rotate(192deg) brightness(90%) contrast(80%)',
+  //                   display: 'block',
+  //                   mx: 'auto',
+  //                 }}
+  //               />
 
-                <span>2번</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/">
-                <IoMdReorder
-                  sx={{
-                    fontSize: 24,
-                    color: '#666',
-                    filter:
-                      'invert(41%) sepia(1%) saturate(0%) hue-rotate(192deg) brightness(90%) contrast(80%)',
-                    display: 'block',
-                    mx: 'auto',
-                  }}
-                />
+  //               <span>공지사항</span>
+  //             </Link>
+  //           </li>
+  //           <li>
+  //             <Link to="/">
+  //               <IoMdReorder
+  //                 sx={{
+  //                   fontSize: 24,
+  //                   color: '#666',
+  //                   filter:
+  //                     'invert(41%) sepia(1%) saturate(0%) hue-rotate(192deg) brightness(90%) contrast(80%)',
+  //                   display: 'block',
+  //                   mx: 'auto',
+  //                 }}
+  //               />
 
-                <span>3번</span>
-              </Link>
-            </li>
-          </ul>
-        </div>
+  //               <span>2번</span>
+  //             </Link>
+  //           </li>
+  //           <li>
+  //             <Link to="/">
+  //               <IoMdReorder
+  //                 sx={{
+  //                   fontSize: 24,
+  //                   color: '#666',
+  //                   filter:
+  //                     'invert(41%) sepia(1%) saturate(0%) hue-rotate(192deg) brightness(90%) contrast(80%)',
+  //                   display: 'block',
+  //                   mx: 'auto',
+  //                 }}
+  //               />
 
-        {/* 하단 SNS */}
-        <div className="SideMenu_Media">
-          <ul>
-            <li>
-              <Link to="https://play.google.com/store/games">
-                <img
-                  src="/assets/playstore.png"
-                  alt="플레이스토어"
-                  className="SideMenu_CustomIcon"
-                />
-              </Link>
-            </li>
-            <li>
-              <Link to="https://www.apple.com/kr/app-store/">
-                <img
-                  src="/assets/appstore.png"
-                  alt="애플 스토어"
-                  className="SideMenu_CustomIcon"
-                />
-              </Link>
-            </li>
-            <li>
-              <Link to="https://www.youtube.com/">
-                <img
-                  src="/assets/youtube.png"
-                  alt="유튜브"
-                  className="SideMenu_CustomIcon"
-                />
-              </Link>
-            </li>
-            <li>
-              <Link to="https://www.instagram.com/?hl=ko">
-                <img
-                  src="/assets/instagram.png"
-                  alt="인스타그램"
-                  className="SideMenu_CustomIcon"
-                />
-              </Link>
-            </li>
-            <li>
-              <Link to="https://www.kakaocorp.com/page/service/service/KakaoTalk">
-                <img
-                  src="/assets/kakao.png"
-                  alt="카카오톡"
-                  className="SideMenu_CustomIcon"
-                />
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <button
-          type="”button”"
-          className="SideMenu_Button"
-          title="접기 또는 펼치기 버튼"
-          onClick={toggleMenu}
-        >
-          <div className="SideMenu_Button_Icon">
-            {isOpen ? (
-              <MdArrowBackIos fontSize="small" sx={{ marginLeft: '5px' }} />
-            ) : (
-              <MdArrowForwardIos
-                fontSize="small"
-                // sx={{ marginLeft: "5px" }}
-              />
-            )}
-          </div>
-        </button>
-      </nav>
-    </>
-  );
+  //               <span>3번</span>
+  //             </Link>
+  //           </li>
+  //         </ul>
+  //       </div>
+
+  //       {/* 하단 SNS */}
+  //       <div className="SideMenu_Media">
+  //         <ul>
+  //           <li>
+  //             <Link to="https://play.google.com/store/games">
+  //               <img
+  //                 src="/assets/playstore.png"
+  //                 alt="플레이스토어"
+  //                 className="SideMenu_CustomIcon"
+  //               />
+  //             </Link>
+  //           </li>
+  //           <li>
+  //             <Link to="https://www.apple.com/kr/app-store/">
+  //               <img
+  //                 src="/assets/appstore.png"
+  //                 alt="애플 스토어"
+  //                 className="SideMenu_CustomIcon"
+  //               />
+  //             </Link>
+  //           </li>
+  //           <li>
+  //             <Link to="https://www.youtube.com/">
+  //               <img
+  //                 src="/assets/youtube.png"
+  //                 alt="유튜브"
+  //                 className="SideMenu_CustomIcon"
+  //               />
+  //             </Link>
+  //           </li>
+  //           <li>
+  //             <Link to="https://www.instagram.com/?hl=ko">
+  //               <img
+  //                 src="/assets/instagram.png"
+  //                 alt="인스타그램"
+  //                 className="SideMenu_CustomIcon"
+  //               />
+  //             </Link>
+  //           </li>
+  //           <li>
+  //             <Link to="https://www.kakaocorp.com/page/service/service/KakaoTalk">
+  //               <img
+  //                 src="/assets/kakao.png"
+  //                 alt="카카오톡"
+  //                 className="SideMenu_CustomIcon"
+  //               />
+  //             </Link>
+  //           </li>
+  //         </ul>
+  //       </div>
+  //       <button
+  //         type="”button”"
+  //         className="SideMenu_Button"
+  //         title="접기 또는 펼치기 버튼"
+  //         onClick={toggleMenu}
+  //       >
+  //         <div className="SideMenu_Button_Icon">
+  //           {isOpen ? (
+  //             <MdArrowBackIos fontSize="small" sx={{ marginLeft: '5px' }} />
+  //           ) : (
+  //             <MdArrowForwardIos
+  //               fontSize="small"
+  //               // sx={{ marginLeft: "5px" }}
+  //             />
+  //           )}
+  //         </div>
+  //       </button>
+  //     </nav>
+  //   </>
+  // );
 }
