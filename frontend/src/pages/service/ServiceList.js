@@ -55,9 +55,9 @@ export default function ServiceList() {
       try {
         let apiUrl = '';
         if (serviceType === 'call') {
-          apiUrl = `/call/user/${userCode}/deceased-list`;
-        } else if (serviceType === 'voice_chat') {
           apiUrl = `/call/user/${userCode}/deceased-list-for-streaming`;
+        } else if (serviceType === 'voice_chat') {
+          apiUrl = `/call/user/${userCode}/deceased-list`;
         } else if (serviceType === 'sms') {
           apiUrl = `/sms/init-check/${userCode}`;
         }

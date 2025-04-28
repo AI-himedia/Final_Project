@@ -24,10 +24,10 @@ const CallPage = () => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
-          const serviceCode = localStorage.getItem('@againhello/service-code');
+          // const serviceCode = localStorage.getItem('@againhello/service-code');
 
           const response = await axiosInstance.post(
-            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=${serviceCode}`
+            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=2`
           );
 
           console.log('Embedding 요청 성공:', response.data);
