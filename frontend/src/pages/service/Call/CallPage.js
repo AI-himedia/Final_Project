@@ -2,7 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
-import { axiosInstance, baseUrl } from '../../../api/AxiosInstance';
+import { axiosInstance } from '../../../api/AxiosInstance';
+import { API_SERVER_HOST } from '../../../config/ApiConfig';
 import styles from '../VoiceChat/VoiceChatPage.module.css';
 
 const CallPage = () => {
@@ -20,7 +21,7 @@ const CallPage = () => {
   const micStartTimeRef = useRef(null);
 
   // const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}"
-  const webSocketUrl = `ws://${baseUrl}/ws/react?subscriptionCode=${currentSubscriptionCode}`;
+  const webSocketUrl = `ws://${API_SERVER_HOST}/be/ws/react?subscriptionCode=${currentSubscriptionCode}`;
 
   // ---- !!!! 준호씨 일단 제가 CallPage.js 에 있는 SubscriptionCode 가져오는 코드 그대로 긁어왔어요.
   const location = useLocation();
