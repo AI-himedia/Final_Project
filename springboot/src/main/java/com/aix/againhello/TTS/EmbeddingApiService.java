@@ -1,5 +1,6 @@
 package com.aix.againhello.TTS;
 
+import com.aix.againhello.util.ServerUrlConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class EmbeddingApiService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         // 4. FastAPI 주소
-        String url = "http://localhost:8000/ai/embedding";
+        String url = ServerUrlConstants.PYTHON_URL + "embedding";
 
         // 5. 요청 보내기
         RestTemplate restTemplate = new RestTemplate();

@@ -6,7 +6,7 @@ import { routeMeta } from './routes/RouteMeta';
 import { AppRoutes } from './routes/AppRoutes';
 import AppLayout from './components/MainLayout';
 import { useAuth } from './hooks/useAuth';
-import EnvLogger from './test/EnvLogger';
+
 
 function App() {
   const { isLoading } = useAuth();
