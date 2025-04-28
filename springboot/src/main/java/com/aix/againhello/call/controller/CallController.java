@@ -100,7 +100,7 @@ public class CallController {
             String cleanPath = decodedPath.replace("/be/call/audio", "");
 
             // subscriptionCode로 폴더 경로 설정
-            String fullPath = baseDirectory + "/" + subscriptionCode + "/long" + cleanPath;
+            String fullPath = outputDir + "/" + subscriptionCode + "/long" + cleanPath;
 
             // 디버깅: 경로 확인
             System.out.println("Full path to file: " + fullPath);
