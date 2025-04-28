@@ -19,6 +19,11 @@ RUN ./gradlew bootJar --no-daemon -x test
 FROM openjdk:17-slim
 WORKDIR /app
 
+# ffmpeg 설치
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
+
 # 빌드 스테이지에서 .jar 파일만 복사하여 최종 이미지에 포함
 COPY --from=build /app/build/libs/*.jar /app/app.jar
 EXPOSE 8080
