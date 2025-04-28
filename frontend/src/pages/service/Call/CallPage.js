@@ -21,7 +21,6 @@ const CallPage = () => {
   const micStartTimeRef = useRef(null);
 
   // const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}"
-  const webSocketUrl = `ws://${API_SERVER_HOST}/be/ws/react?subscriptionCode=${currentSubscriptionCode}`;
 
   // ---- !!!! 준호씨 일단 제가 CallPage.js 에 있는 SubscriptionCode 가져오는 코드 그대로 긁어왔어요.
   const location = useLocation();
@@ -29,6 +28,8 @@ const CallPage = () => {
   const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
     initialSubscriptionCode
   );
+
+  const webSocketUrl = `ws://${API_SERVER_HOST}/be/ws/react?subscriptionCode=${currentSubscriptionCode}`;
 
   useEffect(() => {
     if (currentSubscriptionCode) {
