@@ -76,7 +76,7 @@ public class SubscriptionService {
 
             // 4. 해당 고인코드로 이미 문자, 전화 서비스 모두 이용중인지 확인
             int serviceCount = subscriptionMapper.countServiceTypesByDeceasedCode(deceasedCode);
-            if (serviceCount >= 2) {
+            if (serviceCount >= 3) {
                 throw new ServiceException("이미 모든 서비스 이용중입니다.");
             }
         }
