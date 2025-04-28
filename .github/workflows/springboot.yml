@@ -42,14 +42,19 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }} ./springboot
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
 
-      # Docker 이미지 취약점 스캔 (Trivy 사용) - 빌드 및 푸시 후에 실행
+      # Docker 이미지 취약점 스캔
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/springboot:${{ github.sha }}
-          format: table # 또는 sarif, json 등 원하는 형식으로 변경 가능
-          exit-code: 0 # 취약점 발견 시에도 워크플로우가 계속 진행되도록 설정
-          severity: CRITICAL,HIGH # 스캔할 취약점 심각도 수준 설정 (선택 사항)
+          format: table
+          exit-code: 0
+          severity: CRITICAL,HIGH
+
+      # Docker 리소스 정리
+      - name: Docker 리소스 정리
+        run: |
+          sudo docker system prune -a -f
 
       - name: EC2에서 Docker 컨테이너 실행 (SSH 접속)
         uses: appleboy/ssh-action@master
