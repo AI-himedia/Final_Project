@@ -94,6 +94,7 @@ public class JwtUtil {
         }
         if (isSecure) {
             cookieBuilder.append(" Secure;");
+            cookieBuilder.append("SameSite=None");
         }
         cookieBuilder.append(" SameSite=Lax;");
         if (comment != null && !comment.isEmpty()) {
