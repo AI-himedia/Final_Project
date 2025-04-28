@@ -18,7 +18,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new AudioWebSocketHandler(), "be/ws/react")
+        registry.addHandler(new AudioWebSocketHandler(), "/be/ws/react")
                 .addInterceptors(jwtCookieInterceptor)
                 .setAllowedOrigins("*");
     }
