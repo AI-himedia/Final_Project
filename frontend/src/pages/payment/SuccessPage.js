@@ -133,7 +133,11 @@ const SuccessPage = () => {
 
   return (
     <div className={styles.container}>
-      <img src="/assets/payments.png" alt="체크" className={styles.checkIcon} />
+      <img
+        src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/payments.png"
+        alt="체크"
+        className={styles.checkIcon}
+      />
 
       <div className={styles.receiptBox}>
         <div className={styles.row}>

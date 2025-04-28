@@ -2,10 +2,6 @@
 
 import style from './ApplicationService.module.css';
 
-import Main_SubBanner_Call from '../../../assets/Main_SubBanner_Call.png';
-import Main_SubBanner_VoiceChat from '../../../assets/Main_SubBanner_VoiceChat.png';
-import Main_SubBanner_SMS from '../../../assets/Main_SubBanner_SMS.png';
-
 export default function ApplicationService() {
   return (
     <section className={style.Service_Container}>
@@ -46,7 +42,7 @@ export default function ApplicationService() {
                 </p>
               </div>
               <img
-                src={Main_SubBanner_SMS}
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/Main_SubBanner_SMS.png"
                 alt="문자 채팅 아이콘"
                 className={style.Service_Icon}
               />
@@ -69,7 +65,7 @@ export default function ApplicationService() {
                 </p>
               </div>
               <img
-                src={Main_SubBanner_VoiceChat}
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/Main_SubBanner_voicechat.png"
                 alt="음성 채팅 아이콘"
                 className={style.Service_Icon}
               />
@@ -92,7 +88,7 @@ export default function ApplicationService() {
                 </p>
               </div>
               <img
-                src={Main_SubBanner_Call}
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/Main_SubBanner_Call_Icon.png"
                 alt="실시간 통화 아이콘"
                 className={style.Service_Icon}
               />

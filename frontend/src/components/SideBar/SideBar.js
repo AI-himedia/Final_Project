@@ -88,7 +88,7 @@ export default function SideMenu() {
   //           <li>
   //             <Link to="https://play.google.com/store/games">
   //               <img
-  //                 src="/assets/playstore.png"
+  //                 src="/img/playstore.png"
   //                 alt="플레이스토어"
   //                 className="SideMenu_CustomIcon"
   //               />
@@ -97,7 +97,7 @@ export default function SideMenu() {
   //           <li>
   //             <Link to="https://www.apple.com/kr/app-store/">
   //               <img
-  //                 src="/assets/appstore.png"
+  //                 src="/img/appstore.png"
   //                 alt="애플 스토어"
   //                 className="SideMenu_CustomIcon"
   //               />
@@ -106,7 +106,7 @@ export default function SideMenu() {
   //           <li>
   //             <Link to="https://www.youtube.com/">
   //               <img
-  //                 src="/assets/youtube.png"
+  //                 src="/img/youtube.png"
   //                 alt="유튜브"
   //                 className="SideMenu_CustomIcon"
   //               />
@@ -115,7 +115,7 @@ export default function SideMenu() {
   //           <li>
   //             <Link to="https://www.instagram.com/?hl=ko">
   //               <img
-  //                 src="/assets/instagram.png"
+  //                 src="/img/instagram.png"
   //                 alt="인스타그램"
   //                 className="SideMenu_CustomIcon"
   //               />
@@ -124,7 +124,7 @@ export default function SideMenu() {
   //           <li>
   //             <Link to="https://www.kakaocorp.com/page/service/service/KakaoTalk">
   //               <img
-  //                 src="/assets/kakao.png"
+  //                 src="/img/kakao.png"
   //                 alt="카카오톡"
   //                 className="SideMenu_CustomIcon"
   //               />

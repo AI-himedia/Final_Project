@@ -132,7 +132,7 @@ const CallPage = () => {
       <div className={styles.topRightIcons}></div>
       <div className={styles.centralCircle}>
         <img
-          src="/assets/voice_chatting.png"
+          src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/voice_chatting.png"
           alt="Call Interface"
           className={styles.centralCircleImage}
         />

@@ -425,7 +425,7 @@ export default function Step7_SMS() {
     if (ext === 'txt') {
       return (
         <img
-          src="/assets/text_default.png"
+          src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/text_default.png"
           alt="텍스트"
           className={classNames}
         />
@@ -433,11 +433,7 @@ export default function Step7_SMS() {
     }
 
     return (
-      <img
-        src="/assets/file_default.png"
-        alt="기본 파일"
-        className={classNames}
-      />
+      <img src="/img/file_default.png" alt="기본 파일" className={classNames} />
     );
   }
 }
