@@ -201,6 +201,11 @@ export default function Step7_Call() {
       });
     } finally {
       setIsLoading(false);
+
+      Toast.fire({
+        icon: 'success',
+        title: '프로필 저장이 완료되었습니다!',
+      });
     }
   };
 

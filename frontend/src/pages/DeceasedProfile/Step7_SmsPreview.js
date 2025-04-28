@@ -4,6 +4,7 @@ import { axiosInstance } from '../../api/AxiosInstance';
 import styles from './Deceased.module.css';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { useLoading } from '../../contexts/LoadingContext';
+import { Toast } from '../../utils/Swal';
 
 export default function Step7_SMS() {
   console.log('[zustand 전체 상태7 SMS]', useDeceasedProfile.getState());
@@ -210,6 +211,11 @@ export default function Step7_SMS() {
         }
       } finally {
         setIsLoading(false);
+
+        Toast.fire({
+          icon: 'success',
+          title: '프로필 저장이 완료되었습니다!',
+        });
       }
     }
   };
