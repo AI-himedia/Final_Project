@@ -40,9 +40,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # Docker 시스템 리소스 정리
+            sudo docker system prune -a -f
+
+            # 최신 이미지 pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/your-app-name:${{ github.sha }}
+
+            # 기존 컨테이너 종료 및 삭제
             docker stop python-app || true
             docker rm python-app || true
+
+            # 새 컨테이너 실행
             docker run -d --name python-app \
               --env-file /home/ubuntu/python.env \
               -v /home/ubuntu/hello-again-ai-project.json:/app/hello-again-ai-project.json \
