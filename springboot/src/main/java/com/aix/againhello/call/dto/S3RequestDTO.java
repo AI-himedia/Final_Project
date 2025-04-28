@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class S3RequestDTO {
 
-    String fileUrl;
-    int subscriptionCode;
-    int serviceCode;
+    String s3_url;
+    int subscription_code;
+    int service_code;
 }
