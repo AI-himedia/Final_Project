@@ -101,24 +101,57 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(payload);  // JSON 트리로 파싱
 
-            String signal = root.path("type").asText();
-            if ("".equals(signal)) {
-                signal = root.path("event").asText();  // fallback
+            String signal = null;
+            if (root.has("type")) {
+                signal = root.get("type").asText();
+            } else if (root.has("event")) {
+                signal = root.get("event").asText();
             }
 
-            if ("end".equals(signal)) {
-                fastApiClient.send("{\"event\":\"end\"}");
-                System.out.println(" 'end' 메시지 FastAPI로 전송");
+            if (signal == null) {
+                System.err.println("올바른 signal(type/event)이 없음");
+                return;
             }
 
-            if ("stt_start".equals(signal)) {
-                session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
-                System.out.println("React로 STT 종료 알림 전송");
+            switch (signal) {
+                case "end":
+                    fastApiClient.send("{\"event\":\"end\"}");
+                    System.out.println(" 'end' 메시지 FastAPI로 전송");
+                    break;
+                case "stt_start":
+                    session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
+                    System.out.println("React로 STT 종료 알림 전송");
+                    break;
+                default:
+                    System.out.println("Unknown signal received: " + signal);
             }
-
         } catch (Exception e) {
             System.err.println("JSON 파싱 실패: " + e.getMessage());
         }
+
+
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            JsonNode root = mapper.readTree(payload);  // JSON 트리로 파싱
+//
+//            String signal = root.path("type").asText();
+//            if ("".equals(signal)) {
+//                signal = root.path("event").asText();  // fallback
+//            }
+//
+//            if ("end".equals(signal)) {
+//                fastApiClient.send("{\"event\":\"end\"}");
+//                System.out.println(" 'end' 메시지 FastAPI로 전송");
+//            }
+//
+//            if ("stt_start".equals(signal)) {
+//                session.sendMessage(new TextMessage("{\"type\": \"stt_end\"}"));
+//                System.out.println("React로 STT 종료 알림 전송");
+//            }
+//
+//        } catch (Exception e) {
+//            System.err.println("JSON 파싱 실패: " + e.getMessage());
+//        }
     }
 
     private void sendToReactClient(WebSocketSession session, byte[] audioBytes) throws IOException {
