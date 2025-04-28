@@ -2,6 +2,7 @@ package com.aix.againhello.call.service;
 
 import com.aix.againhello.call.dto.PythonResponseDTO;
 import com.aix.againhello.call.utils.MultipartInputStreamFileResource;
+import com.aix.againhello.util.ServerUrlConstants;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,7 +31,7 @@ public class PythonService {
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
 
         ResponseEntity<PythonResponseDTO> response = restTemplate.postForEntity(
-                "http://localhost:8000/ai/api/process-audio",
+                ServerUrlConstants.PYTHON_URL + "api/process-audio",
                 request,
                 PythonResponseDTO.class
         );

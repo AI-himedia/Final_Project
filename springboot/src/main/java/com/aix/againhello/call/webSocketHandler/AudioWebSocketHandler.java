@@ -44,12 +44,12 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
         System.out.println("React 세션 등록됨: " + session.getId() + " (총 세션 수: " + connectedReactSessions.size() + ")");
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Origin", "http://localhost:8080");
+        headers.put("Origin", "https://againhello.site");
 
 
         try {
             if (fastApiClient == null || !fastApiClient.isOpen()) {
-                fastApiClient = new FastApiWebSocketClient(new URI("ws://localhost:8000/be/ws/python"), headers, subscriptionCode);
+                fastApiClient = new FastApiWebSocketClient(new URI("ws://againhello.site/be/ws/python"), headers, subscriptionCode);
                 fastApiClient.setMessageRelayCallback(this::relayToReactClients);
                 fastApiClient.setBinaryRelayCallback(this::relayBinaryToReactClients);
 //                fastApiClient.setConnectionLostTimeout(300);
