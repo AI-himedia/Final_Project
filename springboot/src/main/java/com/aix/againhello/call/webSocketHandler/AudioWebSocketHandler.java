@@ -49,7 +49,7 @@ public class AudioWebSocketHandler extends BinaryWebSocketHandler implements Web
 
         try {
             if (fastApiClient == null || !fastApiClient.isOpen()) {
-                fastApiClient = new FastApiWebSocketClient(new URI("ws://againhello.site/be/ws/python"), headers, subscriptionCode);
+                fastApiClient = new FastApiWebSocketClient(new URI("wss://againhello.site/be/ws/python"), headers, subscriptionCode);
                 fastApiClient.setMessageRelayCallback(this::relayToReactClients);
                 fastApiClient.setBinaryRelayCallback(this::relayBinaryToReactClients);
 //                fastApiClient.setConnectionLostTimeout(300);
