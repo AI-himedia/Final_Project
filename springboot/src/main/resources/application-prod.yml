@@ -16,7 +16,7 @@ file:
   output:
     dir: /app/output
   upload:
-    dir: /app/output/upload
+    dir: /app/upload
     max-count: 3
     max-count-text: 10
     allowed-audio-extensions: mp3,aac,ac3,ogg,flac,wav,m4a
