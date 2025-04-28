@@ -58,7 +58,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     logger.warn("access token 만료");
                     String emailFromRT = jwtUtil.extractEmail(refreshToken);
+                    System.out.println(refreshToken);
+                    System.out.println(emailFromRT);
                     User user = userService.findByEmail(emailFromRT);
+                    System.out.println(user);
 
                     if(Objects.equals(user.getRefreshToken(), refreshToken)) {
                         logger.warn("refresh token 비교 통과");
