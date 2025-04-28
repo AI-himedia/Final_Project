@@ -12,6 +12,8 @@ server:
   backend: http://localhost:8080
 
 file:
+  output:
+    dir: ./output
   sms:
     call: /Users/dijeung/Desktop/Final_Project/springboot/output
 #  call: /dev/final/springboot/output

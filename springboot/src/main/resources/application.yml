@@ -66,6 +66,4 @@ file:
     max-audio-size: 5242880
     max-video-size: 314572800
     max-text-size: 314572800
-  output:
-    dir: ./output
 

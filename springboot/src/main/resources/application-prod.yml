@@ -11,7 +11,10 @@ server:
 
 
 file:
-  call: /path/to/production/call/audio/files
+  output:
+    dir: ./output
+  sms:
+    call: /app/output/call/audio
 
 app:
   props:
