@@ -56,7 +56,7 @@ def synthesize(request: S3Request):
         buffer = get_buffer_from_S3(request.s3_url)
 
         # 1. 업로드할 화자 정보
-        VOICE_NAME = f"{request.service_code}"  # 원하는 이름으로 설정
+        VOICE_NAME = f"{request.subscription_code}"  # 원하는 이름으로 설정
         FILE_PATH = "./voice_sample/sample1.mp3"  # 경로 확인 필수
 
         # 2. API 요청 설정
