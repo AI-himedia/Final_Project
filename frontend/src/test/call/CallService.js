@@ -2,8 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
-import { axiosInstance, baseURL} from '../../../api/AxiosInstance'
-import styles from '../VoiceChat/VoiceChatPage.module.css';
+import { axiosInstance } from '../../api/AxiosInstance';
+import styles from './CallService.module.css';
 
 const CallService = () => {
   const { startAudioCapture, stopAudioCapture } = AudioSender();
@@ -20,7 +20,7 @@ const CallService = () => {
   const micStartTimeRef = useRef(null);
 
   // const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}"
-
+  const webSocketUrl = 'ws://localhost:8080/be/ws/react?subscriptionCode=5';
 
   // ---- !!!! 준호씨 일단 제가 CallPage.js 에 있는 SubscriptionCode 가져오는 코드 그대로 긁어왔어요.
   const location = useLocation();
@@ -29,15 +29,10 @@ const CallService = () => {
     initialSubscriptionCode
   );
 
-
-  const webSocketUrl = `ws://${baseURL}/ws/react?subscriptionCode=${currentSubscriptionCode}`;
-
   useEffect(() => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
-          // const serviceCode = localStorage.getItem('@againhello/service-code');
-
           const response = await axiosInstance.post(
             `/embedding?subscription_code=${currentSubscriptionCode}&service_code=3`
           );
@@ -269,7 +264,7 @@ const CallService = () => {
       <h2>전화 서비스</h2>
       <div className={styles.centralCircle}>
         <img
-          src="/assets/voice_chatting.png"
+          src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/voice_chatting.png"
           alt="Call Interface"
           className={styles.centralCircleImage}
         />
@@ -277,9 +272,9 @@ const CallService = () => {
       <div className={styles.bottomControls}>
         <button className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
-            <img src={`/assets/call_end.png`} alt="통화 종료" />
+            <img src={`/img/call_end.png`} alt="통화 종료" />
           ) : (
-            <img src={`/assets/call_start.png`} alt="통화 시작" />
+            <img src={`/img/call_start.png`} alt="통화 시작" />
           )}
         </button>
         <audio ref={audioRef} autoPlay />
