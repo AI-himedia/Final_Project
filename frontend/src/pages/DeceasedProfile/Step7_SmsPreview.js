@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../../api/AxiosInstance';
 import styles from './Deceased.module.css';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
+import { useLoading } from '../../contexts/LoadingContext';
 
 export default function Step7_SMS() {
   console.log('[zustand 전체 상태7 SMS]', useDeceasedProfile.getState());
   const navigate = useNavigate();
+  const { setIsLoading } = useLoading();
   const {
     files,
     setFileMeta,
@@ -100,6 +102,8 @@ export default function Step7_SMS() {
   const handleSubmit = async () => {
     if (allSelected) {
       try {
+        setIsLoading(true);
+
         const formData = new FormData();
 
         // deceasedData 객체 생성
@@ -204,6 +208,8 @@ export default function Step7_SMS() {
         } else {
           console.error('요청 설정 오류:', error.message);
         }
+      } finally {
+        setIsLoading(false);
       }
     }
   };
