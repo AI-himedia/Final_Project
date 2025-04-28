@@ -3,6 +3,7 @@
     /* padding: 24px; */
     font-family: sans-serif;
     background-color: #ffffff;
+    /* height: 100vh; */
   }
 
   .PaymentNotice_Header {
@@ -120,7 +121,7 @@
 
   .Notice_FooterText {
     position: fixed;
-    bottom: 12rem;
+    bottom: 5rem;
     left: 50%;
     transform: translateX(-50%);
     font-size: 12px;

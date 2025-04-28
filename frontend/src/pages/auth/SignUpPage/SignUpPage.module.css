@@ -1,88 +1,90 @@
-.Container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 2rem 2rem 0 2rem;
-  font-family: 'Toss Product Sans', sans-serif;
-  box-sizing: border-box;
-}
+@media (max-width: 480px) {
+  .Container {
+    display: flex;
+    flex-direction: column;
+    /* min-height: 90vh; */
+    padding: 2rem 2rem 2rem 2rem;
+    font-family: 'Toss Product Sans', sans-serif;
+    box-sizing: border-box;
+  }
 
-.Content {
-  flex-grow: 1;
-}
+  .Content {
+    flex-grow: 1;
+  }
 
-.Title {
-  font-size: 1.7rem;
-  font-weight: bold;
-  margin: 1rem 0 3rem 0;
-}
+  .Title {
+    font-size: 1.7rem;
+    font-weight: bold;
+    margin: 1rem 0 3rem 0;
+  }
 
-.SubTitle {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #6d6d6d;
-  margin: 0 0 2.5rem 0;
-}
+  .SubTitle {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6d6d6d;
+    margin: 0 0 2.5rem 0;
+  }
 
-.InputGroup {
-  position: relative;
-  margin-top: 2rem;
-}
+  .InputGroup {
+    position: relative;
+    margin-top: 2rem;
+  }
 
-.ClickLabel {
-  position: absolute;
-  top: -20px;
-  left: 0;
-  font-size: 1rem;
-  color: #a0a9b3;
-  transition: all 0.2s ease;
-  pointer-events: none;
-  background-color: #fff;
-}
+  .ClickLabel {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-size: 1rem;
+    color: #a0a9b3;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    background-color: #fff;
+  }
 
-.Email,
-.FullName,
-.Select {
-  width: 100%;
-  padding: 8px 2.5rem 8px 0;
-  font-size: 1.2rem;
-  border: none;
-  border-bottom: 2px solid #ccc;
-  border-radius: 0;
-  outline: none;
-  transition: border-color 0.2s ease;
-  caret-color: #3b82f6;
-  background-color: transparent;
-}
+  .Email,
+  .FullName,
+  .Select {
+    width: 100%;
+    padding: 8px 2.5rem 8px 0;
+    font-size: 1.2rem;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 0;
+    outline: none;
+    transition: border-color 0.2s ease;
+    caret-color: #3b82f6;
+    background-color: transparent;
+  }
 
-.Select {
-  font-size: 1.2rem;
-}
+  .Select {
+    font-size: 1.2rem;
+  }
 
-.ButtonContainer {
-  margin-top: 3rem;
-  text-align: center;
-}
+  .ButtonContainer {
+    margin-top: 3rem;
+    text-align: center;
+  }
 
-.Button {
-  width: 100%;
-  padding: 1rem 0;
-  margin: 1rem 0 3rem 0;
-  background-color: #2e80ff;
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
+  .Button {
+    width: 100%;
+    padding: 1rem 0;
+    margin: 1rem 0 0rem 0;
+    background-color: #2e80ff;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
 
-.Button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
+  .Button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
 
-.Button:hover {
-  background-color: #2563eb;
+  .Button:hover {
+    background-color: #2563eb;
+  }
 }
