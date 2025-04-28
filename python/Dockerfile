@@ -1,5 +1,5 @@
 # 베이스 이미지
-FROM python:3.11-slim
+FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
 # 시스템 패키지 업데이트 및 필요한 라이브러리 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -16,9 +16,14 @@ COPY requirements.txt .
 
 # 패키지 설치
 RUN pip install --no-cache-dir -r requirements.txt
+# torch 미리 설치
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # 소스코드 복사
 COPY . .
+
+# torch에서 CUDA 사용 가능한지 체크
+ RUN python3 -c "import torch; print('CUDA available:', torch.cuda.is_available())"
 
 # 포트 오픈 (필요에 따라 수정)
 EXPOSE 8000
