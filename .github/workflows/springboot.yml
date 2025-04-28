@@ -2,7 +2,7 @@ name: Spring Boot Docker Deploy
 
 on:
   push:
-    branches: [cjh]
+    branches: [dev]
     paths:
       - "springboot/**"
       - ".github/workflows/springboot.yml"
