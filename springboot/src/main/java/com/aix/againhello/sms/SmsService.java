@@ -76,6 +76,7 @@ public class SmsService {
 
     public SmsInitResponse checkInit(int userCode) {
         List<SubscriptionSummaryDTO> subscriptionSummaryDTOList = smsMapper.findSubscriptionSummaryByUserCode(userCode);
+        int noDataCount = 0;
 
         // 문자서비스 미신청인 경우
         if (subscriptionSummaryDTOList == null || subscriptionSummaryDTOList.isEmpty()) {
@@ -85,6 +86,9 @@ public class SmsService {
         // 서비스 신청은 했지만 아직 고인에 대한 데이터 없는 경우
         for (SubscriptionSummaryDTO dto : subscriptionSummaryDTOList) {
             if (dto.getName() == null || dto.getName().isEmpty()) {
+                noDataCount++;
+            }
+            if (noDataCount == subscriptionSummaryDTOList.size()) {
                 return new SmsInitResponse("NO_DECEASED_DATA", "고인 정보가 없습니다.", null);
             }
         }
