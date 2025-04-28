@@ -3,10 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import './Product.mobile.css';
 import { HeaderProduct } from '../../../components/Header/variants';
 
-import product_sms from '../../../assets/product_sms.png';
-import product_voicechat from '../../../assets/product_voicechat.png';
-import product_call from '../../../assets/product_call.png';
-
 export default function ProductPage() {
   const [searchParams] = useSearchParams();
   const [selectedService, setSelectedService] = useState(null);
@@ -74,7 +70,7 @@ export default function ProductPage() {
         >
           <div className="Notice_Left">
             <img
-              src={product_sms}
+              src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/product_sms.png"
               alt="서비스 아이콘"
               className="Notice_Icon"
             />
@@ -107,7 +103,7 @@ export default function ProductPage() {
         >
           <div className="Notice_Left">
             <img
-              src={product_voicechat}
+              src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/product_voice-chat.png"
               alt="서비스 아이콘"
               className="Notice_Icon"
             />
@@ -140,7 +136,7 @@ export default function ProductPage() {
         >
           <div className="Notice_Left">
             <img
-              src={product_call}
+              src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/product_call.png"
               alt="서비스 아이콘"
               className="Notice_Icon"
             />

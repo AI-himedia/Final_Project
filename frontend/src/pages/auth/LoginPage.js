@@ -1,6 +1,5 @@
 // src/pages/shared/auth/LoginPage.js
 import styles from './LoginPage.module.css';
-import btn_kakao from '../../assets/btn_kakao.svg';
 
 export default function LoginPage() {
   const handleKakaoLogin = () => {
@@ -28,7 +27,7 @@ export default function LoginPage() {
         >
           카카오로 로그인
           <img
-            src={btn_kakao}
+            src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/btn_kakao.svg"
             className={styles.Social_Login_Logo}
             alt="Kakao Login"
           />

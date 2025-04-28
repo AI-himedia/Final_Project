@@ -266,7 +266,7 @@ const CallService = () => {
       <h2>전화 서비스</h2>
       <div className={styles.centralCircle}>
         <img
-          src="/assets/voice_chatting.png"
+          src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/voice_chatting.png"
           alt="Call Interface"
           className={styles.centralCircleImage}
         />
@@ -274,9 +274,9 @@ const CallService = () => {
       <div className={styles.bottomControls}>
         <button className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
-            <img src={`/assets/call_end.png`} alt="통화 종료" />
+            <img src={`/img/call_end.png`} alt="통화 종료" />
           ) : (
-            <img src={`/assets/call_start.png`} alt="통화 시작" />
+            <img src={`/img/call_start.png`} alt="통화 시작" />
           )}
         </button>
         <audio ref={audioRef} autoPlay />

@@ -6,10 +6,6 @@ import 'swiper/css/pagination';
 import './ApplyPage.mobile.css';
 import HeaderApply from '../../../components/Header/variants/HeaderApply';
 
-import apply1 from '../../../assets/apply1.jpg';
-import apply2 from '../../../assets/apply2.jpg';
-import apply3 from '../../../assets/apply3.jpg';
-
 export default function ApplyPage() {
   const [selectedService, setSelectedService] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -81,14 +77,22 @@ export default function ApplyPage() {
             grabCursor={true}
           >
             <SwiperSlide>
-              <img src={apply1} alt="설명1" className="ApplyPage_BannerImage" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src={apply2} alt="설명2" className="ApplyPage_BannerImage" />
+              <img
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/apply1.jpg"
+                alt="설명1"
+                className="ApplyPage_BannerImage"
+              />
             </SwiperSlide>
             <SwiperSlide>
               <img
-                src={apply3}
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/apply2.jpg"
+                alt="설명2"
+                className="ApplyPage_BannerImage"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/apply3.jpg"
                 alt="설명3"
                 className="ApplyPage_BannerImage Image_Zoom"
               />

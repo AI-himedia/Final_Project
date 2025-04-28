@@ -215,7 +215,10 @@ export default function ServiceList() {
 
                 <div className={styles.ServiceIcon}>
                   <img
-                    src={profileImageUrl || '/assets/default_profile.png'}
+                    src={
+                      profileImageUrl ||
+                      'https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/default_profile.png'
+                    }
                     alt="프로필"
                     className={styles.ProfileImage}
                   />

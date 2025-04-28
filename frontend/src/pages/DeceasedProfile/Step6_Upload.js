@@ -279,8 +279,8 @@ export default function Step6_FileUpload() {
                 <img
                   src={
                     isAudio
-                      ? '/assets/sound_default.png'
-                      : '/assets/text_default.png'
+                      ? 'https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/sound_default.png'
+                      : 'https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/text_default.png'
                   }
                   alt="업로드 미리보기"
                   className={styles.thumbImage}

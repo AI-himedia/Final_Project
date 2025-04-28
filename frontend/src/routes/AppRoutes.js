@@ -11,6 +11,7 @@ import SignUpPage from '../pages/auth/SignUpPage/SignUpPage';
 import ServiceList from '../pages/service/ServiceList';
 import ChatPage from '../pages/service/sms/ChatPage';
 import VoiceChatPage from '../pages/service/VoiceChat/VoiceChatPage';
+import CallPage from '../pages/service/VoiceChat/VoiceChatPage';
 
 // 서비스 신청 관련
 import ApplyPage from '../pages/service-apply/ApplyPage/ApplyPage';
@@ -25,14 +26,11 @@ import Step3_Relationship from '../pages/DeceasedProfile/Step3_Relationshop';
 import Step4_Personality from '../pages/DeceasedProfile/Step4_Personality';
 import Step5_SpeakingTone from '../pages/DeceasedProfile/Step5_SpeckingTone';
 import Step6_Upload from '../pages/DeceasedProfile/Step6_Upload';
+import Step7_AudioPreview from '../pages/DeceasedProfile/Step7_AudioPreview';
+import Step7_SMS from '../pages/DeceasedProfile/Step7_SmsPreview';
 
 // 결제
 import SuccessPage from '../pages/payment/SuccessPage';
-
-// 테스트 페이지
-import Step7_AudioPreview from '../pages/DeceasedProfile/Step7_AudioPreview';
-import Step7_SMS from '../pages/DeceasedProfile/Step7_SmsPreview';
-import CallService from '../test/call/CallService';
 
 export const AppRoutes = () => (
   <Routes>
@@ -61,7 +59,7 @@ export const AppRoutes = () => (
     {/* 통화서비스 */}
     <Route path="/sms/chat" element={<ChatPage />} />
     <Route path="/voice-chat" element={<VoiceChatPage />} />
-    <Route path="/call" element={<CallService />} />
+    <Route path="/call" element={<CallPage />} />
 
     {/* 인증 필요 라우트 */}
     <Route element={<PrivateRoute />}>
@@ -76,9 +74,6 @@ export const AppRoutes = () => (
 
     {/* 결제 성공 페이지 */}
     <Route path="/success" element={<SuccessPage />} />
-
-    {/* 테스트용 라우트 */}
-    <Route path="/calltest" element={<CallService />} />
 
     {/* 실패 시 리디렉션 */}
     <Route
