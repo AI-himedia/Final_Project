@@ -1,6 +1,6 @@
 @media (max-width: 480px) {
   .ApplyPage_Container {
-    height: 90vh;
+    /* height: 90vh; */
     padding: 0 24px 32px;
     display: flex;
     flex-direction: column;
