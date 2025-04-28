@@ -69,10 +69,13 @@ public class FastApiAudioService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        S3RequestDTO s3RequestDTO = new S3RequestDTO();
-        s3RequestDTO.setFileUrl(fileUrl);
-        s3RequestDTO.setSubscriptionCode(subscriptionCode);
-        s3RequestDTO.setServiceCode(serviceCode);
+
+        S3RequestDTO s3RequestDTO = new S3RequestDTO(
+                fileUrl,
+                subscriptionCode,
+                serviceCode
+        );
+
         HttpEntity<S3RequestDTO> request = new HttpEntity<>(s3RequestDTO, headers);
 
         ResponseEntity<AudioProcessResponseDTO> response = restTemplate.postForEntity(
