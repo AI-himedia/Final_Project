@@ -29,7 +29,7 @@ const CallPage = () => {
     initialSubscriptionCode
   );
 
-  const webSocketUrl = `ws://${API_SERVER_HOST}/be/ws/react?subscriptionCode=${currentSubscriptionCode}`;
+  const webSocketUrl = `wss://againhello.site/be/ws/react?subscriptionCode=${currentSubscriptionCode}`;
 
   useEffect(() => {
     if (currentSubscriptionCode) {
