@@ -21,6 +21,7 @@ class S3Request(BaseModel):
 
 @TTSReady_router.post("/ai/synthesize")
 def synthesize(request: S3Request):
+    print(f"서비스코드 : {request.service_code}")
 
     if request.service_code == 2:
         try:

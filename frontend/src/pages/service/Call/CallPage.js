@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { axiosInstance, baseUrl } from '../../../api/AxiosInstance';
 import styles from '../VoiceChat/VoiceChatPage.module.css';
 
-const CallService = () => {
+const CallPage = () => {
   const { startAudioCapture, stopAudioCapture } = AudioSender();
   const [isCalling, setIsCalling] = useState(false);
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
@@ -291,4 +291,4 @@ const CallService = () => {
   );
 };
 
-export default CallService;
+export default CallPage;
