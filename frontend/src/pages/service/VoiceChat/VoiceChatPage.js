@@ -16,6 +16,7 @@ const CallPage = () => {
   const location = useLocation();
 
   const initialSubscriptionCode = location.state?.subscriptionCode;
+  const deceasedName = location.state?.deceasedName;
   const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
     initialSubscriptionCode
   );
@@ -151,7 +152,11 @@ const CallPage = () => {
           )}
         </div>
       </div>
-      {replyText && <p className={styles.replyText}>응답: {replyText}</p>}
+      {replyText && (
+        <p className={styles.replyText}>
+          故 {deceasedName}님: {replyText}
+        </p>
+      )}
       <audio ref={audioRef} autoPlay />
     </div>
   );

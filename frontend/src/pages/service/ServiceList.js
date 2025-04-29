@@ -85,17 +85,17 @@ export default function ServiceList() {
     fetchData();
   }, [userCode, serviceType, isModalConfirmed]);
 
-  const handleOptionSelect = (type) => {
+  const handleOptionSelect = (type, deceasedName) => {
     setServiceType(type);
     setIsModalConfirmed(true);
     setShowOptions(false);
 
     if (type === 'sms') {
-      navigate(`/service/list/sms`);
+      navigate(`/service/list/sms`, { state: { deceasedName } });
     } else if (type === 'call') {
-      navigate(`/service/list/call`);
+      navigate(`/service/list/call`, { state: { deceasedName } });
     } else if (type === 'voice_chat') {
-      navigate(`/service/list/voice-chat`);
+      navigate(`/service/list/voice-chat`, { state: { deceasedName } });
     }
   };
 

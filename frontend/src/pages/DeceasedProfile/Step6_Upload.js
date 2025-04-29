@@ -5,6 +5,7 @@ import useDeceasedProfile from '../../zustand/useDeceasedProfile';
 import { axiosInstance } from '../../api/AxiosInstance';
 import { useEffect, useRef } from 'react';
 import { Toast } from '../../utils/Swal';
+import { useLoading } from '../../contexts/LoadingContext';
 
 const audioVideoExtensions = [
   'mp3',
@@ -29,6 +30,7 @@ export default function Step6_FileUpload() {
   console.log('[zustand 전체 상태6]', useDeceasedProfile.getState());
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const { setIsLoading } = useLoading();
   const serviceCode = localStorage.getItem('@againhello/service-code');
 
   const {
@@ -194,6 +196,8 @@ export default function Step6_FileUpload() {
       );
     }
 
+    setIsLoading(true);
+
     try {
       if (serviceCode === '1') {
         await axiosInstance.post('/sms/service/start', formData);
@@ -212,6 +216,8 @@ export default function Step6_FileUpload() {
         icon: 'warning',
         title: `서버 요청 중 오류가 발생했습니다.`,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
