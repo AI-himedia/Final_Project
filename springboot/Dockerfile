@@ -19,9 +19,15 @@ RUN ./gradlew bootJar --no-daemon -x test
 FROM openjdk:17-slim
 WORKDIR /app
 
-# ffmpeg 설치
+# ffmpeg 설치 (문제 해결을 위해 --fix-missing 옵션 추가)
 RUN apt-get update && \
-    apt-get install -y ffmpeg && \
+    apt-get install -y ffmpeg --fix-missing && \
+    rm -rf /var/lib/apt/lists/*
+
+# 또는 미러 서버 변경하여 재시도
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y ffmpeg --fix-missing && \
     rm -rf /var/lib/apt/lists/*
 
 # 빌드 스테이지에서 .jar 파일만 복사하여 최종 이미지에 포함
