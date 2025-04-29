@@ -110,6 +110,6 @@
   line-height: 1.5;
 }
 
-button {
+.bottomControls button {
   all: unset;
 }
