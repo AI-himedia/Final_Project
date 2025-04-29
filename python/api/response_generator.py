@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, HumanMessage
-from llm.chat.prompt_template import SYSTEM_PROMPT_TEMPLATE 
+from llm.chat.prompt_template import SYSTEM_PROMPT_TEMPLATE, SYSTEM_PROMPT_TEMPLATE_FOR_CALL
 from llm.chat.chain_config import get_llm_and_prompt
 from llm.chat.memory_chain import MyChatChain
 from model.embedding_model import embedding_model
@@ -43,7 +43,7 @@ def generate_response(request: ChatRequest):
         # 2. user_input 임베딩 
         # tolist()로 바꿔주는 이유는 DB에 넣거나 쿼리문에 넘기기 위해서
         query_text = f"query: {user_input}"
-        user_embedding  = embedding_model.encode(query_text, normalize_embeddings=True).tolist()
+        user_embedding = embedding_model.encode(query_text, normalize_embeddings=True).tolist()
         print("L2 norm:", np.linalg.norm(user_embedding))
 
         # 2. 유사도 높은 과거 대화 검색
@@ -59,12 +59,21 @@ def generate_response(request: ChatRequest):
                 retrieved_messages.append(AIMessage(content=msg['content']))
 
         # 3. system prompt 생성
-        try:
-            system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
-            print("------------------------------------------")
-            print('system_prompt:', system_prompt)
-        except KeyError as e:
-            raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
+        if(service_type == 'sms'):
+            try:
+                system_prompt = SYSTEM_PROMPT_TEMPLATE.format(**prompt_data)
+                print("------------------------------------------")
+                print('system_prompt:', system_prompt)
+            except KeyError as e:
+                raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
+        elif(service_type == 'call'):
+            try:
+                system_prompt = SYSTEM_PROMPT_TEMPLATE_FOR_CALL.format(**prompt_data)
+                print("------------------------------------------")
+                print('system_prompt:', system_prompt)
+            except KeyError as e:
+                raise HTTPException(status_code=500, detail=f"Missing key for system prompt formatting: {e}")
+        
 
         # 4. 모델을 순차적으로 시도 (openai -> claude -> sonar)
         print(f"[DEBUG] similar_messages: {similar_messages}")

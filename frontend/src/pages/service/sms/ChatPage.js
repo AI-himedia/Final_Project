@@ -56,6 +56,7 @@ const ChatPage = () => {
       const response = await axiosInstance.post('/sms/chat', {
         subscriptionCode,
         userInput: currentInput,
+        serviceType: 'sms'
       });
       console.log(response);
       setIsTyping(false);
