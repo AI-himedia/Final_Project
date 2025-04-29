@@ -274,13 +274,13 @@ const CallPage = () => {
         />
       </div>
       <div className={styles.bottomControls}>
-        <button className={styles.bottomLeft} onClick={handleToggleCall}>
+        <div className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
             <FaRegStopCircle size={28} color="#555" />
           ) : (
             <MdKeyboardVoice size={28} color="#555" />
           )}
-        </button>
+        </div>
         <audio ref={audioRef} autoPlay />
         {manualPlayRequired && (
           <div className={styles.bottomRight}>
