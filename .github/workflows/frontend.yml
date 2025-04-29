@@ -4,7 +4,7 @@ name: React Docker Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [363]
     paths:
       - "frontend/**"
       - ".github/workflows/frontend.yml"
