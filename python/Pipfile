@@ -40,7 +40,6 @@ redis = "*"
 torch = {version = "==2.5.1", index = "pytorch"}
 torchvision = {version = "==0.20.1", index = "pytorch"}
 torchaudio = {version = "==2.5.1", index = "pytorch"}
-langchain-experimental = "*"
 
 websockets = ">=10.0"
 sentence-transformers = "*"
