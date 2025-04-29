@@ -3,6 +3,8 @@ import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
+import { FaRegStopCircle } from 'react-icons/fa';
+import { MdKeyboardVoice } from 'react-icons/md';
 import styles from '../VoiceChat/VoiceChatPage.module.css';
 
 const CallPage = () => {
@@ -264,7 +266,6 @@ const CallPage = () => {
   return (
     <div className={styles.callPageContainer}>
       <div className={styles.topRightIcons}></div>
-      <h2>전화 서비스</h2>
       <div className={styles.centralCircle}>
         <img
           src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/voice_chatting.png"
@@ -275,9 +276,9 @@ const CallPage = () => {
       <div className={styles.bottomControls}>
         <button className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
-            <img src={`/img/call_end.png`} alt="통화 종료" />
+            <FaRegStopCircle size={28} color="#555" />
           ) : (
-            <img src={`/img/call_start.png`} alt="통화 시작" />
+            <MdKeyboardVoice size={28} color="#555" />
           )}
         </button>
         <audio ref={audioRef} autoPlay />
