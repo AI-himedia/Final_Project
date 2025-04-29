@@ -110,4 +110,11 @@ export const routeMeta = {
     showSidebar: false,
     showUpButton: false,
   },
+
+  '/admin': {
+    showHeader: false,
+    showFooter: false,
+    showSidebar: false,
+    showUpButton: false,
+  },
 };
