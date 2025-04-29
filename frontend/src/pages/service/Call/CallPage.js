@@ -3,8 +3,8 @@ import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
-import { FaRegStopCircle } from 'react-icons/fa';
-import { MdKeyboardVoice } from 'react-icons/md';
+import { MdCall } from 'react-icons/md';
+import { MdCallEnd } from 'react-icons/md';
 import styles from '../VoiceChat/VoiceChatPage.module.css';
 
 const CallPage = () => {
@@ -276,9 +276,9 @@ const CallPage = () => {
       <div className={styles.bottomControls}>
         <div className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
-            <FaRegStopCircle size={28} color="#555" />
+            <MdCallEnd size={28} color="#555" />
           ) : (
-            <MdKeyboardVoice size={28} color="#555" />
+            <MdCall size={28} color="#555" />
           )}
         </div>
         <audio ref={audioRef} autoPlay />
