@@ -274,17 +274,13 @@ const CallPage = () => {
         />
       </div>
       <div className={styles.bottomControls}>
-        <div
-          className={styles.bottomLeft}
-          onClick={handleToggleCall}
-          onTouchStart={handleToggleCall}
-        >
+        <button className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
             <MdCallEnd size={28} color="#555" />
           ) : (
             <MdCall size={28} color="#555" />
           )}
-        </div>
+        </button>
         <audio ref={audioRef} autoPlay />
         {manualPlayRequired && (
           <div className={styles.bottomRight}>
