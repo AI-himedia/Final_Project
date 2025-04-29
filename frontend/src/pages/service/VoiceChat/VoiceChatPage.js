@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import { AudioApi } from '../../../api/AudioApi';
-import { MdKeyboardVoice } from 'react-icons/md';
+import { MdKeyboardVoice, FaRegStopCircle } from 'react-icons/md';
 import styles from './VoiceChatPage.module.css';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
@@ -153,7 +153,11 @@ const CallPage = () => {
           onClick={handleToggleCall}
           disabled={isTTSPlaying}
         >
-          <MdKeyboardVoice size={28} color="#555" />
+          {isCalling ? (
+            <FaRegStopCircle size={28} color="#555" />
+          ) : (
+            <MdKeyboardVoice size={28} color="#555" />
+          )}
         </div>
         <div className={styles.bottomRight}>
           {manualPlayRequired && (
