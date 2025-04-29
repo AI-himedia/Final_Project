@@ -32,7 +32,7 @@ file:
 #  call: /dev/final/springboot/output
 #  call: \Users\201-06\Final_Project\springboot\output
 #  call: ${AUDIO_PLAY_ADDRESS}
-
+#  call: /Users/jin/final_project/Final_Project/Final_Project/springboot/output
 app:
   props:
     social:

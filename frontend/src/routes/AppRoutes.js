@@ -32,6 +32,8 @@ import Step7_SMS from '../pages/DeceasedProfile/Step7_SmsPreview';
 // 결제
 import SuccessPage from '../pages/payment/SuccessPage';
 
+// 관리자
+import AdminPage from '../pages/admin/AdminPage';
 
 export const AppRoutes = () => (
   <Routes>
@@ -39,6 +41,9 @@ export const AppRoutes = () => (
     <Route path="/" element={<MainPage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/signup" element={<SignUpPage />} />
+
+    {/* 관리자 페이지 */}
+    <Route path="/admin" element={<AdminPage />} />
 
     {/* 서비스 신청 관련 */}
     <Route path="/service" element={<ApplyPage />} />
