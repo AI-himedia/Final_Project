@@ -2,7 +2,7 @@ name: Python Docker Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [363]
     paths:
       - "python/**"
       - ".github/workflows/python.yml"
