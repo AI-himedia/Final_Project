@@ -101,3 +101,11 @@
 .bottomRight svg:hover {
   background-color: #ddd;
 }
+
+.replyText {
+  margin-top: -2rem;
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+  line-height: 1.5;
+}
