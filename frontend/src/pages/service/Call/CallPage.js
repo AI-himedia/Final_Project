@@ -275,6 +275,7 @@ const CallPage = () => {
       </div>
       <div className={styles.bottomControls}>
         <div className={styles.bottomLeft} onClick={handleToggleCall}>
+          onTouchStart={handleToggleCall}
           {isCalling ? (
             <MdCallEnd size={28} color="#555" />
           ) : (
