@@ -3,7 +3,6 @@ import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
-import { API_SERVER_HOST } from '../../../config/ApiConfig';
 import styles from '../VoiceChat/VoiceChatPage.module.css';
 
 const CallPage = () => {
