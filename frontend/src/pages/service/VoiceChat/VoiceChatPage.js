@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import { AudioApi } from '../../../api/AudioApi';
-import { MdKeyboardVoice, FaRegStopCircle } from 'react-icons/md';
+import { FaRegStopCircle } from 'react-icons/fa';
+import { MdKeyboardVoice } from 'react-icons/md';
 import styles from './VoiceChatPage.module.css';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
