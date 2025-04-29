@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateY(-4rem);
+  transform: translateY(-10rem);
   /* transform: translateY(-8.5rem); */
 }
 
@@ -30,9 +30,7 @@
 
 .bottomControls {
   position: absolute;
-  bottom: 7.5rem;
-  left: 20px;
-  right: 20px;
+  bottom: 12rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
