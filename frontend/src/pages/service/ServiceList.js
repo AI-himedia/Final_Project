@@ -131,13 +131,13 @@ export default function ServiceList() {
                         state: { subscriptionCode, deceasedName },
                       });
                     } else if (serviceType === 'call') {
-                      console.log(
-                        'Navigating to /call with subscriptionCode:',
-                        subscriptionCode
-                      );
-                      navigate('/call', { state: { subscriptionCode } });
+                      navigate('/call', {
+                        state: { subscriptionCode, deceasedName },
+                      });
                     } else if (serviceType === 'voice_chat') {
-                      navigate('/voice-chat', { state: { subscriptionCode } });
+                      navigate('/voice-chat', {
+                        state: { subscriptionCode, deceasedName },
+                      });
                     }
                   }
                 }}

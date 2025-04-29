@@ -5,8 +5,10 @@ import { MdKeyboardVoice } from 'react-icons/md';
 import styles from './VoiceChatPage.module.css';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
+import { useLoading } from '../../../contexts/LoadingContext';
 
 const CallPage = () => {
+  const { setIsLoading } = useLoading();
   const { startRecording, stopRecording } = useAudioRecorder();
   const audioRef = useRef(null);
   const [isCalling, setIsCalling] = useState(false);
@@ -25,6 +27,7 @@ const CallPage = () => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
+          setIsLoading(true);
           // const serviceCode = localStorage.getItem('@againhello/service-code');
 
           const response = await axiosInstance.post(
@@ -34,6 +37,8 @@ const CallPage = () => {
           console.log('Embedding 요청 성공:', response.data);
         } catch (error) {
           console.error('Embedding 요청 실패:', error);
+        } finally {
+          setIsLoading(false);
         }
       };
 
@@ -90,6 +95,8 @@ const CallPage = () => {
       }
 
       try {
+        setIsLoading(true);
+
         // AudioApi 함수 호출 시 currentSubscriptionCode 사용
         const data = await AudioApi(audioBlob, currentSubscriptionCode);
         setReplyText(data.text);
@@ -114,6 +121,8 @@ const CallPage = () => {
       } catch (err) {
         console.error('오디오 전송 실패:', err);
         setIsTTSPlaying(false);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
