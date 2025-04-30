@@ -1,4 +1,4 @@
-// App.js 수정d
+// App.js 수정.
 import { useMemo } from 'react';
 import './App.css';
 import { useLocation } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { routeMeta } from './routes/RouteMeta';
 import { AppRoutes } from './routes/AppRoutes';
 import AppLayout from './components/MainLayout';
 import { useAuth } from './hooks/useAuth';
+
 
 function App() {
   const { isLoading } = useAuth();

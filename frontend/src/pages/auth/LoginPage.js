@@ -27,7 +27,7 @@ export default function LoginPage() {
         >
           카카오로 로그인
           <img
-            src="/assets/btn_kakao.svg"
+            src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/btn_kakao.svg"
             className={styles.Social_Login_Logo}
             alt="Kakao Login"
           />

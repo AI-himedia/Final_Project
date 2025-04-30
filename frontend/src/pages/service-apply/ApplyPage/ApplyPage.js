@@ -78,21 +78,21 @@ export default function ApplyPage() {
           >
             <SwiperSlide>
               <img
-                src="/assets/apply1.jpg"
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/apply1.jpg"
                 alt="설명1"
                 className="ApplyPage_BannerImage"
               />
             </SwiperSlide>
             <SwiperSlide>
               <img
-                src="/assets/apply2.jpg"
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/apply2.jpg"
                 alt="설명2"
                 className="ApplyPage_BannerImage"
               />
             </SwiperSlide>
             <SwiperSlide>
               <img
-                src="/assets/apply3.jpg"
+                src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/apply3.jpg"
                 alt="설명3"
                 className="ApplyPage_BannerImage Image_Zoom"
               />

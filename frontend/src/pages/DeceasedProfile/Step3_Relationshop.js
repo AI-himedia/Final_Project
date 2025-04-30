@@ -11,8 +11,8 @@ export default function Step3_Relationship() {
   const relationship = useDeceasedProfile((state) => state.relationship);
   const setRelationship = useDeceasedProfile((state) => state.setRelationship);
 
-  const [showFamily, setShowFamily] = useState(true);
-  const [showSocial, setShowSocial] = useState(true);
+  const [showFamily, setShowFamily] = useState(false);
+  const [showSocial, setShowSocial] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
   const handleSubmit = () => {

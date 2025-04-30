@@ -2,10 +2,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import AudioSender from './AudioSender';
 import { setupMediaSource } from './TTSStreamPlayer';
 import { useLocation } from 'react-router-dom';
-import { axiosInstance } from '../../api/AxiosInstance';
-import styles from './CallService.module.css';
+import { axiosInstance } from '../../../api/AxiosInstance';
+import { MdCall } from 'react-icons/md';
+import { MdCallEnd } from 'react-icons/md';
+import styles from '../VoiceChat/VoiceChatPage.module.css';
 
-const CallService = () => {
+const CallPage = () => {
   const { startAudioCapture, stopAudioCapture } = AudioSender();
   const [isCalling, setIsCalling] = useState(false);
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
@@ -20,7 +22,6 @@ const CallService = () => {
   const micStartTimeRef = useRef(null);
 
   // const webSocketUrl = "ws://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}"
-  const webSocketUrl = 'ws://localhost:8080/be/ws/react?subscriptionCode=5';
 
   // ---- !!!! 준호씨 일단 제가 CallPage.js 에 있는 SubscriptionCode 가져오는 코드 그대로 긁어왔어요.
   const location = useLocation();
@@ -29,12 +30,16 @@ const CallService = () => {
     initialSubscriptionCode
   );
 
+  const webSocketUrl = `wss://localhost:8080/be/ws/react?subscriptionCode=${currentSubscriptionCode}`;
+
   useEffect(() => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
+          const serviceCode = localStorage.getItem('@againhello/service-code');
+
           const response = await axiosInstance.post(
-            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=3`
+            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=${serviceCode}`
           );
 
           console.log('Embedding 요청 성공:', response.data);
@@ -261,7 +266,6 @@ const CallService = () => {
   return (
     <div className={styles.callPageContainer}>
       <div className={styles.topRightIcons}></div>
-      <h2>전화 서비스</h2>
       <div className={styles.centralCircle}>
         <img
           src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/voice_chatting.png"
@@ -272,9 +276,9 @@ const CallService = () => {
       <div className={styles.bottomControls}>
         <button className={styles.bottomLeft} onClick={handleToggleCall}>
           {isCalling ? (
-            <img src={`/img/call_end.png`} alt="통화 종료" />
+            <MdCallEnd size={28} color="#555" />
           ) : (
-            <img src={`/img/call_start.png`} alt="통화 시작" />
+            <MdCall size={28} color="#555" />
           )}
         </button>
         <audio ref={audioRef} autoPlay />
@@ -289,4 +293,4 @@ const CallService = () => {
   );
 };
 
-export default CallService;
+export default CallPage;

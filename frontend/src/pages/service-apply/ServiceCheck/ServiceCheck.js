@@ -39,10 +39,11 @@ export default function ServiceCheck() {
 
   const serviceMap = {
     1: '문자',
-    2: '전화',
+    2: '음챗',
+    3: '통화',
   };
 
-  const allServices = [1, 2];
+  const allServices = [1, 2, 3];
 
   return (
     <>
@@ -63,7 +64,9 @@ export default function ServiceCheck() {
           <div className={styles.CardContainer}>
             {hasService.map((service, idx) => {
               const isFullySubscribed =
-                service.services.includes(1) && service.services.includes(2);
+                service.services.includes(1) &&
+                service.services.includes(2) &&
+                service.services.includes(3);
 
               return (
                 <div key={idx}>
@@ -127,7 +130,7 @@ export default function ServiceCheck() {
                       <img
                         src={
                           service.profileImageUrl ||
-                          '/assets/default_profile.png'
+                          'https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/default_profile.png'
                         }
                         alt="프로필"
                         className={styles.ProfileImage}

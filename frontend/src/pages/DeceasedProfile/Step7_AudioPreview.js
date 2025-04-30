@@ -6,6 +6,8 @@ import styles from './Deceased.module.css';
 import { FaPause } from 'react-icons/fa';
 import { FaPlay } from 'react-icons/fa';
 import { axiosInstance } from '../../api/AxiosInstance';
+import { Toast } from '../../utils/Swal';
+import { useLoading } from '../../contexts/LoadingContext';
 
 export default function Step7_Call() {
   const { state } = useLocation();
@@ -18,6 +20,7 @@ export default function Step7_Call() {
   const [selectedSpeakers, setSelectedSpeakers] = useState([]);
   const audioRefs = useRef({});
   const [durations, setDurations] = useState({});
+  const { setIsLoading } = useLoading();
 
   useEffect(() => {
     setDurations((prevDurations) => {
@@ -166,18 +169,24 @@ export default function Step7_Call() {
   // 대화 만들기 시작
   const handleCreateConversation = async () => {
     if (selectedSpeakers.length === 0) {
-      alert('화자를 선택해주세요!');
+      Toast.fire({
+        icon: 'warning',
+        title: '화자를 선택해주세요!',
+      });
       return;
     }
 
     const requestData = {
       subscriptionCode: Number(subscriptionCode),
+      serviceCode: localStorage.getItem('@againhello/service-code'),
       selections: selectedSpeakers,
     };
 
     console.log('전송할 데이터:', requestData);
 
     try {
+      setIsLoading(true);
+
       const response = await axiosInstance.post(
         '/call/save/selected-speakers',
         requestData
@@ -186,7 +195,17 @@ export default function Step7_Call() {
       navigate('/');
     } catch (error) {
       console.error('오류 발생:', error);
-      alert('서버 요청 중 오류가 발생했습니다.');
+      Toast.fire({
+        icon: 'warning',
+        title: '서버 요청 중 오류가 발생했습니다.',
+      });
+    } finally {
+      setIsLoading(false);
+
+      Toast.fire({
+        icon: 'success',
+        title: '프로필 저장이 완료되었습니다!',
+      });
     }
   };
 

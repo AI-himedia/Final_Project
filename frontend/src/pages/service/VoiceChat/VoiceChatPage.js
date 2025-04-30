@@ -1,12 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import { AudioApi } from '../../../api/AudioApi';
+import { FaRegStopCircle } from 'react-icons/fa';
 import { MdKeyboardVoice } from 'react-icons/md';
-import styles from './CallPage.module.css';
+import styles from './VoiceChatPage.module.css';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../../../api/AxiosInstance';
+import { useLoading } from '../../../contexts/LoadingContext';
 
 const CallPage = () => {
+  const { setIsLoading } = useLoading();
   const { startRecording, stopRecording } = useAudioRecorder();
   const audioRef = useRef(null);
   const [isCalling, setIsCalling] = useState(false);
@@ -16,6 +19,7 @@ const CallPage = () => {
   const location = useLocation();
 
   const initialSubscriptionCode = location.state?.subscriptionCode;
+  const deceasedName = location.state?.deceasedName;
   const [currentSubscriptionCode, setCurrentSubscriptionCode] = useState(
     initialSubscriptionCode
   );
@@ -24,13 +28,18 @@ const CallPage = () => {
     if (currentSubscriptionCode) {
       const fetchEmbedding = async () => {
         try {
+          setIsLoading(true);
+          // const serviceCode = localStorage.getItem('@againhello/service-code');
+
           const response = await axiosInstance.post(
-            `/embedding?subscription_code=${currentSubscriptionCode}`
+            `/embedding?subscription_code=${currentSubscriptionCode}&service_code=2`
           );
 
           console.log('Embedding 요청 성공:', response.data);
         } catch (error) {
           console.error('Embedding 요청 실패:', error);
+        } finally {
+          setIsLoading(false);
         }
       };
 
@@ -87,6 +96,8 @@ const CallPage = () => {
       }
 
       try {
+        setIsLoading(true);
+
         // AudioApi 함수 호출 시 currentSubscriptionCode 사용
         const data = await AudioApi(audioBlob, currentSubscriptionCode);
         setReplyText(data.text);
@@ -111,6 +122,8 @@ const CallPage = () => {
       } catch (err) {
         console.error('오디오 전송 실패:', err);
         setIsTTSPlaying(false);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -130,7 +143,7 @@ const CallPage = () => {
       <div className={styles.topRightIcons}></div>
       <div className={styles.centralCircle}>
         <img
-          src="/assets/voice_chatting.png"
+          src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/voice_chatting.png"
           alt="Call Interface"
           className={styles.centralCircleImage}
         />
@@ -141,7 +154,11 @@ const CallPage = () => {
           onClick={handleToggleCall}
           disabled={isTTSPlaying}
         >
-          <MdKeyboardVoice size={28} color="#555" />
+          {isCalling ? (
+            <FaRegStopCircle size={28} color="#555" />
+          ) : (
+            <MdKeyboardVoice size={28} color="#555" />
+          )}
         </div>
         <div className={styles.bottomRight}>
           {manualPlayRequired && (
@@ -149,7 +166,11 @@ const CallPage = () => {
           )}
         </div>
       </div>
-      {replyText && <p className={styles.replyText}>응답: {replyText}</p>}
+      {replyText && (
+        <p className={styles.replyText}>
+          故 {deceasedName}님: {replyText}
+        </p>
+      )}
       <audio ref={audioRef} autoPlay />
     </div>
   );

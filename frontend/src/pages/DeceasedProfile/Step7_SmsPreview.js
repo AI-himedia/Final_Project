@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../../api/AxiosInstance';
 import styles from './Deceased.module.css';
 import useDeceasedProfile from '../../zustand/useDeceasedProfile';
+import { useLoading } from '../../contexts/LoadingContext';
+import { Toast } from '../../utils/Swal';
 
 export default function Step7_SMS() {
   console.log('[zustand 전체 상태7 SMS]', useDeceasedProfile.getState());
   const navigate = useNavigate();
+  const { setIsLoading } = useLoading();
   const {
     files,
     setFileMeta,
@@ -100,6 +103,8 @@ export default function Step7_SMS() {
   const handleSubmit = async () => {
     if (allSelected) {
       try {
+        setIsLoading(true);
+
         const formData = new FormData();
 
         // deceasedData 객체 생성
@@ -204,6 +209,13 @@ export default function Step7_SMS() {
         } else {
           console.error('요청 설정 오류:', error.message);
         }
+      } finally {
+        setIsLoading(false);
+
+        Toast.fire({
+          icon: 'success',
+          title: '프로필 저장이 완료되었습니다!',
+        });
       }
     }
   };
@@ -425,7 +437,7 @@ export default function Step7_SMS() {
     if (ext === 'txt') {
       return (
         <img
-          src="/assets/text_default.png"
+          src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/text_default.png"
           alt="텍스트"
           className={classNames}
         />
@@ -433,11 +445,7 @@ export default function Step7_SMS() {
     }
 
     return (
-      <img
-        src="/assets/file_default.png"
-        alt="기본 파일"
-        className={classNames}
-      />
+      <img src="/img/file_default.png" alt="기본 파일" className={classNames} />
     );
   }
 }

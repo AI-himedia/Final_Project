@@ -44,10 +44,22 @@ export default function Step4_Personality() {
 
   // 최초 로딩 시 personality 데이터 처리
   useEffect(() => {
-    if (custom.trim() !== '') {
-      setPersonality(custom.trim());
-    } else {
-      setPersonality(selected);
+    if (personality) {
+      if (Array.isArray(personality)) {
+        setSelected(personality);
+      } else {
+        setCustom(personality);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (custom.trim() !== '' || selected.length > 0) {
+      if (custom.trim() !== '') {
+        setPersonality(custom.trim());
+      } else {
+        setPersonality(selected);
+      }
     }
   }, [custom, selected]);
 
@@ -61,8 +73,7 @@ export default function Step4_Personality() {
       updatedSelection.push(word);
     }
 
-    setSelected(updatedSelection); // selected 상태 업데이트
-    // Zustand 업데이트는 useEffect에서 처리
+    setSelected(updatedSelection);
   };
 
   const handleCustomChange = (e) => {
@@ -70,7 +81,7 @@ export default function Step4_Personality() {
     setCustom(value);
 
     if (value.trim() !== '' && selected.length > 0) {
-      setSelected([]); // custom 입력 시 selected 초기화
+      setSelected([]);
     }
   };
 

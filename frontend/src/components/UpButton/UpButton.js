@@ -33,9 +33,10 @@ export default function UpButton() {
     <ul className={`Up_Show ${showButton ? 'visible' : 'hidden'}`}>
       <li>
         <button className="Up_Button" onClick={scrollToTop}>
-          <span
+          <img
+            src="https://raw.githubusercontent.com/AI-himedia/Final_Project_Assets/main/top_arrow.png"
+            alt="Top Arrow"
             className="icon"
-            style={{ backgroundImage: 'url("/assets/top_arrow.png")' }}
           />
         </button>
       </li>

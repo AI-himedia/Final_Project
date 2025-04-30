@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 90vh;
+  min-height: 80vh;
   background-color: #f8f8f8;
   padding: 20px;
   position: relative;
@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateY(-4rem);
+  transform: translateY(-10rem);
   /* transform: translateY(-8.5rem); */
 }
 
@@ -30,9 +30,7 @@
 
 .bottomControls {
   position: absolute;
-  bottom: 7.5rem;
-  left: 20px;
-  right: 20px;
+  bottom: 12rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -102,4 +100,16 @@
 .bottomLeft svg:hover,
 .bottomRight svg:hover {
   background-color: #ddd;
+}
+
+.replyText {
+  margin-top: -7rem;
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.bottomControls button {
+  all: unset;
 }
