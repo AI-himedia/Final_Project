@@ -4,7 +4,7 @@
   .container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 80vh;
     padding: 2rem 2rem 0 2rem;
     font-family: 'Toss Product Sans', sans-serif;
     box-sizing: border-box;
