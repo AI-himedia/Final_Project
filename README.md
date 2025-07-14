@@ -17,6 +17,7 @@
 ![20](https://github.com/user-attachments/assets/4351db2e-6287-46c8-86cc-1ef350617eb0)
 ![21](https://github.com/user-attachments/assets/61806815-12e7-44bd-a95b-4e767263bcff)
 ![36](https://github.com/user-attachments/assets/ca91d34c-4a3e-4857-aad6-784a8f52d991)
+[시연영상](https://drive.google.com/file/d/1NH-sHAPJDf0ra5UZ4uLITFGXTvunD8gc/view?usp=drive_link)
 ![38](https://github.com/user-attachments/assets/40eb8187-c2db-461a-93d2-fb47a21f8b53)
 ![39](https://github.com/user-attachments/assets/cc62d826-3dc2-485c-a24b-b1dc3f43bbce)
 ![40](https://github.com/user-attachments/assets/6f98bf82-ba46-4532-be93-0f49adf0c7bd)
